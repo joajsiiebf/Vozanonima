@@ -12,6 +12,9 @@ import {
   increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+/* ======================
+   FIREBASE CONFIG
+====================== */
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
@@ -25,7 +28,7 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 /* ======================
-   USER
+   USER SYSTEM
 ====================== */
 function getUser() {
   return localStorage.getItem("user");
@@ -43,7 +46,6 @@ window.entrar = function () {
   document.getElementById("app").style.display = "block";
 
   let user = getUser();
-
   if (!user) {
     user = "Anon_" + Math.floor(Math.random() * 9999);
     setUser(user);
@@ -86,28 +88,28 @@ function loadTheme() {
 /* ======================
    ANTI SPAM
 ====================== */
-let lastPost = 0;
+let last = 0;
 
 /* ======================
    POST
 ====================== */
 window.enviarPost = async function () {
   const now = Date.now();
-  if (now - lastPost < 4000) return alert("Espera un poco");
+  if (now - last < 4000) return alert("Espera un poco");
 
-  const text = document.getElementById("inputChisme").value.trim();
+  const text = document.getElementById("inputPost").value.trim();
   if (!text) return;
 
-  lastPost = now;
+  last = now;
 
-  await addDoc(collection(db, "chismes"), {
+  await addDoc(collection(db, "posts"), {
     texto: text,
     user: getUser(),
     likes: 0,
     createdAt: serverTimestamp()
   });
 
-  document.getElementById("inputChisme").value = "";
+  document.getElementById("inputPost").value = "";
 };
 
 /* ======================
@@ -116,7 +118,7 @@ window.enviarPost = async function () {
 function loadPosts() {
   const feed = document.getElementById("feed");
 
-  const q = query(collection(db, "chismes"), orderBy("createdAt", "desc"));
+  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
 
   onSnapshot(q, (snap) => {
     feed.innerHTML = "";
@@ -135,7 +137,7 @@ function loadPosts() {
       div.innerHTML = `
         <b>${data.user}</b>
         <p>${data.texto}</p>
-        <button onclick="likePost('${id}')">❤️ ${data.likes || 0}</button>
+        <button onclick="like('${id}')">❤️ ${data.likes || 0}</button>
       `;
 
       feed.appendChild(div);
@@ -143,15 +145,17 @@ function loadPosts() {
   });
 }
 
-/* LIKE */
-window.likePost = async function (id) {
-  await updateDoc(doc(db, "chismes", id), {
+/* ======================
+   LIKE
+====================== */
+window.like = async function (id) {
+  await updateDoc(doc(db, "posts", id), {
     likes: increment(1)
   });
 };
 
 /* ======================
-   STORIES (24H)
+   STORIES (24h)
 ====================== */
 function loadStories() {
   const stories = document.getElementById("stories");
