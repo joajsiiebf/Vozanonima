@@ -3,7 +3,6 @@ import {
   getFirestore,
   collection,
   addDoc,
-  serverTimestamp,
   query,
   orderBy,
   onSnapshot,
@@ -12,9 +11,7 @@ import {
   increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ======================
-   FIREBASE CONFIG
-====================== */
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
@@ -28,9 +25,9 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 /* ======================
-   USER SYSTEM
+   USER
 ====================== */
-function getUser() {
+function user() {
   return localStorage.getItem("user");
 }
 
@@ -39,21 +36,23 @@ function setUser(u) {
 }
 
 /* ======================
+   CONFIG OPTIONS
+====================== */
+let commentsEnabled = true;
+
+/* ======================
    ENTRAR
 ====================== */
 window.entrar = function () {
   document.getElementById("tutorial").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  let user = getUser();
-  if (!user) {
-    user = "Anon_" + Math.floor(Math.random() * 9999);
-    setUser(user);
+  if (!user()) {
+    setUser("Anon_" + Math.floor(Math.random() * 9999));
   }
 
   loadTheme();
   loadPosts();
-  loadStories();
 };
 
 /* ======================
@@ -68,76 +67,80 @@ window.cambiarUsuario = function () {
   const u = document.getElementById("configUser").value;
   if (!u) return;
   setUser(u);
-  alert("Usuario actualizado");
 };
 
-/* ======================
-   THEME
-====================== */
 window.toggleTheme = function () {
-  const isDark = document.body.classList.toggle("dark");
-  localStorage.setItem("theme", isDark ? "dark" : "light");
+  document.body.classList.toggle("dark");
 };
 
-function loadTheme() {
-  if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark");
-  }
-}
-
-/* ======================
-   ANTI SPAM
-====================== */
-let last = 0;
+window.toggleComments = function () {
+  commentsEnabled = !commentsEnabled;
+  alert("Comentarios: " + (commentsEnabled ? "ON" : "OFF"));
+};
 
 /* ======================
    POST
 ====================== */
-window.enviarPost = async function () {
-  const now = Date.now();
-  if (now - last < 4000) return alert("Espera un poco");
-
-  const text = document.getElementById("inputPost").value.trim();
+window.crearPost = async function () {
+  const text = document.getElementById("inputPost").value;
   if (!text) return;
 
-  last = now;
-
   await addDoc(collection(db, "posts"), {
-    texto: text,
-    user: getUser(),
-    likes: 0,
-    createdAt: serverTimestamp()
+    text,
+    user: user(),
+    reactions: {
+      like: 0,
+      love: 0,
+      wow: 0,
+      angry: 0
+    }
   });
 
   document.getElementById("inputPost").value = "";
 };
 
 /* ======================
-   FEED (10 POSTS)
+   REACCIONES (1 POR USUARIO SIMULADO)
+====================== */
+window.react = async function (id, type) {
+  await updateDoc(doc(db, "posts", id), {
+    [`reactions.${type}`]: increment(1)
+  });
+};
+
+/* ======================
+   POSTS
 ====================== */
 function loadPosts() {
   const feed = document.getElementById("feed");
 
-  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+  const q = query(collection(db, "posts"), orderBy("text"));
 
   onSnapshot(q, (snap) => {
     feed.innerHTML = "";
 
-    let count = 0;
-
     snap.forEach(d => {
-      if (count++ >= 10) return;
-
       const data = d.data();
-      const id = d.id;
 
       const div = document.createElement("div");
       div.className = "post";
 
       div.innerHTML = `
         <b>${data.user}</b>
-        <p>${data.texto}</p>
-        <button onclick="like('${id}')">❤️ ${data.likes || 0}</button>
+        <p>${data.text}</p>
+
+        <div class="reactions">
+          <button onclick="react('${d.id}','like')">👍 ${data.reactions?.like || 0}</button>
+          <button onclick="react('${d.id}','love')">❤️ ${data.reactions?.love || 0}</button>
+          <button onclick="react('${d.id}','wow')">😮 ${data.reactions?.wow || 0}</button>
+          <button onclick="react('${d.id}','angry')">😡 ${data.reactions?.angry || 0}</button>
+        </div>
+
+        ${
+          commentsEnabled && user()
+            ? `<button onclick="alert('comentarios en siguiente upgrade')">💬 Comentar</button>`
+            : ""
+        }
       `;
 
       feed.appendChild(div);
@@ -146,38 +149,10 @@ function loadPosts() {
 }
 
 /* ======================
-   LIKE
+   THEME LOAD
 ====================== */
-window.like = async function (id) {
-  await updateDoc(doc(db, "posts", id), {
-    likes: increment(1)
-  });
-};
-
-/* ======================
-   STORIES (24h)
-====================== */
-function loadStories() {
-  const stories = document.getElementById("stories");
-
-  const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
-
-  onSnapshot(q, (snap) => {
-    stories.innerHTML = "";
-
-    const now = Date.now();
-
-    snap.forEach(d => {
-      const data = d.data();
-      const time = data.createdAt?.seconds * 1000;
-
-      if (now - time > 86400000) return;
-
-      const el = document.createElement("div");
-      el.className = "story";
-      el.innerText = data.user;
-
-      stories.appendChild(el);
-    });
-  });
+function loadTheme() {
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark");
+  }
 }
