@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Post</title>
 <link rel="stylesheet" href="style.css">
@@ -13,7 +13,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc } 
+import { getFirestore, doc, getDoc }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -31,7 +31,7 @@ async function load() {
   const snap = await getDoc(doc(db, "posts", id));
 
   if (!snap.exists()) {
-    document.body.innerHTML = "Post no encontrado";
+    document.body.innerHTML = "No existe";
     return;
   }
 
