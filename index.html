@@ -19,20 +19,25 @@
     <button onclick="toggleConfig()">⚙️</button>
   </div>
 
-  <!-- CONFIG -->
+  <!-- CONFIG COMPLETA -->
   <div id="config" class="config">
-    <input id="configUser" placeholder="Cambiar usuario">
-    <button onclick="cambiarUsuario()">Guardar</button>
-    <button onclick="toggleTheme()">🌙 Modo</button>
+    <h3>Configuración</h3>
+
+    <input id="configUser" placeholder="Usuario">
+
+    <button onclick="cambiarUsuario()">Guardar usuario</button>
+
+    <button onclick="toggleTheme()">🌙 Modo oscuro</button>
+
+    <button onclick="toggleComments()">💬 Comentarios ON/OFF</button>
+
+    <button onclick="toggleConfig()">Cerrar</button>
   </div>
 
-  <!-- STORIES -->
-  <div id="stories"></div>
-
-  <!-- POST -->
+  <!-- POST BOX -->
   <div class="post-box">
     <textarea id="inputPost" placeholder="¿Qué estás pensando?"></textarea>
-    <button onclick="enviarPost()">Publicar</button>
+    <button onclick="crearPost()">Publicar</button>
   </div>
 
   <!-- FEED -->
