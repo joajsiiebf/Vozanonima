@@ -1,64 +1,43 @@
-console.log("APP BOOT SAFE MODE");
-
-// ================= ERROR SYSTEM =================
-function showError(msg) {
-  const box = document.getElementById("errorBox");
-  box.style.display = "block";
-  box.innerHTML = "⚠️ " + msg;
-}
-
-// evita crash total
-window.onerror = function (msg) {
-  showError(msg);
+// ================= FIREBASE =================
+const firebaseConfig = {
+  apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+  authDomain: "vozanonimasm.firebaseapp.com",
+  projectId: "vozanonimasm"
 };
 
-// ================= FIREBASE SAFE INIT =================
-let db;
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-try {
-  const firebaseConfig = {
-    apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
-    authDomain: "vozanonimasm.firebaseapp.com",
-    projectId: "vozanonimasm"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  db = firebase.firestore();
-
-} catch (e) {
-  showError("Firebase no inicializó");
-}
-
-// ================= STATE SAFE =================
-let user = localStorage.getItem("user") || null;
-let userId = localStorage.getItem("userId") || null;
+// ================= STATE =================
+let user = localStorage.getItem("user");
+let userId = localStorage.getItem("userId");
 let view = "home";
+let chatActive = null;
 
-// ================= SAFE DOM CHECK =================
-function safe(id) {
-  const el = document.getElementById(id);
-  if (!el) console.warn("Falta ID:", id);
-  return el;
-}
-
-// ================= INIT =================
+// ================= SAFE INIT =================
 window.onload = () => {
 
   try {
 
     if (user && userId) {
-      safe("auth").style.display = "none";
-      safe("app").style.display = "block";
-      safe("me").innerText = "@" + user;
+      document.getElementById("auth").style.display = "none";
+      document.getElementById("app").style.display = "block";
+      document.getElementById("me").innerText = "@" + user;
       render();
     }
 
   } catch (e) {
-    showError("Error en init");
+    console.log(e);
   }
 };
 
-// ================= NAV SAFE =================
+// ================= SESSION =================
+function saveSession() {
+  localStorage.setItem("user", user);
+  localStorage.setItem("userId", userId);
+}
+
+// ================= NAV =================
 window.showView = (v) => {
   view = v;
   render();
@@ -66,41 +45,37 @@ window.showView = (v) => {
 
 function render() {
 
-  try {
+  const feed = document.getElementById("feedView");
+  const profile = document.getElementById("profileView");
+  const chat = document.getElementById("chatView");
 
-    const feed = safe("feedView");
-    const profile = safe("profileView");
-    const chat = safe("chatView");
+  if (!feed || !profile || !chat) return;
 
-    if (!feed || !profile || !chat) {
-      showError("Faltan vistas en HTML");
-      return;
-    }
+  feed.style.display = "none";
+  profile.style.display = "none";
+  chat.style.display = "none";
 
-    feed.style.display = "none";
-    profile.style.display = "none";
-    chat.style.display = "none";
-
-    if (view === "home") loadFeed();
-    if (view === "profile") loadProfile();
-    if (view === "chat") loadChat();
-
-  } catch (e) {
-    showError("Render falló");
-  }
+  if (view === "home") loadFeed();
+  if (view === "profile") loadProfile();
+  if (view === "chat") loadChat();
 }
 
 // ================= REGISTER SAFE =================
 window.register = async () => {
 
+  const username = document.getElementById("user").value;
+  const phone = document.getElementById("phone").value;
+  const pass = document.getElementById("pass").value;
+
+  if (!username || !phone || !pass) return alert("Completa todo");
+
   try {
 
-    const username = safe("user").value;
-    const phone = safe("phone").value;
-    const pass = safe("pass").value;
+    const exists = await db.collection("users")
+      .where("username", "==", username)
+      .get();
 
-    if (!username || !phone || !pass)
-      return showError("Completa todos los campos");
+    if (!exists.empty) return alert("Usuario ya existe");
 
     const doc = await db.collection("users").add({
       username,
@@ -112,113 +87,126 @@ window.register = async () => {
     user = username;
     userId = doc.id;
 
-    localStorage.setItem("user", user);
-    localStorage.setItem("userId", userId);
+    saveSession();
 
-    safe("auth").style.display = "none";
-    safe("app").style.display = "block";
-
-    safe("me").innerText = "@" + user;
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("me").innerText = "@" + user;
 
     view = "home";
     render();
 
   } catch (e) {
-    showError("Error en registro");
+    console.log(e);
+    alert("Error registro");
   }
 };
 
 // ================= LOGIN SAFE =================
 window.login = async () => {
 
-  try {
+  const phone = document.getElementById("phone").value;
+  const pass = document.getElementById("pass").value;
 
-    const phone = safe("phone").value;
-    const pass = safe("pass").value;
+  try {
 
     const snap = await db.collection("users")
       .where("phone", "==", phone)
       .where("password", "==", pass)
       .get();
 
-    if (snap.empty) return showError("Usuario incorrecto");
+    if (snap.empty) return alert("Datos incorrectos");
 
     snap.forEach(d => {
       user = d.data().username;
       userId = d.id;
     });
 
-    localStorage.setItem("user", user);
-    localStorage.setItem("userId", userId);
+    saveSession();
 
-    safe("auth").style.display = "none";
-    safe("app").style.display = "block";
-
-    safe("me").innerText = "@" + user;
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("me").innerText = "@" + user;
 
     view = "home";
     render();
 
   } catch (e) {
-    showError("Error login Firebase");
+    console.log(e);
+    alert("Error login");
   }
 };
 
-// ================= FEED SAFE =================
+// ================= FEED SAFE (SIN ORDERBY) =================
 async function loadFeed() {
+
+  const feed = document.getElementById("feedView");
+  if (!feed) return;
+
+  feed.style.display = "block";
+  feed.innerHTML = "";
 
   try {
 
-    const feed = safe("feedView");
-    feed.style.display = "block";
-    feed.innerHTML = "";
+    const snap = await db.collection("posts").get();
 
-    const snap = await db.collection("posts")
-      .orderBy("createdAt", "desc")
-      .limit(10)
-      .get();
+    let posts = [];
 
     snap.forEach(p => {
+      posts.push(p.data());
+    });
 
-      const d = p.data();
+    posts.reverse();
+
+    posts.slice(0, 10).forEach(d => {
 
       feed.innerHTML += `
         <div class="post">
-          <b>@${d.username}</b>
-          <p>${d.text}</p>
+
+          <b>@${d.username || "user"}</b>
+
+          <p>${d.text || ""}</p>
+
         </div>
       `;
     });
 
   } catch (e) {
-    showError("Error cargando feed");
+    console.log(e);
+    feed.innerHTML = "<p>Error feed</p>";
   }
 }
 
-// ================= PROFILE SAFE =================
+// ================= PROFILE =================
 async function loadProfile() {
 
+  const p = document.getElementById("profileView");
+  if (!p) return;
+
+  p.style.display = "block";
+  p.innerHTML = "<h3>Perfil</h3>";
+
   try {
 
-    const p = safe("profileView");
-    p.style.display = "block";
-    p.innerHTML = "<h3>Perfil</h3>";
+    const snap = await db.collection("posts")
+      .where("userId", "==", userId)
+      .get();
+
+    snap.forEach(x => {
+      p.innerHTML += `<div class="post">${x.data().text}</div>`;
+    });
 
   } catch (e) {
-    showError("Error perfil");
+    console.log(e);
   }
 }
 
-// ================= CHAT SAFE =================
+// ================= CHAT SIMPLE =================
 async function loadChat() {
 
-  try {
+  const c = document.getElementById("chatView");
+  if (!c) return;
 
-    const c = safe("chatView");
-    c.style.display = "block";
-    c.innerHTML = "<h3>Chat</h3>";
-
-  } catch (e) {
-    showError("Error chat");
-  }
+  c.style.display = "block";
+  c.innerHTML = "<h3>Mensajes</h3>";
 }
