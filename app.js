@@ -10,18 +10,14 @@ import {
   limit,
   doc,
   updateDoc,
-  increment,
-  getDoc
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ================= FIREBASE =================
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
-  projectId: "vozanonimasm",
-  storageBucket: "vozanonimasm.firebasestorage.app",
-  messagingSenderId: "533740152067",
-  appId: "1:533740152067:web:1ec05c7842f09a9e32f536"
+  projectId: "vozanonimasm"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -30,23 +26,29 @@ const db = getFirestore(app);
 // ================= STATE =================
 let user = null;
 let userId = null;
-let postsLimit = 10;
 let lang = "es";
 
 // ================= REGISTER =================
 window.register = async function () {
-  const username = userInput();
-  const phone = phoneInput();
-  const pass = passInput();
+  const username = document.getElementById("user").value.trim().toLowerCase();
+  const phone = document.getElementById("phone").value.trim();
+  const pass = document.getElementById("pass").value;
 
   if (!username || !phone || !pass) return;
+
+  const q1 = query(collection(db, "users"), where("phone", "==", phone));
+  const s1 = await getDocs(q1);
+  if (!s1.empty) return alert("Teléfono ya registrado");
+
+  const q2 = query(collection(db, "users"), where("username", "==", username));
+  const s2 = await getDocs(q2);
+  if (!s2.empty) return alert("Usuario ocupado");
 
   await addDoc(collection(db, "users"), {
     username,
     phone,
     password: pass,
-    bio: "",
-    reputation: 0
+    followers: 0
   });
 
   alert("Cuenta creada");
@@ -54,18 +56,18 @@ window.register = async function () {
 
 // ================= LOGIN =================
 window.login = async function () {
-  const username = userInput();
-  const pass = passInput();
+  const phone = document.getElementById("phone").value.trim();
+  const pass = document.getElementById("pass").value;
 
   const q = query(
     collection(db, "users"),
-    where("username", "==", username),
+    where("phone", "==", phone),
     where("password", "==", pass)
   );
 
   const snap = await getDocs(q);
 
-  if (snap.empty) return alert("Error");
+  if (snap.empty) return alert("Datos incorrectos");
 
   snap.forEach(u => {
     user = u.data().username;
@@ -75,20 +77,25 @@ window.login = async function () {
   enterApp();
 };
 
+// ================= ENTER APP =================
 function enterApp() {
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
+
   document.getElementById("me").innerText = "@" + user;
+
   loadFeed();
 }
 
-// ================= POSTS =================
+// ================= CREATE POST =================
 window.createPost = async function () {
   const text = document.getElementById("postText").value;
+  if (!text) return;
 
   await addDoc(collection(db, "posts"), {
     text,
     userId,
+    username: user,
     createdAt: new Date(),
     likes: 0
   });
@@ -120,7 +127,7 @@ window.loadFeed = async function () {
   const q = query(
     collection(db, "posts"),
     orderBy("createdAt", "desc"),
-    limit(postsLimit)
+    limit(10)
   );
 
   const snap = await getDocs(q);
@@ -132,6 +139,12 @@ window.loadFeed = async function () {
 
     feed.innerHTML += `
       <div class="post">
+
+        <div onclick="openProfile('${d.userId}','${d.username}')"
+             class="username">
+          @${d.username}
+        </div>
+
         <p>${d.text}</p>
 
         <button onclick="like('${p.id}')">
@@ -142,21 +155,33 @@ window.loadFeed = async function () {
           Compartir
         </button>
 
-        <a href="post.html?id=${p.id}">
-          Abrir
-        </a>
+      </div>
+    `;
+  });
+};
+
+// ================= PROFILE =================
+window.openProfile = async function (uid, username) {
+
+  const q = query(collection(db, "posts"), where("userId", "==", uid));
+  const snap = await getDocs(q);
+
+  let html = `
+    <div class="profile">
+      <h2>@${username}</h2>
+      <p>Seguidores: 110000</p>
+    </div>
+  `;
+
+  snap.forEach(p => {
+    html += `
+      <div class="post">
+        <p>${p.data().text}</p>
       </div>
     `;
   });
 
-  if (snap.size === postsLimit) {
-    feed.innerHTML += `<button onclick="more()">Show more</button>`;
-  }
-};
-
-window.more = function () {
-  postsLimit += 10;
-  loadFeed();
+  document.getElementById("feed").innerHTML = html;
 };
 
 // ================= SETTINGS =================
@@ -165,7 +190,7 @@ window.openSettings = function () {
 };
 
 window.toggleTheme = function () {
-  document.body.classList.toggle("dark");
+  document.body.classList.toggle("light");
 };
 
 window.toggleLang = function () {
@@ -173,24 +198,14 @@ window.toggleLang = function () {
   alert(lang);
 };
 
+window.changeUser = function () {
+  const newUser = prompt("Nuevo usuario");
+  if (!newUser) return;
+
+  user = newUser;
+  document.getElementById("me").innerText = "@" + user;
+};
+
 window.logout = function () {
   location.reload();
 };
-
-// ================= PROFILE =================
-window.openProfile = function () {
-  alert("Perfil: @" + user);
-};
-
-// ================= HELPERS =================
-function userInput() {
-  return document.getElementById("user").value;
-}
-
-function phoneInput() {
-  return document.getElementById("phone").value;
-}
-
-function passInput() {
-  return document.getElementById("pass").value;
-}
