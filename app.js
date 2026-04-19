@@ -17,61 +17,95 @@ const firebaseConfig = {
   appId: "1:533740152067:web:57f2b5f00f59002b32f536"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let db = null;
 
-// ENTRAR
-window.entrar = function() {
+// 🔥 Firebase protegido (no rompe la app)
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+  console.log("Firebase listo");
+} catch (e) {
+  console.log("Firebase falló, modo local activo", e);
+}
+
+/* =========================
+   👁️ ENTRAR (SIEMPRE FUNCIONA)
+========================= */
+window.entrar = function () {
   document.getElementById("tutorial").style.display = "none";
   document.getElementById("app").style.display = "block";
 };
 
-// USUARIO
-window.guardarUsuario = function() {
+/* =========================
+   👤 USUARIO
+========================= */
+window.guardarUsuario = function () {
   const name = document.getElementById("username").value;
   localStorage.setItem("user", name || "Anónimo");
-  alert("Guardado");
+  alert("Usuario guardado");
 };
 
-// PUBLICAR
-window.enviarChisme = async function() {
+/* =========================
+   📤 PUBLICAR
+========================= */
+window.enviarChisme = async function () {
   const texto = document.getElementById("inputChisme").value.trim();
   if (!texto) return alert("Escribe algo");
 
   const user = localStorage.getItem("user") || "Anónimo";
 
-  await addDoc(collection(db, "chismes"), {
-    texto,
-    user,
-    fecha: new Date()
-  });
+  // 🔥 si Firebase no carga, no rompe
+  if (!db) {
+    alert("Sin conexión a base de datos");
+    return;
+  }
 
-  document.getElementById("inputChisme").value = "";
-  cargarChismes();
+  try {
+    await addDoc(collection(db, "chismes"), {
+      texto,
+      user,
+      fecha: new Date()
+    });
+
+    document.getElementById("inputChisme").value = "";
+    cargarChismes();
+  } catch (e) {
+    console.log(e);
+    alert("Error publicando");
+  }
 };
 
-// CARGAR
+/* =========================
+   📥 CARGAR POSTS
+========================= */
 async function cargarChismes() {
   const feed = document.getElementById("feed");
   feed.innerHTML = "";
 
-  const q = query(collection(db, "chismes"), orderBy("fecha", "desc"));
-  const snap = await getDocs(q);
+  if (!db) {
+    feed.innerHTML = "<p>No hay conexión</p>";
+    return;
+  }
 
-  snap.forEach(doc => {
-    const data = doc.data();
+  try {
+    const q = query(collection(db, "chismes"), orderBy("fecha", "desc"));
+    const snap = await getDocs(q);
 
-    const div = document.createElement("div");
-    div.classList.add("post");
+    snap.forEach(doc => {
+      const data = doc.data();
 
-    div.innerHTML = `
-      <b>${data.user || "Anónimo"}</b><br>
-      ${data.texto}
-    `;
+      const div = document.createElement("div");
+      div.classList.add("post");
+      div.innerHTML = `
+        <b>${data.user || "Anónimo"}</b><br>
+        ${data.texto}
+      `;
+      feed.appendChild(div);
+    });
 
-    feed.appendChild(div);
-  });
+  } catch (e) {
+    console.log(e);
+  }
 }
 
-// INIT
 cargarChismes();
