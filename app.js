@@ -7,10 +7,7 @@ import {
   query,
   where,
   orderBy,
-  limit,
-  updateDoc,
-  doc,
-  increment
+  limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ================= FIREBASE =================
@@ -24,12 +21,29 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ================= STATE =================
-let user = null;
-let userId = null;
+let user = localStorage.getItem("user");
+let userId = localStorage.getItem("userId");
 
 const OWNER = "jscol_owner";
 
-// ================= VIEW SYSTEM =================
+// ================= SESSION =================
+function saveSession() {
+  localStorage.setItem("user", user);
+  localStorage.setItem("userId", userId);
+}
+
+// ================= AUTO LOGIN =================
+window.onload = function () {
+  if (user && userId) {
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+
+    document.getElementById("me").innerText = "@" + user;
+    showView("home");
+  }
+};
+
+// ================= NAV =================
 window.showView = function (view) {
 
   hideAll();
@@ -66,14 +80,6 @@ window.register = async function () {
   const phone = document.getElementById("phone").value.trim();
   const pass = document.getElementById("pass").value;
 
-  const q1 = query(collection(db, "users"), where("phone", "==", phone));
-  const s1 = await getDocs(q1);
-  if (!s1.empty) return alert("Teléfono usado");
-
-  const q2 = query(collection(db, "users"), where("username", "==", username));
-  const s2 = await getDocs(q2);
-  if (!s2.empty) return alert("Usuario ocupado");
-
   await addDoc(collection(db, "users"), {
     username,
     phone,
@@ -88,7 +94,7 @@ window.register = async function () {
 // ================= LOGIN =================
 window.login = async function () {
 
-  const phone = document.getElementById("phone").value.trim();
+  const phone = document.getElementById("phone").value;
   const pass = document.getElementById("pass").value;
 
   const q = query(
@@ -105,6 +111,8 @@ window.login = async function () {
     user = u.data().username;
     userId = u.id;
   });
+
+  saveSession();
 
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
@@ -124,8 +132,7 @@ window.createPost = async function () {
     text,
     userId,
     username: user,
-    createdAt: new Date(),
-    likes: 0
+    createdAt: new Date()
   });
 
   document.getElementById("postText").value = "";
@@ -148,25 +155,21 @@ window.loadFeed = async function () {
   feed.innerHTML = "";
 
   snap.forEach(p => {
-
     const d = p.data();
 
     feed.innerHTML += `
       <div class="post">
-
         <div onclick="openProfile('${d.userId}','${d.username}')"
              class="username">
           @${d.username}
         </div>
-
         <p>${d.text}</p>
-
       </div>
     `;
   });
 };
 
-// ================= PROFILE VIEW =================
+// ================= PROFILE =================
 window.openProfile = async function (uid, username) {
 
   hideAll();
@@ -174,26 +177,19 @@ window.openProfile = async function (uid, username) {
   const q = query(collection(db, "posts"), where("userId", "==", uid));
   const snap = await getDocs(q);
 
+  const isMe = uid === userId;
+
   let followers = username === OWNER ? 110000 : 0;
 
   let html = `
     <div class="profile-header">
-
       <h2>@${username}</h2>
-
-      <p>
-        Seguidores: ${followers} | Siguiendo: 0
-      </p>
-
+      <p>Seguidores: ${followers}</p>
     </div>
   `;
 
   snap.forEach(p => {
-    html += `
-      <div class="post">
-        <p>${p.data().text}</p>
-      </div>
-    `;
+    html += `<div class="post"><p>${p.data().text}</p></div>`;
   });
 
   document.getElementById("profileView").innerHTML = html;
@@ -218,13 +214,10 @@ window.searchUsers = async function () {
 
       html += `
         <div class="user-card">
-
           <p>@${d.username}</p>
-
           <button onclick="openProfile('${u.id}','${d.username}')">
-            Ver
+            Ver perfil
           </button>
-
         </div>
       `;
     }
@@ -251,5 +244,6 @@ window.changeUser = function () {
 };
 
 window.logout = function () {
+  localStorage.clear();
   location.reload();
 };
