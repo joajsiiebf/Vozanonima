@@ -8,40 +8,30 @@
 </head>
 <body>
 
-  <!-- TUTORIAL -->
-  <div id="tutorial" class="tutorial">
-    <h2>👁️ Voz Anónima</h2>
-    <p>• Escribe lo que quieras de forma anónima</p>
-    <p>• Puedes elegir un usuario (no es obligatorio)</p>
-    <p>• Todo se publica automáticamente</p>
-    <button onclick="entrar()">Entrar</button>
+<div id="tutorial" class="tutorial">
+  <h2>👁️ Voz Anónima</h2>
+  <p>Publica pensamientos de forma anónima</p>
+  <button onclick="entrar()">Entrar</button>
+</div>
+
+<div id="app" style="display:none;">
+
+  <div class="topbar">Voz Anónima</div>
+
+  <div class="composer">
+    <input id="username" placeholder="Usuario (opcional)">
+    <button onclick="guardarUsuario()">OK</button>
   </div>
 
-  <!-- APP -->
-  <div id="app" style="display:none;">
-
-    <div class="topbar">
-      Voz Anónima
-    </div>
-
-    <!-- USUARIO -->
-    <div class="user-box">
-      <input id="username" placeholder="Pon tu nombre (opcional)">
-      <button onclick="guardarUsuario()">Guardar</button>
-    </div>
-
-    <!-- INPUT -->
-    <div class="post-input">
-      <textarea id="inputChisme" placeholder="¿Qué estás pensando?"></textarea>
-      <button onclick="enviarChisme()">Publicar</button>
-    </div>
-
-    <!-- FEED -->
-    <div id="feed"></div>
-
+  <div class="post-box">
+    <textarea id="inputChisme" placeholder="¿Qué estás pensando?"></textarea>
+    <button id="btnPost" onclick="enviarChisme()">Publicar</button>
   </div>
 
-  <script type="module" src="app.js"></script>
+  <div id="feed"></div>
 
+</div>
+
+<script type="module" src="app.js"></script>
 </body>
 </html>
