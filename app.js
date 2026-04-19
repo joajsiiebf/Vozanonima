@@ -3,8 +3,6 @@ import {
   getFirestore,
   collection,
   addDoc,
-  query,
-  orderBy,
   onSnapshot,
   doc,
   updateDoc,
@@ -43,12 +41,10 @@ window.entrar = function () {
   document.getElementById("tutorial").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  if (!user()) {
-    setUser("Anon_" + Math.floor(Math.random() * 9999));
-  }
+  if (!user()) setUser("Anon_" + Math.floor(Math.random() * 9999));
 
-  loadTheme();
   loadPosts();
+  loadTheme();
 };
 
 /* ======================
@@ -59,8 +55,8 @@ window.toggleConfig = function () {
   c.style.display = c.style.display === "block" ? "none" : "block";
 };
 
-window.cambiarUsuario = function () {
-  const u = document.getElementById("configUser").value;
+window.saveUser = function () {
+  const u = document.getElementById("userInput").value;
   if (!u) return;
   setUser(u);
 };
@@ -80,10 +76,10 @@ function loadTheme() {
 }
 
 /* ======================
-   POST
+   POSTS
 ====================== */
-window.crearPost = async function () {
-  const text = document.getElementById("inputPost").value.trim();
+window.createPost = async function () {
+  const text = document.getElementById("text").value.trim();
   if (!text) return;
 
   await addDoc(collection(db, "posts"), {
@@ -92,7 +88,7 @@ window.crearPost = async function () {
     likes: 0
   });
 
-  document.getElementById("inputPost").value = "";
+  document.getElementById("text").value = "";
 };
 
 /* ======================
@@ -105,84 +101,27 @@ window.like = async function (id) {
 };
 
 /* ======================
-   COMMENT
-====================== */
-window.comentar = async function (postId) {
-  const input = document.getElementById("c-" + postId);
-  const text = input.value.trim();
-  if (!text || !user()) return;
-
-  await addDoc(collection(db, "comments"), {
-    postId,
-    text,
-    user: user()
-  });
-
-  input.value = "";
-};
-
-/* ======================
-   LOAD COMMENTS
-====================== */
-async function loadComments(postId, container) {
-  const snap = await getDocs(collection(db, "comments"));
-
-  container.innerHTML = "";
-
-  snap.forEach(d => {
-    const c = d.data();
-
-    if (c.postId === postId) {
-      const div = document.createElement("div");
-      div.className = "comment";
-      div.innerHTML = `<b>${c.user}</b>: ${c.text}`;
-      container.appendChild(div);
-    }
-  });
-}
-
-/* ======================
-   POSTS
+   LOAD POSTS (ESTABLE)
 ====================== */
 function loadPosts() {
   const feed = document.getElementById("feed");
 
-  const q = query(collection(db, "posts"), orderBy("text"));
-
-  onSnapshot(q, (snap) => {
+  onSnapshot(collection(db, "posts"), (snap) => {
     feed.innerHTML = "";
 
     snap.forEach(d => {
-      const data = d.data();
+      const p = d.data();
 
       const div = document.createElement("div");
       div.className = "post";
 
       div.innerHTML = `
-        <b>${data.user}</b>
-        <p>${data.text}</p>
-
-        <div class="actions">
-          <button onclick="like('${d.id}')">❤️ ${data.likes || 0}</button>
-        </div>
-
-        <div class="comments" id="comments-${d.id}"></div>
-
-        ${
-          user()
-            ? `<div class="comment-box">
-                <input id="c-${d.id}" placeholder="Comentar...">
-                <button onclick="comentar('${d.id}')">Enviar</button>
-              </div>`
-            : ""
-        }
+        <b>${p.user}</b>
+        <p>${p.text}</p>
+        <button onclick="like('${d.id}')">❤️ ${p.likes || 0}</button>
       `;
 
       feed.appendChild(div);
-
-      setTimeout(() => {
-        loadComments(d.id, document.getElementById("comments-" + d.id));
-      }, 300);
     });
   });
 }
