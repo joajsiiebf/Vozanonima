@@ -8,34 +8,29 @@
 </head>
 <body>
 
-<!-- TUTORIAL -->
-<div id="tutorial" class="tutorial">
-  <h2>👁️ Voz Social</h2>
+<div id="tutorial">
+  <h2>Voz Social</h2>
   <button onclick="entrar()">Entrar</button>
 </div>
 
-<!-- APP -->
 <div id="app" style="display:none;">
 
   <div class="topbar">
-    <span>Voz Social</span>
+    Voz Social
     <button onclick="toggleConfig()">⚙️</button>
   </div>
 
-  <!-- CONFIG -->
   <div id="config" class="config">
-    <input id="configUser" placeholder="Usuario">
-    <button onclick="cambiarUsuario()">Guardar usuario</button>
-    <button onclick="toggleTheme()">🌙 Modo oscuro</button>
+    <input id="userInput" placeholder="Usuario">
+    <button onclick="saveUser()">Guardar</button>
+    <button onclick="toggleTheme()">Modo</button>
   </div>
 
-  <!-- POST -->
   <div class="post-box">
-    <textarea id="inputPost" placeholder="¿Qué estás pensando?"></textarea>
-    <button onclick="crearPost()">Publicar</button>
+    <textarea id="text" placeholder="¿Qué estás pensando?"></textarea>
+    <button onclick="createPost()">Publicar</button>
   </div>
 
-  <!-- FEED -->
   <div id="feed"></div>
 
 </div>
