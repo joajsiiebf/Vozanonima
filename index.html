@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Social PRO</title>
+<title>Social</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -12,7 +12,7 @@
 <!-- LOGIN -->
 <div id="setup">
   <h2>Crear usuario</h2>
-  <input id="username" placeholder="@usuario">
+  <input id="username" placeholder="Usuario">
   <button onclick="createUser()">Entrar</button>
 </div>
 
@@ -21,16 +21,11 @@
 
   <div class="topbar">
     <span id="me"></span>
-
-    <div>
-      <button onclick="openNotifications()">🔔 <span id="notiCount">0</span></button>
-      <button onclick="openSettings()">⚙️</button>
-      <button onclick="logout()">Salir</button>
-    </div>
+    <button onclick="logout()">Salir</button>
   </div>
 
   <div class="post-box">
-    <textarea id="postText" placeholder="¿Qué estás pensando?"></textarea>
+    <textarea id="postText" placeholder="Escribe algo..."></textarea>
     <button onclick="createPost()">Publicar</button>
   </div>
 
@@ -38,22 +33,6 @@
 
 </div>
 
-<!-- NOTIFICATIONS -->
-<div id="notificationsPanel" style="display:none;">
-  <h3>Notificaciones</h3>
-  <div id="notificationsList"></div>
-  <button onclick="closeNotifications()">Cerrar</button>
-</div>
-
-<!-- SETTINGS -->
-<div id="settingsPanel" style="display:none;">
-  <h3>Configuración</h3>
-  <button onclick="toggleTheme()">Modo oscuro/claro</button>
-  <button onclick="logout()">Cerrar sesión</button>
-  <button onclick="closeSettings()">Cerrar</button>
-</div>
-
 <script type="module" src="app.js"></script>
-
 </body>
 </html>
