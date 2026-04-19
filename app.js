@@ -23,6 +23,7 @@ const db = getFirestore(app);
 // ================= STATE =================
 let user = localStorage.getItem("user");
 let userId = localStorage.getItem("userId");
+let currentView = "home";
 let activeChat = null;
 
 // ================= SESSION =================
@@ -31,9 +32,17 @@ function saveSession() {
   localStorage.setItem("userId", userId);
 }
 
-// ================= VIEW ENGINE (CLAVE FIX) =================
-let currentView = "home";
+// ================= INIT =================
+window.onload = () => {
+  if (user && userId) {
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("me").innerText = "@" + user;
+    render();
+  }
+};
 
+// ================= VIEW ENGINE FIX =================
 function render() {
   hideAll();
 
@@ -71,19 +80,6 @@ function hideAll() {
   document.getElementById("settingsView").style.display = "none";
   document.getElementById("chatView").style.display = "none";
 }
-
-// ================= AUTO LOGIN =================
-window.onload = () => {
-  if (user && userId) {
-    document.getElementById("auth").style.display = "none";
-    document.getElementById("app").style.display = "block";
-
-    document.getElementById("me").innerText = "@" + user;
-
-    currentView = "home";
-    render();
-  }
-};
 
 // ================= LOGIN =================
 window.login = async () => {
@@ -146,13 +142,15 @@ window.createPost = async () => {
     createdAt: new Date()
   });
 
+  document.getElementById("postText").value = "";
   loadFeed();
 };
 
-// ================= FEED =================
+// ================= FEED (FIX ANTI-SALTO) =================
 window.loadFeed = async () => {
 
   const feed = document.getElementById("feed");
+  feed.innerHTML = ""; // 🔥 evita salto visual
 
   const q = query(collection(db, "posts"),
     orderBy("createdAt", "desc"),
@@ -161,30 +159,76 @@ window.loadFeed = async () => {
 
   const snap = await getDocs(q);
 
-  feed.innerHTML = "";
+  snap.forEach(async (p) => {
 
-  snap.forEach(p => {
     const d = p.data();
+
+    const cq = query(collection(db, "comments"),
+      where("postId", "==", p.id)
+    );
+
+    const csnap = await getDocs(cq);
+
+    let commentsHTML = "";
+
+    csnap.forEach(c => {
+      commentsHTML += `
+        <div class="comment">
+          <b>@${c.data().user}</b> ${c.data().text}
+        </div>
+      `;
+    });
 
     feed.innerHTML += `
       <div class="post">
 
-        <div onclick="openProfile('${d.userId}','${d.username}')"
-             class="username">
+        <div class="username"
+          onclick="openProfile('${d.userId}','${d.username}')">
           @${d.username}
         </div>
 
         <p>${d.text}</p>
 
-        <button onclick="openComments('${p.id}')">Comentarios</button>
+        <button onclick="toggleCommentBox('${p.id}')">Comentar</button>
         <button onclick="createChat('${d.userId}')">Mensaje</button>
+
+        <div id="comments-${p.id}" class="comments">
+          ${commentsHTML}
+        </div>
+
+        <div id="input-${p.id}" style="display:none;">
+          <input id="c-${p.id}">
+          <button onclick="addComment('${p.id}')">Enviar</button>
+        </div>
 
       </div>
     `;
   });
 };
 
-// ================= PROFILE FIX (NO ROMPE FEED) =================
+// ================= COMMENTS =================
+window.toggleCommentBox = function (id) {
+
+  const box = document.getElementById(`input-${id}`);
+
+  box.style.display = box.style.display === "block" ? "none" : "block";
+};
+
+window.addComment = async function (postId) {
+
+  const input = document.getElementById(`c-${postId}`);
+  const text = input.value;
+
+  await addDoc(collection(db, "comments"), {
+    postId,
+    text,
+    user
+  });
+
+  loadFeed();
+};
+
+// ================= PROFILE =================
 window.openProfile = async (uid, username) => {
 
   currentView = "profile";
@@ -210,44 +254,19 @@ window.openProfile = async (uid, username) => {
   document.getElementById("profileView").innerHTML = html;
 };
 
-// ================= COMMENTS =================
-window.openComments = async (postId) => {
+// ================= CHAT (INBOX + RESTRICCIÓN) =================
+window.createChat = async function (targetId) {
 
-  const q = query(collection(db, "comments"),
-    where("postId", "==", postId)
-  );
+  const followCheck = await getDocs(collection(db, "follows"));
 
-  const snap = await getDocs(q);
+  let allowed = false;
 
-  let html = `
-    <h3>Comentarios</h3>
-    <input id="cmt">
-    <button onclick="addComment('${postId}')">Enviar</button>
-  `;
-
-  snap.forEach(c => {
-    html += `<p>@${c.data().user}: ${c.data().text}</p>`;
+  followCheck.forEach(f => {
+    const d = f.data();
+    if (d.from === userId && d.to === targetId) allowed = true;
   });
 
-  document.getElementById("feedView").innerHTML = html;
-};
-
-// ================= ADD COMMENT =================
-window.addComment = async (postId) => {
-
-  const text = document.getElementById("cmt").value;
-
-  await addDoc(collection(db, "comments"), {
-    postId,
-    text,
-    user
-  });
-
-  openComments(postId);
-};
-
-// ================= CHAT MESSENGER =================
-window.createChat = async (targetId) => {
+  if (!allowed) return alert("Solo puedes escribir a usuarios que sigues");
 
   const chat = await addDoc(collection(db, "chats"), {
     users: [userId, targetId]
@@ -256,17 +275,12 @@ window.createChat = async (targetId) => {
   openChat(chat.id);
 };
 
-window.openChat = async (chatId) => {
+window.openChat = async function (chatId) {
 
   activeChat = chatId;
 
   currentView = "chat";
   render();
-
-  loadMessages(chatId);
-};
-
-async function loadMessages(chatId) {
 
   const q = query(collection(db, "messages"),
     where("chatId", "==", chatId)
@@ -277,17 +291,13 @@ async function loadMessages(chatId) {
   let html = "";
 
   snap.forEach(m => {
-    html += `
-      <div class="msg">
-        <b>${m.data().from}</b>: ${m.data().text}
-      </div>
-    `;
+    html += `<div class="msg"><b>${m.data().from}</b>: ${m.data().text}</div>`;
   });
 
   document.getElementById("messages").innerHTML = html;
-}
+};
 
-window.sendMessage = async () => {
+window.sendMessage = async function () {
 
   const text = document.getElementById("msgInput").value;
   if (!text) return;
@@ -299,20 +309,10 @@ window.sendMessage = async () => {
     createdAt: new Date()
   });
 
-  document.getElementById("msgInput").value = "";
-
-  loadMessages(activeChat);
+  openChat(activeChat);
 };
 
 // ================= SETTINGS =================
 window.toggleTheme = () => document.body.classList.toggle("dark");
-
-window.changeUser = () => {
-  const u = prompt("Nuevo usuario");
-  if (u) user = u;
-};
-
-window.logout = () => {
-  localStorage.clear();
-  location.reload();
-};
+window.changeUser = () => user = prompt("Nuevo usuario");
+window.logout = () => location.reload();
