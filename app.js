@@ -8,9 +8,10 @@ import {
   where,
   orderBy,
   limit,
-  updateDoc,
   doc,
-  increment
+  updateDoc,
+  increment,
+  getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ================= FIREBASE =================
@@ -29,14 +30,14 @@ const db = getFirestore(app);
 // ================= STATE =================
 let user = null;
 let userId = null;
-let lang = "es";
 let postsLimit = 10;
+let lang = "es";
 
 // ================= REGISTER =================
 window.register = async function () {
-  const username = document.getElementById("user").value;
-  const phone = document.getElementById("phone").value;
-  const pass = document.getElementById("pass").value;
+  const username = userInput();
+  const phone = phoneInput();
+  const pass = passInput();
 
   if (!username || !phone || !pass) return;
 
@@ -53,8 +54,8 @@ window.register = async function () {
 
 // ================= LOGIN =================
 window.login = async function () {
-  const username = document.getElementById("user").value;
-  const pass = document.getElementById("pass").value;
+  const username = userInput();
+  const pass = passInput();
 
   const q = query(
     collection(db, "users"),
@@ -64,7 +65,7 @@ window.login = async function () {
 
   const snap = await getDocs(q);
 
-  if (snap.empty) return alert("Datos incorrectos");
+  if (snap.empty) return alert("Error");
 
   snap.forEach(u => {
     user = u.data().username;
@@ -74,13 +75,10 @@ window.login = async function () {
   enterApp();
 };
 
-// ================= ENTER APP =================
 function enterApp() {
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
-
   document.getElementById("me").innerText = "@" + user;
-
   loadFeed();
 }
 
@@ -96,7 +94,6 @@ window.createPost = async function () {
   });
 
   document.getElementById("postText").value = "";
-
   loadFeed();
 };
 
@@ -107,6 +104,13 @@ window.like = async function (id) {
   });
 
   loadFeed();
+};
+
+// ================= SHARE =================
+window.sharePost = function (id) {
+  const link = `${location.origin}/post.html?id=${id}`;
+  navigator.clipboard.writeText(link);
+  alert("Link copiado");
 };
 
 // ================= FEED =================
@@ -134,29 +138,25 @@ window.loadFeed = async function () {
           Like (${d.likes || 0})
         </button>
 
+        <button onclick="sharePost('${p.id}')">
+          Compartir
+        </button>
+
         <a href="post.html?id=${p.id}">
-          Ver publicación
+          Abrir
         </a>
       </div>
     `;
   });
 
   if (snap.size === postsLimit) {
-    feed.innerHTML += `
-      <button onclick="more()">Show more</button>
-    `;
+    feed.innerHTML += `<button onclick="more()">Show more</button>`;
   }
 };
 
-// ================= SHOW MORE =================
 window.more = function () {
   postsLimit += 10;
   loadFeed();
-};
-
-// ================= PROFILE =================
-window.openProfile = function () {
-  alert("Perfil: @" + user);
 };
 
 // ================= SETTINGS =================
@@ -174,6 +174,23 @@ window.toggleLang = function () {
 };
 
 window.logout = function () {
-  localStorage.clear();
   location.reload();
 };
+
+// ================= PROFILE =================
+window.openProfile = function () {
+  alert("Perfil: @" + user);
+};
+
+// ================= HELPERS =================
+function userInput() {
+  return document.getElementById("user").value;
+}
+
+function phoneInput() {
+  return document.getElementById("phone").value;
+}
+
+function passInput() {
+  return document.getElementById("pass").value;
+}
