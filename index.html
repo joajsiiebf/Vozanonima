@@ -3,45 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Voz Anónima</title>
+  <title>Voz Social</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="tutorial" class="tutorial">
-  <h2>👁️ Voz Anónima</h2>
+  <h2>👁️ Voz Social</h2>
   <button onclick="entrar()">Entrar</button>
 </div>
 
 <div id="app" style="display:none;">
 
   <div class="topbar">
-    Voz Anónima
-    <button class="config-btn" onclick="toggleConfig()">⚙️</button>
+    Voz Social
+    <span id="notif">🔔 0</span>
+    <button onclick="toggleConfig()">⚙️</button>
   </div>
 
   <!-- CONFIG -->
   <div id="config" class="config">
-    <h3>Configuración</h3>
-
     <input id="configUser" placeholder="Cambiar usuario">
-
-    <button onclick="cambiarUsuario()">Guardar usuario</button>
-
-    <button onclick="toggleTheme()">Modo oscuro / claro</button>
-
-    <button onclick="toggleConfig()">Cerrar</button>
+    <button onclick="cambiarUsuario()">Guardar</button>
+    <button onclick="toggleTheme()">Modo oscuro</button>
   </div>
 
-  <div class="composer">
-    <input id="username" disabled>
-  </div>
+  <!-- STORIES -->
+  <div id="stories"></div>
 
+  <!-- COMPOSER -->
   <div class="post-box">
     <textarea id="inputChisme" placeholder="¿Qué estás pensando?"></textarea>
-    <button onclick="enviarChisme()">Publicar</button>
+    <button onclick="enviarPost()">Publicar</button>
   </div>
 
+  <!-- FEED -->
   <div id="feed"></div>
 
 </div>
