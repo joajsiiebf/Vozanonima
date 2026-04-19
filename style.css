@@ -2,60 +2,77 @@ body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #18191a;
-  color: white;
+  color: #e4e6eb;
 }
 
-/* HEADER */
+/* TOPBAR */
 .topbar {
   background: #242526;
-  padding: 15px;
-  text-align: center;
+  padding: 12px;
+  font-size: 22px;
   font-weight: bold;
-  font-size: 18px;
+  color: #1877f2;
+  text-align: center;
 }
 
 /* INPUT */
 .post-input {
-  padding: 10px;
   background: #242526;
+  padding: 10px;
+  border-bottom: 1px solid #3a3b3c;
 }
 
 .post-input textarea {
   width: 100%;
-  height: 70px;
+  height: 60px;
+  border-radius: 20px;
   border: none;
-  border-radius: 10px;
   padding: 10px;
   background: #3a3b3c;
   color: white;
-  resize: none;
 }
 
 .post-input button {
   margin-top: 8px;
   width: 100%;
   padding: 10px;
+  border-radius: 20px;
   border: none;
-  border-radius: 10px;
-  background: #2374e1;
+  background: #1877f2;
   color: white;
   font-weight: bold;
 }
 
-/* POSTS */
+/* POST */
 .post {
   background: #242526;
   margin: 10px;
-  padding: 12px;
   border-radius: 10px;
+  padding: 10px;
 }
 
 .post-header {
   font-weight: bold;
+  margin-bottom: 5px;
 }
 
 .post-time {
   font-size: 12px;
-  color: gray;
+  color: #b0b3b8;
   margin-top: 5px;
+}
+
+/* ACTIONS */
+.post-actions {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 10px;
+  border-top: 1px solid #3a3b3c;
+  padding-top: 8px;
+}
+
+.post-actions span {
+  cursor: pointer;
+  font-size: 14px;
+  color: #b0b3b8;
 }
