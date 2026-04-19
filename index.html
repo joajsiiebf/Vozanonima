@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Voz Social</title>
+  <title>Social App</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- USER SETUP -->
+<!-- SET USER -->
 <div id="setup">
-  <h2>Crear usuario</h2>
+  <h2>Elige tu usuario</h2>
   <input id="username" placeholder="@usuario">
   <button onclick="createUser()">Entrar</button>
 </div>
@@ -20,10 +20,11 @@
 
   <div class="topbar">
     <span id="me"></span>
+    <button onclick="logout()">Salir</button>
   </div>
 
   <div class="post-box">
-    <textarea id="postText" placeholder="¿Qué estás pensando?"></textarea>
+    <textarea id="postText" placeholder="Escribe algo..."></textarea>
     <button onclick="createPost()">Publicar</button>
   </div>
 
