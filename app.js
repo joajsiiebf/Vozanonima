@@ -10,12 +10,12 @@ const db = firebase.firestore();
 // ================= STATE =================
 let user = localStorage.getItem("user");
 let userId = localStorage.getItem("userId");
-let chatId = null;
 let view = "home";
+let chatActive = null;
 
 // ================= INIT =================
 window.onload = () => {
-  if (user) {
+  if (user && userId) {
     document.getElementById("auth").style.display = "none";
     document.getElementById("app").style.display = "block";
     document.getElementById("me").innerText = "@" + user;
@@ -29,18 +29,71 @@ function saveSession() {
   localStorage.setItem("userId", userId);
 }
 
+// ================= NAV =================
+window.showView = (v) => {
+  view = v;
+  render();
+};
+
+function render() {
+
+  document.getElementById("feedView").style.display = "none";
+  document.getElementById("profileView").style.display = "none";
+  document.getElementById("chatView").style.display = "none";
+
+  if (view === "home") loadFeed();
+  if (view === "profile") loadProfile();
+  if (view === "chat") loadChat();
+}
+
+// ================= REGISTER =================
+window.register = async () => {
+
+  const username = document.getElementById("user").value;
+  const phone = document.getElementById("phone").value;
+  const pass = document.getElementById("pass").value;
+
+  if (!username || !phone || !pass) return alert("Completa todo");
+
+  const exists = await db.collection("users")
+    .where("username", "==", username)
+    .get();
+
+  if (!exists.empty) return alert("Usuario ya existe");
+
+  const doc = await db.collection("users").add({
+    username,
+    phone,
+    password: pass,
+    followers: 110000
+  });
+
+  user = username;
+  userId = doc.id;
+
+  saveSession();
+
+  document.getElementById("auth").style.display = "none";
+  document.getElementById("app").style.display = "block";
+
+  document.getElementById("me").innerText = "@" + user;
+
+  view = "home";
+  render();
+};
+
 // ================= LOGIN =================
 window.login = async () => {
 
-  const phone = phone.value;
-  const pass = pass.value;
+  const phone = document.getElementById("phone").value;
+  const pass = document.getElementById("pass").value;
 
   const snap = await db.collection("users")
     .where("phone", "==", phone)
     .where("password", "==", pass)
     .get();
 
-  if (snap.empty) return alert("Error login");
+  if (snap.empty) return alert("Datos incorrectos");
 
   snap.forEach(d => {
     user = d.data().username;
@@ -54,39 +107,9 @@ window.login = async () => {
 
   document.getElementById("me").innerText = "@" + user;
 
+  view = "home";
   render();
 };
-
-// ================= REGISTER =================
-window.register = async () => {
-
-  await db.collection("users").add({
-    username: user.value,
-    phone: phone.value,
-    password: pass.value,
-    followers: 110000
-  });
-
-  alert("Creado");
-};
-
-// ================= NAV =================
-window.showView = (v) => {
-  view = v;
-  render();
-};
-
-// ================= RENDER ENGINE =================
-function render() {
-
-  document.getElementById("feedView").style.display = "none";
-  document.getElementById("profileView").style.display = "none";
-  document.getElementById("chatView").style.display = "none";
-
-  if (view === "home") loadFeed();
-  if (view === "profile") loadProfile();
-  if (view === "chat") loadChat();
-}
 
 // ================= FEED =================
 async function loadFeed() {
@@ -101,39 +124,68 @@ async function loadFeed() {
     .get();
 
   snap.forEach(p => {
+
     const d = p.data();
 
     feed.innerHTML += `
       <div class="post">
 
-        <b>@${d.username}</b>
+        <b onclick="openProfile('${d.userId}','${d.username}')">
+          @${d.username}
+        </b>
 
         <p>${d.text}</p>
 
+        <button onclick="toggleComment('${p.id}')">Comentar</button>
         <button onclick="openChat('${d.userId}')">Mensaje</button>
+
+        <div id="c-${p.id}" style="display:none;">
+          <input id="i-${p.id}">
+          <button onclick="addComment('${p.id}')">Enviar</button>
+        </div>
 
       </div>
     `;
   });
 }
 
-// ================= PROFILE =================
-async function loadProfile() {
+// ================= COMMENTS =================
+window.toggleComment = (id) => {
+  const box = document.getElementById("c-" + id);
+  box.style.display = box.style.display === "block" ? "none" : "block";
+};
 
-  const viewEl = document.getElementById("profileView");
-  viewEl.style.display = "block";
-  viewEl.innerHTML = "";
+window.addComment = async (id) => {
+
+  const text = document.getElementById("i-" + id).value;
+
+  await db.collection("comments").add({
+    postId: id,
+    text,
+    user
+  });
+
+  loadFeed();
+};
+
+// ================= PROFILE =================
+window.openProfile = async (uid, username) => {
+
+  view = "profile";
+  render();
 
   const snap = await db.collection("posts")
-    .where("userId", "==", userId)
+    .where("userId", "==", uid)
     .get();
 
-  viewEl.innerHTML += `<h2>@${user}</h2>`;
+  let html = `<h2>@${username}</h2>`;
 
   snap.forEach(p => {
-    viewEl.innerHTML += `<div class="post">${p.data().text}</div>`;
+    html += `<div class="post">${p.data().text}</div>`;
   });
-}
+
+  document.getElementById("profileView").innerHTML = html;
+};
 
 // ================= CHAT =================
 window.openChat = async (targetId) => {
@@ -142,18 +194,17 @@ window.openChat = async (targetId) => {
     users: [userId, targetId]
   });
 
-  chatId = chat.id;
+  chatActive = chat.id;
   view = "chat";
   render();
+
+  loadChat();
 };
 
 async function loadChat() {
 
-  const chatBox = document.getElementById("chatView");
-  chatBox.style.display = "flex";
-
   const snap = await db.collection("messages")
-    .where("chatId", "==", chatId)
+    .where("chatId", "==", chatActive)
     .get();
 
   let html = "";
@@ -162,14 +213,14 @@ async function loadChat() {
     html += `<div>${m.data().from}: ${m.data().text}</div>`;
   });
 
-  document.getElementById("messages").innerHTML = html;
+  document.getElementById("chatView").innerHTML = html;
 }
 
-// ================= SEND MESSAGE =================
+// ================= SEND =================
 window.sendMessage = async () => {
 
   await db.collection("messages").add({
-    chatId,
+    chatId: chatActive,
     from: user,
     text: msgInput.value
   });
