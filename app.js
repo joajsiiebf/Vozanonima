@@ -7,7 +7,9 @@ import {
   query,
   where,
   orderBy,
-  limit
+  limit,
+  deleteDoc,
+  doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ================= FIREBASE =================
@@ -24,8 +26,6 @@ const db = getFirestore(app);
 let user = localStorage.getItem("user");
 let userId = localStorage.getItem("userId");
 
-const OWNER = "jscol_owner";
-
 // ================= SESSION =================
 function saveSession() {
   localStorage.setItem("user", user);
@@ -33,35 +33,33 @@ function saveSession() {
 }
 
 // ================= AUTO LOGIN =================
-window.onload = function () {
+window.onload = () => {
   if (user && userId) {
     document.getElementById("auth").style.display = "none";
     document.getElementById("app").style.display = "block";
-
     document.getElementById("me").innerText = "@" + user;
     showView("home");
   }
 };
 
 // ================= NAV =================
-window.showView = function (view) {
-
+window.showView = function (v) {
   hideAll();
 
-  if (view === "home") {
+  if (v === "home") {
     document.getElementById("feedView").style.display = "block";
     loadFeed();
   }
 
-  if (view === "search") {
+  if (v === "search") {
     document.getElementById("searchView").style.display = "block";
   }
 
-  if (view === "profile") {
+  if (v === "profile") {
     openProfile(userId, user);
   }
 
-  if (view === "settings") {
+  if (v === "settings") {
     document.getElementById("settingsView").style.display = "block";
   }
 };
@@ -74,38 +72,34 @@ function hideAll() {
 }
 
 // ================= REGISTER =================
-window.register = async function () {
+window.register = async () => {
 
-  const username = document.getElementById("user").value.trim().toLowerCase();
-  const phone = document.getElementById("phone").value.trim();
-  const pass = document.getElementById("pass").value;
+  const username = userInput();
+  const phone = phoneInput();
+  const pass = passInput();
 
   await addDoc(collection(db, "users"), {
     username,
     phone,
     password: pass,
-    followers: username === OWNER ? 110000 : 0,
-    following: 0
+    followers: 110000
   });
 
   alert("Cuenta creada");
 };
 
 // ================= LOGIN =================
-window.login = async function () {
+window.login = async () => {
 
-  const phone = document.getElementById("phone").value;
-  const pass = document.getElementById("pass").value;
+  const phone = phoneInput();
+  const pass = passInput();
 
-  const q = query(
-    collection(db, "users"),
+  const q = query(collection(db, "users"),
     where("phone", "==", phone),
     where("password", "==", pass)
   );
 
   const snap = await getDocs(q);
-
-  if (snap.empty) return alert("Error login");
 
   snap.forEach(u => {
     user = u.data().username;
@@ -123,7 +117,7 @@ window.login = async function () {
 };
 
 // ================= POSTS =================
-window.createPost = async function () {
+window.createPost = async () => {
 
   const text = document.getElementById("postText").value;
   if (!text) return;
@@ -135,17 +129,15 @@ window.createPost = async function () {
     createdAt: new Date()
   });
 
-  document.getElementById("postText").value = "";
   loadFeed();
 };
 
 // ================= FEED =================
-window.loadFeed = async function () {
+window.loadFeed = async () => {
 
   const feed = document.getElementById("feed");
 
-  const q = query(
-    collection(db, "posts"),
+  const q = query(collection(db, "posts"),
     orderBy("createdAt", "desc"),
     limit(10)
   );
@@ -159,45 +151,83 @@ window.loadFeed = async function () {
 
     feed.innerHTML += `
       <div class="post">
-        <div onclick="openProfile('${d.userId}','${d.username}')"
-             class="username">
+
+        <div onclick="openProfile('${d.userId}','${d.username}')">
           @${d.username}
         </div>
+
         <p>${d.text}</p>
+
+        <button onclick="openComments('${p.id}')">Comentarios</button>
+        <button onclick="createChat('${d.userId}')">Mensaje</button>
+
       </div>
     `;
   });
 };
 
 // ================= PROFILE =================
-window.openProfile = async function (uid, username) {
+window.openProfile = async (uid, username) => {
 
   hideAll();
 
-  const q = query(collection(db, "posts"), where("userId", "==", uid));
+  const q = query(collection(db, "posts"),
+    where("userId", "==", uid)
+  );
+
   const snap = await getDocs(q);
 
-  const isMe = uid === userId;
-
-  let followers = username === OWNER ? 110000 : 0;
-
   let html = `
-    <div class="profile-header">
-      <h2>@${username}</h2>
-      <p>Seguidores: ${followers}</p>
-    </div>
+    <h2>@${username}</h2>
+    <p>Seguidores: 110000</p>
   `;
 
   snap.forEach(p => {
-    html += `<div class="post"><p>${p.data().text}</p></div>`;
+    html += `<div class="post">${p.data().text}</div>`;
   });
 
   document.getElementById("profileView").innerHTML = html;
   document.getElementById("profileView").style.display = "block";
 };
 
+// ================= COMMENTS =================
+window.openComments = async (postId) => {
+
+  const q = query(collection(db, "comments"),
+    where("postId", "==", postId)
+  );
+
+  const snap = await getDocs(q);
+
+  let html = `
+    <h3>Comentarios</h3>
+    <input id="cmt">
+    <button onclick="addComment('${postId}')">Enviar</button>
+  `;
+
+  snap.forEach(c => {
+    html += `<p>@${c.data().user}: ${c.data().text}</p>`;
+  });
+
+  document.getElementById("feed").innerHTML = html;
+};
+
+// ================= ADD COMMENT =================
+window.addComment = async (postId) => {
+
+  const text = document.getElementById("cmt").value;
+
+  await addDoc(collection(db, "comments"), {
+    postId,
+    text,
+    user
+  });
+
+  openComments(postId);
+};
+
 // ================= SEARCH =================
-window.searchUsers = async function () {
+window.searchUsers = async () => {
 
   const value = document.getElementById("searchInput").value.toLowerCase();
 
@@ -213,10 +243,10 @@ window.searchUsers = async function () {
     if (d.username.includes(value)) {
 
       html += `
-        <div class="user-card">
-          <p>@${d.username}</p>
+        <div>
+          @${d.username}
           <button onclick="openProfile('${u.id}','${d.username}')">
-            Ver perfil
+            Ver
           </button>
         </div>
       `;
@@ -226,24 +256,36 @@ window.searchUsers = async function () {
   document.getElementById("searchResults").innerHTML = html;
 };
 
+// ================= CHAT BASE =================
+window.createChat = async (targetId) => {
+
+  const chat = await addDoc(collection(db, "chats"), {
+    users: [userId, targetId]
+  });
+
+  alert("Chat creado");
+};
+
 // ================= SETTINGS =================
-window.toggleTheme = function () {
-  document.body.classList.toggle("light");
-};
+window.toggleTheme = () => document.body.classList.toggle("dark");
 
-window.toggleLang = function () {
-  alert("Idioma cambiado");
-};
-
-window.changeUser = function () {
-  const u = prompt("Nuevo usuario");
-  if (!u) return;
-
+window.changeUser = () => {
+  const u = prompt("Usuario");
   user = u;
-  document.getElementById("me").innerText = "@" + user;
 };
 
-window.logout = function () {
+window.logout = () => {
   localStorage.clear();
   location.reload();
 };
+
+// ================= HELPERS =================
+function userInput() {
+  return document.getElementById("user").value;
+}
+function phoneInput() {
+  return document.getElementById("phone").value;
+}
+function passInput() {
+  return document.getElementById("pass").value;
+}
