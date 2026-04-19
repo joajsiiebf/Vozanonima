@@ -3,9 +3,10 @@ import {
   getFirestore,
   collection,
   addDoc,
-  getDocs,
+  serverTimestamp,
+  query,
   orderBy,
-  query
+  onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -17,95 +18,91 @@ const firebaseConfig = {
   appId: "1:533740152067:web:57f2b5f00f59002b32f536"
 };
 
-let db = null;
+let db;
 
-// 🔥 Firebase protegido (no rompe la app)
 try {
   const app = initializeApp(firebaseConfig);
   db = getFirestore(app);
-  console.log("Firebase listo");
 } catch (e) {
-  console.log("Firebase falló, modo local activo", e);
+  console.log("Firebase error:", e);
 }
 
-/* =========================
-   👁️ ENTRAR (SIEMPRE FUNCIONA)
-========================= */
+/* ======================
+   ENTRAR
+====================== */
 window.entrar = function () {
   document.getElementById("tutorial").style.display = "none";
   document.getElementById("app").style.display = "block";
 };
 
-/* =========================
-   👤 USUARIO
-========================= */
+/* ======================
+   USUARIO AUTO
+====================== */
 window.guardarUsuario = function () {
-  const name = document.getElementById("username").value;
-  localStorage.setItem("user", name || "Anónimo");
-  alert("Usuario guardado");
+  let name = document.getElementById("username").value;
+
+  if (!name) {
+    name = "Anon_" + Math.floor(Math.random() * 9999);
+  }
+
+  localStorage.setItem("user", name);
+  alert("Usuario: " + name);
 };
 
-/* =========================
-   📤 PUBLICAR
-========================= */
+/* ======================
+   PUBLICAR (MEJORADO)
+====================== */
 window.enviarChisme = async function () {
-  const texto = document.getElementById("inputChisme").value.trim();
-  if (!texto) return alert("Escribe algo");
+  const btn = document.getElementById("btnPost");
+  const text = document.getElementById("inputChisme").value.trim();
 
-  const user = localStorage.getItem("user") || "Anónimo";
+  if (!text) return;
 
-  // 🔥 si Firebase no carga, no rompe
-  if (!db) {
-    alert("Sin conexión a base de datos");
-    return;
-  }
+  const user = localStorage.getItem("user") || "Anon_" + Math.floor(Math.random() * 9999);
+
+  btn.disabled = true;
 
   try {
     await addDoc(collection(db, "chismes"), {
-      texto,
-      user,
-      fecha: new Date()
+      texto: text,
+      user: user,
+      fecha: serverTimestamp()
     });
 
     document.getElementById("inputChisme").value = "";
-    cargarChismes();
+
   } catch (e) {
     console.log(e);
-    alert("Error publicando");
   }
+
+  btn.disabled = false;
 };
 
-/* =========================
-   📥 CARGAR POSTS
-========================= */
-async function cargarChismes() {
+/* ======================
+   FEED EN TIEMPO REAL 🔥
+====================== */
+function cargarFeed() {
   const feed = document.getElementById("feed");
-  feed.innerHTML = "";
 
-  if (!db) {
-    feed.innerHTML = "<p>No hay conexión</p>";
-    return;
-  }
+  const q = query(collection(db, "chismes"), orderBy("fecha", "desc"));
 
-  try {
-    const q = query(collection(db, "chismes"), orderBy("fecha", "desc"));
-    const snap = await getDocs(q);
+  onSnapshot(q, (snapshot) => {
+    feed.innerHTML = "";
 
-    snap.forEach(doc => {
-      const data = doc.data();
+    snapshot.forEach(doc => {
+      const d = doc.data();
 
       const div = document.createElement("div");
       div.classList.add("post");
+
       div.innerHTML = `
-        <b>${data.user || "Anónimo"}</b><br>
-        ${data.texto}
+        <b>${d.user}</b>
+        <p>${d.texto}</p>
       `;
+
       feed.appendChild(div);
     });
-
-  } catch (e) {
-    console.log(e);
-  }
+  });
 }
 
-cargarChismes();
+cargarFeed();
