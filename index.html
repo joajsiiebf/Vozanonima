@@ -1,75 +1,50 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Social App PRO</title>
-<link rel="stylesheet" href="style.css">
+  <title>Social App</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase COMPAT (IMPORTANTE) -->
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="auth">
-  <div class="login-card">
-    <h2>Acceder</h2>
-
-    <input id="user" placeholder="Usuario">
-    <input id="phone" placeholder="Teléfono">
-    <input id="pass" type="password" placeholder="Contraseña">
-
-    <button onclick="register()">Crear cuenta</button>
-    <button onclick="login()">Entrar</button>
-  </div>
+  <input id="phone" placeholder="Teléfono">
+  <input id="pass" placeholder="Contraseña">
+  <input id="user" placeholder="Usuario (registro)">
+  <button onclick="login()">Login</button>
+  <button onclick="register()">Register</button>
 </div>
 
-<!-- APP -->
 <div id="app" style="display:none;">
 
   <div class="topbar">
-    <div>Social</div>
-    <div id="me"></div>
+    <span id="me"></span>
   </div>
 
-  <!-- SEARCH -->
-  <div id="searchView" style="display:none;">
-    <div class="search-bar">
-      <input id="searchInput" placeholder="Buscar usuarios">
-      <button onclick="searchUsers()">Buscar</button>
+  <div id="feedView"></div>
+  <div id="profileView" style="display:none"></div>
+  <div id="chatView" style="display:none">
+    <div id="messages"></div>
+    <div class="chat-input">
+      <input id="msgInput">
+      <button onclick="sendMessage()">Send</button>
     </div>
-    <div id="searchResults"></div>
   </div>
 
-  <!-- FEED -->
-  <div id="feedView">
-    <textarea id="postText" placeholder="¿Qué estás pensando?"></textarea>
-    <button onclick="createPost()">Publicar</button>
-
-    <div id="feed"></div>
-  </div>
-
-  <!-- PROFILE -->
-  <div id="profileView" style="display:none;"></div>
-
-  <!-- SETTINGS -->
-  <div id="settingsView" style="display:none;">
-    <h3>Configuración</h3>
-
-    <button onclick="toggleTheme()">Tema</button>
-    <button onclick="changeUser()">Cambiar usuario</button>
-    <button onclick="logout()">Salir</button>
-  </div>
-
-  <!-- BOTTOM NAV -->
   <div class="bottom-nav">
-    <button onclick="showView('home')">Inicio</button>
-    <button onclick="showView('search')">Buscar</button>
-    <button onclick="showView('profile')">Perfil</button>
-    <button onclick="showView('settings')">Ajustes</button>
+    <button onclick="showView('home')">Home</button>
+    <button onclick="showView('profile')">Profile</button>
+    <button onclick="showView('chat')">Chat</button>
   </div>
 
 </div>
 
-<script type="module" src="app.js"></script>
+<script src="app.js"></script>
+
 </body>
 </html>
