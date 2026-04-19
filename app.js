@@ -4,12 +4,10 @@ import {
   collection,
   addDoc,
   getDocs,
-  query,
-  where,
-  orderBy
+  orderBy,
+  query
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// CONFIG
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
@@ -22,21 +20,34 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ENVIAR
-window.enviarChisme = async function () {
-  const input = document.getElementById("inputChisme");
-  const texto = input.value.trim();
+// ENTRAR
+window.entrar = function() {
+  document.getElementById("tutorial").style.display = "none";
+  document.getElementById("app").style.display = "block";
+};
 
+// USUARIO
+window.guardarUsuario = function() {
+  const name = document.getElementById("username").value;
+  localStorage.setItem("user", name || "Anónimo");
+  alert("Guardado");
+};
+
+// PUBLICAR
+window.enviarChisme = async function() {
+  const texto = document.getElementById("inputChisme").value.trim();
   if (!texto) return alert("Escribe algo");
+
+  const user = localStorage.getItem("user") || "Anónimo";
 
   await addDoc(collection(db, "chismes"), {
     texto,
-    estado: "pendiente",
+    user,
     fecha: new Date()
   });
 
-  input.value = "";
-  alert("👀 Enviado para revisión");
+  document.getElementById("inputChisme").value = "";
+  cargarChismes();
 };
 
 // CARGAR
@@ -44,47 +55,23 @@ async function cargarChismes() {
   const feed = document.getElementById("feed");
   feed.innerHTML = "";
 
-  const q = query(
-    collection(db, "chismes"),
-    where("estado", "==", "aprobado"),
-    orderBy("fecha", "desc")
-  );
+  const q = query(collection(db, "chismes"), orderBy("fecha", "desc"));
+  const snap = await getDocs(q);
 
-  const snapshot = await getDocs(q);
-
-  snapshot.forEach(doc => {
+  snap.forEach(doc => {
     const data = doc.data();
-    const fecha = new Date(data.fecha.seconds * 1000);
 
     const div = document.createElement("div");
     div.classList.add("post");
 
     div.innerHTML = `
-      <div class="post-header">Anónimo</div>
-      <div>${data.texto}</div>
-      <div class="post-time">${fecha.toLocaleString()}</div>
-
-      <div class="post-actions">
-        <span onclick="likePost(this)">👍 Me interesa</span>
-        <span onclick="alert('Próximamente')">💬 Comentar</span>
-        <span onclick="compartir('${data.texto}')">🔁 Compartir</span>
-        <span onclick="alert('Reportado')">🚩</span>
-      </div>
+      <b>${data.user || "Anónimo"}</b><br>
+      ${data.texto}
     `;
 
     feed.appendChild(div);
   });
 }
-
-// FUNCIONES BOTONES
-window.likePost = function(el) {
-  el.innerText = "👍 Te interesa";
-};
-
-window.compartir = function(texto) {
-  navigator.clipboard.writeText(texto);
-  alert("Copiado 🔥");
-};
 
 // INIT
 cargarChismes();
