@@ -8,8 +8,8 @@ import {
   where,
   orderBy,
   limit,
-  doc,
   updateDoc,
+  doc,
   increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -26,10 +26,11 @@ const db = getFirestore(app);
 // ================= STATE =================
 let user = null;
 let userId = null;
-let lang = "es";
+const followingMap = {};
 
 // ================= REGISTER =================
 window.register = async function () {
+
   const username = document.getElementById("user").value.trim().toLowerCase();
   const phone = document.getElementById("phone").value.trim();
   const pass = document.getElementById("pass").value;
@@ -48,7 +49,8 @@ window.register = async function () {
     username,
     phone,
     password: pass,
-    followers: 0
+    followers: 0,
+    following: 0
   });
 
   alert("Cuenta creada");
@@ -56,6 +58,7 @@ window.register = async function () {
 
 // ================= LOGIN =================
 window.login = async function () {
+
   const phone = document.getElementById("phone").value.trim();
   const pass = document.getElementById("pass").value;
 
@@ -89,6 +92,7 @@ function enterApp() {
 
 // ================= CREATE POST =================
 window.createPost = async function () {
+
   const text = document.getElementById("postText").value;
   if (!text) return;
 
@@ -113,15 +117,11 @@ window.like = async function (id) {
   loadFeed();
 };
 
-// ================= SHARE =================
-window.sharePost = function (id) {
-  const link = `${location.origin}/post.html?id=${id}`;
-  navigator.clipboard.writeText(link);
-  alert("Link copiado");
-};
-
 // ================= FEED =================
 window.loadFeed = async function () {
+
+  document.getElementById("profileView").innerHTML = "";
+
   const feed = document.getElementById("feed");
 
   const q = query(
@@ -140,8 +140,8 @@ window.loadFeed = async function () {
     feed.innerHTML += `
       <div class="post">
 
-        <div onclick="openProfile('${d.userId}','${d.username}')"
-             class="username">
+        <div class="username"
+          onclick="openProfile('${d.userId}','${d.username}')">
           @${d.username}
         </div>
 
@@ -151,25 +151,31 @@ window.loadFeed = async function () {
           Like (${d.likes || 0})
         </button>
 
-        <button onclick="sharePost('${p.id}')">
-          Compartir
-        </button>
-
       </div>
     `;
   });
 };
 
-// ================= PROFILE =================
+// ================= PROFILE REAL =================
 window.openProfile = async function (uid, username) {
 
   const q = query(collection(db, "posts"), where("userId", "==", uid));
   const snap = await getDocs(q);
 
+  const userData = await getUser(uid);
+
   let html = `
-    <div class="profile">
+    <div class="profile-header">
       <h2>@${username}</h2>
-      <p>Seguidores: 110000</p>
+
+      <p>
+        Seguidores: ${userData.followers || 0} |
+        Siguiendo: ${userData.following || 0}
+      </p>
+
+      <button onclick="toggleFollow('${uid}')">
+        Seguir / Dejar de seguir
+      </button>
     </div>
   `;
 
@@ -181,7 +187,68 @@ window.openProfile = async function (uid, username) {
     `;
   });
 
-  document.getElementById("feed").innerHTML = html;
+  document.getElementById("feed").innerHTML = "";
+  document.getElementById("profileView").innerHTML = html;
+};
+
+// ================= GET USER =================
+async function getUser(uid) {
+  const q = query(collection(db, "users"), where("__name__", "==", uid));
+  const snap = await getDocs(q);
+
+  let data = {};
+  snap.forEach(u => data = u.data());
+
+  return data;
+}
+
+// ================= FOLLOW =================
+window.toggleFollow = function (uid) {
+
+  if (!followingMap[uid]) {
+    followingMap[uid] = true;
+    alert("Siguiendo usuario");
+  } else {
+    delete followingMap[uid];
+    alert("Dejaste de seguir");
+  }
+};
+
+// ================= SEARCH =================
+window.searchUsers = async function () {
+
+  const value = document.getElementById("searchInput").value.toLowerCase();
+
+  const q = query(collection(db, "users"));
+  const snap = await getDocs(q);
+
+  let html = "";
+
+  snap.forEach(u => {
+
+    const d = u.data();
+
+    if (d.username.includes(value)) {
+
+      html += `
+        <div class="user-card">
+
+          <p>@${d.username}</p>
+
+          <button onclick="openProfile('${u.id}','${d.username}')">
+            Ver perfil
+          </button>
+
+          <button onclick="toggleFollow('${u.id}')">
+            Follow
+          </button>
+
+        </div>
+      `;
+    }
+  });
+
+  document.getElementById("searchResults").innerHTML = html;
 };
 
 // ================= SETTINGS =================
@@ -194,8 +261,7 @@ window.toggleTheme = function () {
 };
 
 window.toggleLang = function () {
-  lang = lang === "es" ? "en" : "es";
-  alert(lang);
+  alert("Idioma cambiado");
 };
 
 window.changeUser = function () {
