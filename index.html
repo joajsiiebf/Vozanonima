@@ -1,25 +1,31 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Social App</title>
 
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase COMPAT (IMPORTANTE) -->
+  <!-- Firebase compat (ESTABLE) -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
+<!-- LOGIN -->
 <div id="auth">
+  <h3>Acceder</h3>
+
+  <input id="user" placeholder="Usuario (solo registro)">
   <input id="phone" placeholder="Teléfono">
   <input id="pass" placeholder="Contraseña">
-  <input id="user" placeholder="Usuario (registro)">
-  <button onclick="login()">Login</button>
-  <button onclick="register()">Register</button>
+
+  <button onclick="register()">Crear cuenta</button>
+  <button onclick="login()">Entrar</button>
 </div>
 
+<!-- APP -->
 <div id="app" style="display:none;">
 
   <div class="topbar">
@@ -28,18 +34,12 @@
 
   <div id="feedView"></div>
   <div id="profileView" style="display:none"></div>
-  <div id="chatView" style="display:none">
-    <div id="messages"></div>
-    <div class="chat-input">
-      <input id="msgInput">
-      <button onclick="sendMessage()">Send</button>
-    </div>
-  </div>
+  <div id="chatView" style="display:none"></div>
 
   <div class="bottom-nav">
-    <button onclick="showView('home')">Home</button>
-    <button onclick="showView('profile')">Profile</button>
-    <button onclick="showView('chat')">Chat</button>
+    <button onclick="showView('home')">Inicio</button>
+    <button onclick="showView('profile')">Perfil</button>
+    <button onclick="showView('chat')">Mensajes</button>
   </div>
 
 </div>
