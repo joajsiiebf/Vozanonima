@@ -3,19 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Social App</title>
+  <title>Social PRO</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- SET USER -->
 <div id="setup">
-  <h2>Elige tu usuario</h2>
+  <h2>Usuario único</h2>
   <input id="username" placeholder="@usuario">
   <button onclick="createUser()">Entrar</button>
 </div>
 
-<!-- APP -->
 <div id="app" style="display:none;">
 
   <div class="topbar">
@@ -24,12 +22,21 @@
   </div>
 
   <div class="post-box">
-    <textarea id="postText" placeholder="Escribe algo..."></textarea>
+    <textarea id="postText"></textarea>
     <button onclick="createPost()">Publicar</button>
   </div>
 
   <div id="feed"></div>
 
+</div>
+
+<!-- PERFIL MODAL -->
+<div id="profileModal" style="display:none;">
+  <div>
+    <h2 id="profileName"></h2>
+    <button onclick="closeProfile()">Cerrar</button>
+  </div>
+  <div id="profilePosts"></div>
 </div>
 
 <script type="module" src="app.js"></script>
