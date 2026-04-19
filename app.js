@@ -13,10 +13,14 @@ import {
   increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+// ================= FIREBASE =================
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
-  projectId: "vozanonimasm"
+  projectId: "vozanonimasm",
+  storageBucket: "vozanonimasm.firebasestorage.app",
+  messagingSenderId: "533740152067",
+  appId: "1:533740152067:web:1ec05c7842f09a9e32f536"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -25,56 +29,53 @@ const db = getFirestore(app);
 // ================= STATE =================
 let user = null;
 let userId = null;
+let lang = "es";
 let postsLimit = 10;
 
-// ================= AUTO DARK =================
-document.body.classList.add("dark");
-
-// ================= AUTH =================
+// ================= REGISTER =================
 window.register = async function () {
-  const u = userInput();
-  const p = passInput();
+  const username = document.getElementById("user").value;
+  const phone = document.getElementById("phone").value;
+  const pass = document.getElementById("pass").value;
+
+  if (!username || !phone || !pass) return;
 
   await addDoc(collection(db, "users"), {
-    username: u,
-    password: p,
+    username,
+    phone,
+    password: pass,
     bio: "",
     reputation: 0
   });
 
-  alert("Usuario creado");
+  alert("Cuenta creada");
 };
 
+// ================= LOGIN =================
 window.login = async function () {
-  const u = userInput();
-  const p = passInput();
+  const username = document.getElementById("user").value;
+  const pass = document.getElementById("pass").value;
 
-  const q = query(collection(db, "users"),
-    where("username", "==", u),
-    where("password", "==", p)
+  const q = query(
+    collection(db, "users"),
+    where("username", "==", username),
+    where("password", "==", pass)
   );
 
   const snap = await getDocs(q);
 
-  if (snap.empty) return alert("Incorrecto");
+  if (snap.empty) return alert("Datos incorrectos");
 
-  snap.forEach(d => {
-    user = d.data().username;
-    userId = d.id;
+  snap.forEach(u => {
+    user = u.data().username;
+    userId = u.id;
   });
 
-  enter();
+  enterApp();
 };
 
-function userInput() {
-  return document.getElementById("user").value;
-}
-
-function passInput() {
-  return document.getElementById("pass").value;
-}
-
-function enter() {
+// ================= ENTER APP =================
+function enterApp() {
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
 
@@ -134,7 +135,7 @@ window.loadFeed = async function () {
         </button>
 
         <a href="post.html?id=${p.id}">
-          Ver post
+          Ver publicación
         </a>
       </div>
     `;
@@ -147,6 +148,7 @@ window.loadFeed = async function () {
   }
 };
 
+// ================= SHOW MORE =================
 window.more = function () {
   postsLimit += 10;
   loadFeed();
@@ -159,5 +161,19 @@ window.openProfile = function () {
 
 // ================= SETTINGS =================
 window.openSettings = function () {
-  alert("Settings: idioma / tema / usuario");
+  document.getElementById("settings").style.display = "block";
+};
+
+window.toggleTheme = function () {
+  document.body.classList.toggle("dark");
+};
+
+window.toggleLang = function () {
+  lang = lang === "es" ? "en" : "es";
+  alert(lang);
+};
+
+window.logout = function () {
+  localStorage.clear();
+  location.reload();
 };
