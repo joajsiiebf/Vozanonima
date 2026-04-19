@@ -1,4 +1,4 @@
-// ================= FIREBASE MODULAR =================
+// ================= FIREBASE =================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore,
@@ -12,52 +12,63 @@ import {
   orderBy
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ================= CONFIG FIREBASE =================
+// ================= CONFIG =================
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
   projectId: "vozanonimasm",
   storageBucket: "vozanonimasm.firebasestorage.app",
   messagingSenderId: "533740152067",
-  appId: "1:533740152067:web:1ec05c7842f09a9e32f536",
-  measurementId: "G-S53MVLKF66"
+  appId: "1:533740152067:web:1ec05c7842f09a9e32f536"
 };
 
-// ================= INIT FIREBASE =================
+// ================= INIT =================
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ================= USER =================
-let currentUser = localStorage.getItem("user") || null;
+// ================= STATE =================
+let currentUser = null;
 
-// ================= CREAR USER =================
+// ================= CREATE USER (FIX FLUJO) =================
 window.createUser = function () {
   const u = document.getElementById("username").value.trim();
 
   if (!u) return alert("Escribe un usuario");
+  if (u.length < 3) return alert("Muy corto");
 
   currentUser = u;
+
   localStorage.setItem("user", u);
+
+  enterApp();
+};
+
+// ================= ENTER APP =================
+function enterApp() {
+  if (!currentUser) return;
 
   document.getElementById("setup").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  document.getElementById("me").innerText = "@" + u;
+  document.getElementById("me").innerText = "@" + currentUser;
 
   loadPosts();
-};
-
-// AUTO LOGIN
-if (currentUser) {
-  setTimeout(() => {
-    document.getElementById("setup").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("me").innerText = "@" + currentUser;
-    loadPosts();
-  }, 0);
 }
 
-// ================= CREAR POST =================
+// AUTO LOGIN FIX
+const saved = localStorage.getItem("user");
+if (saved) {
+  currentUser = saved;
+  setTimeout(enterApp, 0);
+}
+
+// ================= LOGOUT =================
+window.logout = function () {
+  localStorage.removeItem("user");
+  location.reload();
+};
+
+// ================= POST =================
 window.createPost = async function () {
   const text = document.getElementById("postText").value.trim();
   if (!text) return;
@@ -75,27 +86,9 @@ window.createPost = async function () {
 // ================= LIKE =================
 window.like = async function (id) {
   const ref = doc(db, "posts", id);
-
   await updateDoc(ref, {
     likes: increment(1)
   });
-};
-
-// ================= COMENTARIOS =================
-window.comment = async function (postId) {
-  const input = document.getElementById("c-" + postId);
-  const text = input.value.trim();
-
-  if (!text) return;
-
-  await addDoc(collection(db, "comments"), {
-    postId,
-    text,
-    user: currentUser,
-    createdAt: new Date()
-  });
-
-  input.value = "";
 };
 
 // ================= POSTS =================
@@ -132,7 +125,24 @@ function loadPosts() {
   });
 }
 
-// ================= COMMENTS REAL TIME =================
+// ================= COMMENTS =================
+window.comment = async function (postId) {
+  const input = document.getElementById("c-" + postId);
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  await addDoc(collection(db, "comments"), {
+    postId,
+    text,
+    user: currentUser,
+    createdAt: new Date()
+  });
+
+  input.value = "";
+};
+
+// ================= LOAD COMMENTS =================
 function loadComments(postId) {
   const box = document.getElementById("comments-" + postId);
 
