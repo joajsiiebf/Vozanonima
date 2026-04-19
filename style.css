@@ -1,151 +1,116 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial;
-  background: #f0f2f5;
-  color: #1c1e21;
+  font-family: system-ui, -apple-system, Arial;
+  background: #eef0f3;
 }
 
-/* =========================
-   TOPBAR (tipo Facebook)
-========================= */
+/* TOPBAR */
 .topbar {
   position: fixed;
   top: 0;
   width: 100%;
   background: white;
-  padding: 12px 15px;
+  padding: 12px;
   font-weight: 700;
-  font-size: 18px;
   text-align: center;
   border-bottom: 1px solid #ddd;
   z-index: 10;
 }
 
-/* =========================
-   APP CONTAINER
-========================= */
+/* APP */
 #app {
   padding-top: 60px;
   max-width: 600px;
   margin: auto;
 }
 
-/* =========================
-   TUTORIAL
-========================= */
+/* TUTORIAL */
 .tutorial {
   position: fixed;
-  width: 100%;
-  height: 100%;
-  background: #f0f2f5;
+  inset: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  text-align: center;
-}
-
-.tutorial h2 {
-  font-size: 26px;
+  background: #eef0f3;
 }
 
 .tutorial button {
-  margin-top: 20px;
-  padding: 12px 25px;
-  border: none;
+  padding: 12px 22px;
   border-radius: 999px;
+  border: none;
   background: #1877f2;
   color: white;
   font-weight: bold;
 }
 
-/* =========================
-   USER BOX (tipo "story input")
-========================= */
-.user-box {
+/* COMPOSER */
+.composer {
   background: white;
   margin: 10px;
   padding: 10px;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
-.user-box input {
+.composer input {
   flex: 1;
-  padding: 10px;
   border-radius: 999px;
   border: 1px solid #ddd;
-  outline: none;
+  padding: 8px;
 }
 
-.user-box button {
+.composer button {
   border: none;
   background: #42b72a;
   color: white;
-  padding: 10px 15px;
   border-radius: 999px;
-  font-weight: bold;
+  padding: 8px 12px;
 }
 
-/* =========================
-   POST INPUT (tipo Instagram story box)
-========================= */
-.post-input {
+/* POST BOX */
+.post-box {
   background: white;
   margin: 10px;
-  padding: 12px;
+  padding: 10px;
   border-radius: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.post-input textarea {
+.post-box textarea {
   width: 100%;
   height: 70px;
-  border-radius: 12px;
+  border-radius: 10px;
   border: 1px solid #ddd;
   padding: 10px;
   resize: none;
-  outline: none;
 }
 
-.post-input button {
+.post-box button {
   width: 100%;
   margin-top: 8px;
   padding: 10px;
-  border: none;
   border-radius: 999px;
+  border: none;
   background: #1877f2;
   color: white;
   font-weight: bold;
 }
 
-/* =========================
-   FEED POSTS (tipo Facebook cards)
-========================= */
+/* POST */
 .post {
   background: white;
   margin: 10px;
   padding: 12px;
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  transition: 0.2s;
-}
-
-.post:hover {
-  transform: scale(1.01);
 }
 
 .post b {
   display: block;
-  font-size: 14px;
-  margin-bottom: 5px;
-  color: #050505;
+  margin-bottom: 6px;
 }
 
-.post-content {
-  font-size: 15px;
-  line-height: 1.4;
-  color: #1c1e21;
+.post p {
+  margin: 0;
 }
