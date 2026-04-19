@@ -5,100 +5,57 @@ body {
   color: white;
 }
 
-/* TOPBAR */
+/* HEADER */
 .topbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   background: #242526;
-  padding: 10px;
-}
-
-.topbar h1 {
-  font-size: 20px;
-}
-
-.icons span {
-  margin-left: 10px;
+  padding: 15px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 18px;
 }
 
 /* INPUT */
 .post-input {
-  display: flex;
-  align-items: center;
-  background: #242526;
   padding: 10px;
-  border-bottom: 1px solid #333;
+  background: #242526;
 }
 
-.post-input input {
-  flex: 1;
-  background: #3a3b3c;
+.post-input textarea {
+  width: 100%;
+  height: 70px;
   border: none;
-  padding: 10px;
-  border-radius: 20px;
-  color: white;
-}
-
-.avatar {
-  border-radius: 50%;
-  margin-right: 10px;
-}
-
-/* STORIES */
-.stories {
-  display: flex;
-  overflow-x: auto;
-  padding: 10px;
-  gap: 10px;
-  background: #242526;
-}
-
-.story {
-  min-width: 80px;
-  height: 120px;
-  background: #3a3b3c;
   border-radius: 10px;
+  padding: 10px;
+  background: #3a3b3c;
+  color: white;
+  resize: none;
 }
 
-.create {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
+.post-input button {
+  margin-top: 8px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #2374e1;
+  color: white;
+  font-weight: bold;
 }
 
 /* POSTS */
 .post {
   background: #242526;
   margin: 10px;
-  padding: 10px;
+  padding: 12px;
   border-radius: 10px;
 }
 
 .post-header {
   font-weight: bold;
-  margin-bottom: 5px;
 }
 
 .post-time {
   font-size: 12px;
   color: gray;
-}
-
-.post-actions {
-  margin-top: 8px;
-  font-size: 14px;
-  color: #b0b3b8;
-}
-
-/* NAVBAR */
-.navbar {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  background: #242526;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
+  margin-top: 5px;
 }
