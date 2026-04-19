@@ -1,3 +1,4 @@
+// FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
@@ -7,71 +8,71 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// STATE
 let user = localStorage.getItem("user");
 let userId = localStorage.getItem("userId");
 let view = "home";
 
-// ================= INIT =================
+// INIT
 window.onload = () => {
   if (user) {
     document.getElementById("auth").style.display = "none";
     document.getElementById("app").style.display = "block";
     document.getElementById("me").innerText = "@" + user;
-    render();
+    loadFeed();
   }
 };
 
-// ================= NAV =================
-window.showView = (v) => {
-  view = v;
-  render();
-};
-
-function render() {
-  document.getElementById("feedView").style.display = "none";
-  document.getElementById("profileView").style.display = "none";
-  document.getElementById("chatView").style.display = "none";
-
-  if (view === "home") loadFeed();
-  if (view === "profile") loadProfile();
-  if (view === "chat") loadChats();
-}
-
-function save() {
+// SAVE
+function saveSession() {
   localStorage.setItem("user", user);
   localStorage.setItem("userId", userId);
 }
 
-// ================= REGISTER =================
+// NAV
+window.showView = (v) => {
+  view = v;
+
+  if (v === "home") loadFeed();
+  if (v === "profile") loadProfile();
+  if (v === "chat") loadChats();
+};
+
+// REGISTER
 window.register = async () => {
 
   const username = user.value;
   const phone = phone.value;
   const pass = pass.value;
 
+  const check = await db.collection("users")
+    .where("username", "==", username)
+    .get();
+
+  if (!check.empty) return alert("Usuario existe");
+
   const doc = await db.collection("users").add({
     username,
     phone,
     password: pass,
-    followers: 110000,
+    followers: 0,
     following: 0
   });
 
   user = username;
   userId = doc.id;
 
-  save();
+  saveSession();
 
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
 
   document.getElementById("me").innerText = "@" + user;
 
-  view = "home";
-  render();
+  loadFeed();
 };
 
-// ================= LOGIN =================
+// LOGIN
 window.login = async () => {
 
   const phoneVal = phone.value;
@@ -89,23 +90,22 @@ window.login = async () => {
     userId = d.id;
   });
 
-  save();
+  saveSession();
 
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
 
   document.getElementById("me").innerText = "@" + user;
 
-  view = "home";
-  render();
+  loadFeed();
 };
 
-// ================= FEED REAL =================
+// FEED
 async function loadFeed() {
 
   const feed = document.getElementById("feedView");
-  feed.style.display = "block";
   feed.innerHTML = "";
+  feed.style.display = "block";
 
   const snap = await db.collection("posts").get();
 
@@ -120,15 +120,9 @@ async function loadFeed() {
 
         <p>${d.text}</p>
 
-        <div class="post-actions">
-          <span onclick="likePost('${p.id}')">❤️ ${d.likes || 0}</span>
-          <span onclick="toggleComment('${p.id}')">💬 comentar</span>
-          <span onclick="openProfile()">👤 perfil</span>
-        </div>
-
-        <div id="c-${p.id}" style="display:none;" class="comment-box">
-          <input id="i-${p.id}" placeholder="comentario">
-          <button onclick="addComment('${p.id}')">Enviar</button>
+        <div class="actions">
+          <span>❤️ ${d.likes || 0}</span>
+          <span>💬</span>
         </div>
 
       </div>
@@ -136,39 +130,7 @@ async function loadFeed() {
   });
 }
 
-// ================= LIKE =================
-window.likePost = async (id) => {
-
-  const ref = db.collection("posts").doc(id);
-  const doc = await ref.get();
-
-  let likes = doc.data().likes || 0;
-
-  await ref.update({ likes: likes + 1 });
-
-  loadFeed();
-};
-
-// ================= COMMENTS =================
-window.toggleComment = (id) => {
-  const box = document.getElementById("c-" + id);
-  box.style.display = box.style.display === "block" ? "none" : "block";
-};
-
-window.addComment = async (id) => {
-
-  const text = document.getElementById("i-" + id).value;
-
-  await db.collection("comments").add({
-    postId: id,
-    text,
-    user
-  });
-
-  loadFeed();
-};
-
-// ================= PROFILE =================
+// PROFILE
 async function loadProfile() {
 
   const p = document.getElementById("profileView");
@@ -184,11 +146,10 @@ async function loadProfile() {
   });
 }
 
-// ================= CHAT (LISTA SIMPLE) =================
+// CHATS (BÁSICO REALISTA)
 async function loadChats() {
 
   const c = document.getElementById("chatView");
   c.style.display = "block";
-
-  c.innerHTML = `<h3>Chats</h3><p>No hay chats aún</p>`;
+  c.innerHTML = "<h3>Mensajes</h3><p>No implementado completo aún</p>";
 }
