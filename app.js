@@ -7,9 +7,7 @@ import {
   query,
   where,
   orderBy,
-  limit,
-  deleteDoc,
-  doc
+  limit
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ================= FIREBASE =================
@@ -25,6 +23,7 @@ const db = getFirestore(app);
 // ================= STATE =================
 let user = localStorage.getItem("user");
 let userId = localStorage.getItem("userId");
+let activeChat = null;
 
 // ================= SESSION =================
 function saveSession() {
@@ -32,36 +31,37 @@ function saveSession() {
   localStorage.setItem("userId", userId);
 }
 
-// ================= AUTO LOGIN =================
-window.onload = () => {
-  if (user && userId) {
-    document.getElementById("auth").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("me").innerText = "@" + user;
-    showView("home");
-  }
-};
+// ================= VIEW ENGINE (CLAVE FIX) =================
+let currentView = "home";
 
-// ================= NAV =================
-window.showView = function (v) {
+function render() {
   hideAll();
 
-  if (v === "home") {
+  if (currentView === "home") {
     document.getElementById("feedView").style.display = "block";
     loadFeed();
   }
 
-  if (v === "search") {
+  if (currentView === "search") {
     document.getElementById("searchView").style.display = "block";
   }
 
-  if (v === "profile") {
-    openProfile(userId, user);
+  if (currentView === "profile") {
+    document.getElementById("profileView").style.display = "block";
   }
 
-  if (v === "settings") {
+  if (currentView === "settings") {
     document.getElementById("settingsView").style.display = "block";
   }
+
+  if (currentView === "chat") {
+    document.getElementById("chatView").style.display = "block";
+  }
+}
+
+window.showView = function (v) {
+  currentView = v;
+  render();
 };
 
 function hideAll() {
@@ -69,30 +69,27 @@ function hideAll() {
   document.getElementById("searchView").style.display = "none";
   document.getElementById("profileView").style.display = "none";
   document.getElementById("settingsView").style.display = "none";
+  document.getElementById("chatView").style.display = "none";
 }
 
-// ================= REGISTER =================
-window.register = async () => {
+// ================= AUTO LOGIN =================
+window.onload = () => {
+  if (user && userId) {
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("app").style.display = "block";
 
-  const username = userInput();
-  const phone = phoneInput();
-  const pass = passInput();
+    document.getElementById("me").innerText = "@" + user;
 
-  await addDoc(collection(db, "users"), {
-    username,
-    phone,
-    password: pass,
-    followers: 110000
-  });
-
-  alert("Cuenta creada");
+    currentView = "home";
+    render();
+  }
 };
 
 // ================= LOGIN =================
 window.login = async () => {
 
-  const phone = phoneInput();
-  const pass = passInput();
+  const phone = document.getElementById("phone").value;
+  const pass = document.getElementById("pass").value;
 
   const q = query(collection(db, "users"),
     where("phone", "==", phone),
@@ -100,6 +97,8 @@ window.login = async () => {
   );
 
   const snap = await getDocs(q);
+
+  if (snap.empty) return alert("Error login");
 
   snap.forEach(u => {
     user = u.data().username;
@@ -113,7 +112,25 @@ window.login = async () => {
 
   document.getElementById("me").innerText = "@" + user;
 
-  showView("home");
+  currentView = "home";
+  render();
+};
+
+// ================= REGISTER =================
+window.register = async () => {
+
+  const username = document.getElementById("user").value;
+  const phone = document.getElementById("phone").value;
+  const pass = document.getElementById("pass").value;
+
+  await addDoc(collection(db, "users"), {
+    username,
+    phone,
+    password: pass,
+    followers: 110000
+  });
+
+  alert("Cuenta creada");
 };
 
 // ================= POSTS =================
@@ -152,7 +169,8 @@ window.loadFeed = async () => {
     feed.innerHTML += `
       <div class="post">
 
-        <div onclick="openProfile('${d.userId}','${d.username}')">
+        <div onclick="openProfile('${d.userId}','${d.username}')"
+             class="username">
           @${d.username}
         </div>
 
@@ -166,10 +184,11 @@ window.loadFeed = async () => {
   });
 };
 
-// ================= PROFILE =================
+// ================= PROFILE FIX (NO ROMPE FEED) =================
 window.openProfile = async (uid, username) => {
 
-  hideAll();
+  currentView = "profile";
+  render();
 
   const q = query(collection(db, "posts"),
     where("userId", "==", uid)
@@ -178,8 +197,10 @@ window.openProfile = async (uid, username) => {
   const snap = await getDocs(q);
 
   let html = `
-    <h2>@${username}</h2>
-    <p>Seguidores: 110000</p>
+    <div class="profile-header">
+      <h2>@${username}</h2>
+      <p>Seguidores: 110000</p>
+    </div>
   `;
 
   snap.forEach(p => {
@@ -187,7 +208,6 @@ window.openProfile = async (uid, username) => {
   });
 
   document.getElementById("profileView").innerHTML = html;
-  document.getElementById("profileView").style.display = "block";
 };
 
 // ================= COMMENTS =================
@@ -209,7 +229,7 @@ window.openComments = async (postId) => {
     html += `<p>@${c.data().user}: ${c.data().text}</p>`;
   });
 
-  document.getElementById("feed").innerHTML = html;
+  document.getElementById("feedView").innerHTML = html;
 };
 
 // ================= ADD COMMENT =================
@@ -226,66 +246,73 @@ window.addComment = async (postId) => {
   openComments(postId);
 };
 
-// ================= SEARCH =================
-window.searchUsers = async () => {
-
-  const value = document.getElementById("searchInput").value.toLowerCase();
-
-  const q = query(collection(db, "users"));
-  const snap = await getDocs(q);
-
-  let html = "";
-
-  snap.forEach(u => {
-
-    const d = u.data();
-
-    if (d.username.includes(value)) {
-
-      html += `
-        <div>
-          @${d.username}
-          <button onclick="openProfile('${u.id}','${d.username}')">
-            Ver
-          </button>
-        </div>
-      `;
-    }
-  });
-
-  document.getElementById("searchResults").innerHTML = html;
-};
-
-// ================= CHAT BASE =================
+// ================= CHAT MESSENGER =================
 window.createChat = async (targetId) => {
 
   const chat = await addDoc(collection(db, "chats"), {
     users: [userId, targetId]
   });
 
-  alert("Chat creado");
+  openChat(chat.id);
+};
+
+window.openChat = async (chatId) => {
+
+  activeChat = chatId;
+
+  currentView = "chat";
+  render();
+
+  loadMessages(chatId);
+};
+
+async function loadMessages(chatId) {
+
+  const q = query(collection(db, "messages"),
+    where("chatId", "==", chatId)
+  );
+
+  const snap = await getDocs(q);
+
+  let html = "";
+
+  snap.forEach(m => {
+    html += `
+      <div class="msg">
+        <b>${m.data().from}</b>: ${m.data().text}
+      </div>
+    `;
+  });
+
+  document.getElementById("messages").innerHTML = html;
+}
+
+window.sendMessage = async () => {
+
+  const text = document.getElementById("msgInput").value;
+  if (!text) return;
+
+  await addDoc(collection(db, "messages"), {
+    chatId: activeChat,
+    from: user,
+    text,
+    createdAt: new Date()
+  });
+
+  document.getElementById("msgInput").value = "";
+
+  loadMessages(activeChat);
 };
 
 // ================= SETTINGS =================
 window.toggleTheme = () => document.body.classList.toggle("dark");
 
 window.changeUser = () => {
-  const u = prompt("Usuario");
-  user = u;
+  const u = prompt("Nuevo usuario");
+  if (u) user = u;
 };
 
 window.logout = () => {
   localStorage.clear();
   location.reload();
 };
-
-// ================= HELPERS =================
-function userInput() {
-  return document.getElementById("user").value;
-}
-function phoneInput() {
-  return document.getElementById("phone").value;
-}
-function passInput() {
-  return document.getElementById("pass").value;
-}
