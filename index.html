@@ -1,40 +1,33 @@
 <!DOCTYPE html>
-<html lang="es">
+<html>
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Voz Social</title>
-  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="tutorial">
-  <h2>Voz Social</h2>
-  <button onclick="entrar()">Entrar</button>
+<div id="register">
+  <h2>Elige tu usuario</h2>
+  <input id="username" placeholder="@usuario">
+  <button onclick="createUser()">Entrar</button>
 </div>
 
 <div id="app" style="display:none;">
 
-  <div class="topbar">
-    Voz Social
-    <button onclick="toggleConfig()">⚙️</button>
-  </div>
+  <h3 id="me"></h3>
 
-  <div id="config" class="config">
-    <input id="userInput" placeholder="Usuario">
-    <button onclick="saveUser()">Guardar</button>
-    <button onclick="toggleTheme()">Modo</button>
-  </div>
-
-  <div class="post-box">
-    <textarea id="text" placeholder="¿Qué estás pensando?"></textarea>
-    <button onclick="createPost()">Publicar</button>
-  </div>
+  <textarea id="postText"></textarea>
+  <button onclick="createPost()">Publicar</button>
 
   <div id="feed"></div>
 
 </div>
 
-<script type="module" src="app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+<script src="app.js"></script>
+
 </body>
 </html>
