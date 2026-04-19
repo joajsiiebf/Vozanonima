@@ -2,21 +2,17 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Safe App</title>
-
+  <title>Social App</title>
   <link rel="stylesheet" href="style.css">
 
-  <!-- Firebase compat -->
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
 </head>
 
 <body>
 
-<div id="errorBox" style="display:none;"></div>
-
 <div id="auth">
-  <h3>Login</h3>
+  <h3>Acceso</h3>
 
   <input id="user" placeholder="Usuario">
   <input id="phone" placeholder="Teléfono">
@@ -39,7 +35,7 @@
   <div class="bottom-nav">
     <button onclick="showView('home')">Inicio</button>
     <button onclick="showView('profile')">Perfil</button>
-    <button onclick="showView('chat')">Chat</button>
+    <button onclick="showView('chat')">Mensajes</button>
   </div>
 
 </div>
