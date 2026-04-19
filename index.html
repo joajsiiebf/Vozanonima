@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Social App</title>
+<title>Social App PRO</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -26,7 +26,6 @@
 <!-- APP -->
 <div id="app" style="display:none;">
 
-  <!-- TOP -->
   <div class="topbar">
     <div>Social</div>
     <div id="me"></div>
@@ -35,7 +34,7 @@
   <!-- SEARCH -->
   <div id="searchView" style="display:none;">
     <div class="search-bar">
-      <input id="searchInput" placeholder="Buscar usuarios...">
+      <input id="searchInput" placeholder="Buscar usuarios">
       <button onclick="searchUsers()">Buscar</button>
     </div>
     <div id="searchResults"></div>
@@ -43,10 +42,8 @@
 
   <!-- FEED -->
   <div id="feedView">
-    <div class="post-box">
-      <textarea id="postText" placeholder="¿Qué estás pensando?"></textarea>
-      <button onclick="createPost()">Publicar</button>
-    </div>
+    <textarea id="postText" placeholder="¿Qué estás pensando?"></textarea>
+    <button onclick="createPost()">Publicar</button>
 
     <div id="feed"></div>
   </div>
@@ -58,10 +55,9 @@
   <div id="settingsView" style="display:none;">
     <h3>Configuración</h3>
 
-    <button onclick="toggleTheme()">Modo oscuro/claro</button>
-    <button onclick="toggleLang()">Idioma</button>
+    <button onclick="toggleTheme()">Tema</button>
     <button onclick="changeUser()">Cambiar usuario</button>
-    <button onclick="logout()">Cerrar sesión</button>
+    <button onclick="logout()">Salir</button>
   </div>
 
   <!-- BOTTOM NAV -->
