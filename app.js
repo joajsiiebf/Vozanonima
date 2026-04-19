@@ -28,7 +28,7 @@ const db = getFirestore(app);
    USER
 ====================== */
 function getUser() {
-  return localStorage.getItem("user") || null;
+  return localStorage.getItem("user");
 }
 
 function setUser(u) {
@@ -43,14 +43,15 @@ window.entrar = function () {
   document.getElementById("app").style.display = "block";
 
   let user = getUser();
+
   if (!user) {
     user = "Anon_" + Math.floor(Math.random() * 9999);
     setUser(user);
   }
 
+  loadTheme();
   loadPosts();
   loadStories();
-  loadTheme();
 };
 
 /* ======================
@@ -65,12 +66,15 @@ window.cambiarUsuario = function () {
   const u = document.getElementById("configUser").value;
   if (!u) return;
   setUser(u);
-  alert("Usuario cambiado");
+  alert("Usuario actualizado");
 };
 
+/* ======================
+   THEME
+====================== */
 window.toggleTheme = function () {
-  document.body.classList.toggle("dark");
-  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+  const isDark = document.body.classList.toggle("dark");
+  localStorage.setItem("theme", isDark ? "dark" : "light");
 };
 
 function loadTheme() {
@@ -82,19 +86,19 @@ function loadTheme() {
 /* ======================
    ANTI SPAM
 ====================== */
-let lastPostTime = 0;
+let lastPost = 0;
 
 /* ======================
    POST
 ====================== */
 window.enviarPost = async function () {
   const now = Date.now();
-  if (now - lastPostTime < 5000) return alert("Espera 5s");
+  if (now - lastPost < 4000) return alert("Espera un poco");
 
   const text = document.getElementById("inputChisme").value.trim();
   if (!text) return;
 
-  lastPostTime = now;
+  lastPost = now;
 
   await addDoc(collection(db, "chismes"), {
     texto: text,
@@ -107,7 +111,7 @@ window.enviarPost = async function () {
 };
 
 /* ======================
-   FEED + LIKES + COMMENTS
+   FEED (10 POSTS)
 ====================== */
 function loadPosts() {
   const feed = document.getElementById("feed");
@@ -119,23 +123,19 @@ function loadPosts() {
 
     let count = 0;
 
-    snap.forEach(docSnap => {
+    snap.forEach(d => {
       if (count++ >= 10) return;
 
-      const d = docSnap.data();
-      const id = docSnap.id;
+      const data = d.data();
+      const id = d.id;
 
       const div = document.createElement("div");
       div.className = "post";
 
       div.innerHTML = `
-        <b>${d.user}</b>
-        <p>${d.texto}</p>
-
-        <div class="post-actions">
-          <button onclick="likePost('${id}', ${d.likes || 0})">❤️ ${d.likes || 0}</button>
-          <button onclick="commentPost('${id}')">💬</button>
-        </div>
+        <b>${data.user}</b>
+        <p>${data.texto}</p>
+        <button onclick="likePost('${id}')">❤️ ${data.likes || 0}</button>
       `;
 
       feed.appendChild(div);
@@ -144,21 +144,16 @@ function loadPosts() {
 }
 
 /* LIKE */
-window.likePost = async function (id, likes) {
+window.likePost = async function (id) {
   await updateDoc(doc(db, "chismes", id), {
     likes: increment(1)
   });
 };
 
-/* COMMENT (simple prompt) */
-window.commentPost = function () {
-  alert("Comentarios (próxima mejora: hilo real)");
-};
-
 /* ======================
-   STORIES (24h)
+   STORIES (24H)
 ====================== */
-window.loadStories = function () {
+function loadStories() {
   const stories = document.getElementById("stories");
 
   const q = query(collection(db, "stories"), orderBy("createdAt", "desc"));
@@ -170,10 +165,9 @@ window.loadStories = function () {
 
     snap.forEach(d => {
       const data = d.data();
-
       const time = data.createdAt?.seconds * 1000;
 
-      if (now - time > 86400000) return; // 24h
+      if (now - time > 86400000) return;
 
       const el = document.createElement("div");
       el.className = "story";
@@ -182,4 +176,4 @@ window.loadStories = function () {
       stories.appendChild(el);
     });
   });
-};
+}
