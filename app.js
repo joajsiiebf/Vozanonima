@@ -1,32 +1,22 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getFirestore,
-  collection,
-  addDoc,
-  onSnapshot,
-  doc,
-  updateDoc,
-  increment,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+console.log("APP INICIADA");
 
-/* FIREBASE */
+
+// ================= FIREBASE (CDN COMPATIBLE) =================
 const firebaseConfig = {
-  apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
-  authDomain: "vozanonimasm.firebaseapp.com",
-  projectId: "vozanonimasm",
-  storageBucket: "vozanonimasm.firebasestorage.app",
-  messagingSenderId: "533740152067",
-  appId: "1:533740152067:web:57f2b5f00f59002b32f536"
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_PROYECTO.firebaseapp.com",
+  projectId: "TU_PROYECTO",
+  storageBucket: "TU_PROYECTO.appspot.com",
+  messagingSenderId: "XXX",
+  appId: "XXX"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Firebase scripts desde CDN
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-/* ======================
-   USER
-====================== */
-function user() {
+// ================= USER =================
+function getUser() {
   return localStorage.getItem("user");
 }
 
@@ -34,22 +24,19 @@ function setUser(u) {
   localStorage.setItem("user", u);
 }
 
-/* ======================
-   ENTRAR
-====================== */
+// ================= APP START =================
 window.entrar = function () {
   document.getElementById("tutorial").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  if (!user()) setUser("Anon_" + Math.floor(Math.random() * 9999));
+  if (!getUser()) {
+    setUser("Anon_" + Math.floor(Math.random() * 9999));
+  }
 
   loadPosts();
-  loadTheme();
 };
 
-/* ======================
-   CONFIG
-====================== */
+// ================= CONFIG =================
 window.toggleConfig = function () {
   const c = document.getElementById("config");
   c.style.display = c.style.display === "block" ? "none" : "block";
@@ -61,67 +48,56 @@ window.saveUser = function () {
   setUser(u);
 };
 
-/* ======================
-   THEME
-====================== */
 window.toggleTheme = function () {
   document.body.classList.toggle("dark");
-  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
 };
 
-function loadTheme() {
-  if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark");
-  }
-}
-
-/* ======================
-   POSTS
-====================== */
+// ================= POSTS =================
 window.createPost = async function () {
   const text = document.getElementById("text").value.trim();
   if (!text) return;
 
-  await addDoc(collection(db, "posts"), {
+  await db.collection("posts").add({
     text,
-    user: user(),
-    likes: 0
+    user: getUser(),
+    likes: 0,
+    createdAt: new Date()
   });
 
   document.getElementById("text").value = "";
 };
 
-/* ======================
-   LIKE
-====================== */
+// ================= LIKE =================
 window.like = async function (id) {
-  await updateDoc(doc(db, "posts", id), {
-    likes: increment(1)
+  const ref = db.collection("posts").doc(id);
+  const doc = await ref.get();
+  ref.update({
+    likes: (doc.data().likes || 0) + 1
   });
 };
 
-/* ======================
-   LOAD POSTS (ESTABLE)
-====================== */
+// ================= LOAD POSTS =================
 function loadPosts() {
   const feed = document.getElementById("feed");
 
-  onSnapshot(collection(db, "posts"), (snap) => {
-    feed.innerHTML = "";
+  db.collection("posts")
+    .orderBy("createdAt", "desc")
+    .onSnapshot(snapshot => {
+      feed.innerHTML = "";
 
-    snap.forEach(d => {
-      const p = d.data();
+      snapshot.forEach(doc => {
+        const p = doc.data();
 
-      const div = document.createElement("div");
-      div.className = "post";
+        const div = document.createElement("div");
+        div.className = "post";
 
-      div.innerHTML = `
-        <b>${p.user}</b>
-        <p>${p.text}</p>
-        <button onclick="like('${d.id}')">❤️ ${p.likes || 0}</button>
-      `;
+        div.innerHTML = `
+          <b>${p.user}</b>
+          <p>${p.text}</p>
+          <button onclick="like('${doc.id}')">❤️ ${p.likes || 0}</button>
+        `;
 
-      feed.appendChild(div);
+        feed.appendChild(div);
+      });
     });
-  });
 }
