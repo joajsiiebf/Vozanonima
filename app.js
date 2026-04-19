@@ -1,35 +1,64 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
-  authDomain: "vozanonimasm.firebaseapp.com",
-  projectId: "vozanonimasm"
+console.log("APP BOOT SAFE MODE");
+
+// ================= ERROR SYSTEM =================
+function showError(msg) {
+  const box = document.getElementById("errorBox");
+  box.style.display = "block";
+  box.innerHTML = "⚠️ " + msg;
+}
+
+// evita crash total
+window.onerror = function (msg) {
+  showError(msg);
 };
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// ================= FIREBASE SAFE INIT =================
+let db;
 
-// ================= STATE =================
-let user = localStorage.getItem("user");
-let userId = localStorage.getItem("userId");
+try {
+  const firebaseConfig = {
+    apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+    authDomain: "vozanonimasm.firebaseapp.com",
+    projectId: "vozanonimasm"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  db = firebase.firestore();
+
+} catch (e) {
+  showError("Firebase no inicializó");
+}
+
+// ================= STATE SAFE =================
+let user = localStorage.getItem("user") || null;
+let userId = localStorage.getItem("userId") || null;
 let view = "home";
-let chatActive = null;
+
+// ================= SAFE DOM CHECK =================
+function safe(id) {
+  const el = document.getElementById(id);
+  if (!el) console.warn("Falta ID:", id);
+  return el;
+}
 
 // ================= INIT =================
 window.onload = () => {
-  if (user && userId) {
-    document.getElementById("auth").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("me").innerText = "@" + user;
-    render();
+
+  try {
+
+    if (user && userId) {
+      safe("auth").style.display = "none";
+      safe("app").style.display = "block";
+      safe("me").innerText = "@" + user;
+      render();
+    }
+
+  } catch (e) {
+    showError("Error en init");
   }
 };
 
-// ================= SESSION =================
-function saveSession() {
-  localStorage.setItem("user", user);
-  localStorage.setItem("userId", userId);
-}
-
-// ================= NAV =================
+// ================= NAV SAFE =================
 window.showView = (v) => {
   view = v;
   render();
@@ -37,194 +66,159 @@ window.showView = (v) => {
 
 function render() {
 
-  document.getElementById("feedView").style.display = "none";
-  document.getElementById("profileView").style.display = "none";
-  document.getElementById("chatView").style.display = "none";
+  try {
 
-  if (view === "home") loadFeed();
-  if (view === "profile") loadProfile();
-  if (view === "chat") loadChat();
+    const feed = safe("feedView");
+    const profile = safe("profileView");
+    const chat = safe("chatView");
+
+    if (!feed || !profile || !chat) {
+      showError("Faltan vistas en HTML");
+      return;
+    }
+
+    feed.style.display = "none";
+    profile.style.display = "none";
+    chat.style.display = "none";
+
+    if (view === "home") loadFeed();
+    if (view === "profile") loadProfile();
+    if (view === "chat") loadChat();
+
+  } catch (e) {
+    showError("Render falló");
+  }
 }
 
-// ================= REGISTER =================
+// ================= REGISTER SAFE =================
 window.register = async () => {
 
-  const username = document.getElementById("user").value;
-  const phone = document.getElementById("phone").value;
-  const pass = document.getElementById("pass").value;
+  try {
 
-  if (!username || !phone || !pass) return alert("Completa todo");
+    const username = safe("user").value;
+    const phone = safe("phone").value;
+    const pass = safe("pass").value;
 
-  const exists = await db.collection("users")
-    .where("username", "==", username)
-    .get();
+    if (!username || !phone || !pass)
+      return showError("Completa todos los campos");
 
-  if (!exists.empty) return alert("Usuario ya existe");
+    const doc = await db.collection("users").add({
+      username,
+      phone,
+      password: pass,
+      followers: 110000
+    });
 
-  const doc = await db.collection("users").add({
-    username,
-    phone,
-    password: pass,
-    followers: 110000
-  });
+    user = username;
+    userId = doc.id;
 
-  user = username;
-  userId = doc.id;
+    localStorage.setItem("user", user);
+    localStorage.setItem("userId", userId);
 
-  saveSession();
+    safe("auth").style.display = "none";
+    safe("app").style.display = "block";
 
-  document.getElementById("auth").style.display = "none";
-  document.getElementById("app").style.display = "block";
+    safe("me").innerText = "@" + user;
 
-  document.getElementById("me").innerText = "@" + user;
+    view = "home";
+    render();
 
-  view = "home";
-  render();
+  } catch (e) {
+    showError("Error en registro");
+  }
 };
 
-// ================= LOGIN =================
+// ================= LOGIN SAFE =================
 window.login = async () => {
 
-  const phone = document.getElementById("phone").value;
-  const pass = document.getElementById("pass").value;
+  try {
 
-  const snap = await db.collection("users")
-    .where("phone", "==", phone)
-    .where("password", "==", pass)
-    .get();
+    const phone = safe("phone").value;
+    const pass = safe("pass").value;
 
-  if (snap.empty) return alert("Datos incorrectos");
+    const snap = await db.collection("users")
+      .where("phone", "==", phone)
+      .where("password", "==", pass)
+      .get();
 
-  snap.forEach(d => {
-    user = d.data().username;
-    userId = d.id;
-  });
+    if (snap.empty) return showError("Usuario incorrecto");
 
-  saveSession();
+    snap.forEach(d => {
+      user = d.data().username;
+      userId = d.id;
+    });
 
-  document.getElementById("auth").style.display = "none";
-  document.getElementById("app").style.display = "block";
+    localStorage.setItem("user", user);
+    localStorage.setItem("userId", userId);
 
-  document.getElementById("me").innerText = "@" + user;
+    safe("auth").style.display = "none";
+    safe("app").style.display = "block";
 
-  view = "home";
-  render();
+    safe("me").innerText = "@" + user;
+
+    view = "home";
+    render();
+
+  } catch (e) {
+    showError("Error login Firebase");
+  }
 };
 
-// ================= FEED =================
+// ================= FEED SAFE =================
 async function loadFeed() {
 
-  const feed = document.getElementById("feedView");
-  feed.style.display = "block";
-  feed.innerHTML = "";
+  try {
 
-  const snap = await db.collection("posts")
-    .orderBy("createdAt", "desc")
-    .limit(10)
-    .get();
+    const feed = safe("feedView");
+    feed.style.display = "block";
+    feed.innerHTML = "";
 
-  snap.forEach(p => {
+    const snap = await db.collection("posts")
+      .orderBy("createdAt", "desc")
+      .limit(10)
+      .get();
 
-    const d = p.data();
+    snap.forEach(p => {
 
-    feed.innerHTML += `
-      <div class="post">
+      const d = p.data();
 
-        <b onclick="openProfile('${d.userId}','${d.username}')">
-          @${d.username}
-        </b>
-
-        <p>${d.text}</p>
-
-        <button onclick="toggleComment('${p.id}')">Comentar</button>
-        <button onclick="openChat('${d.userId}')">Mensaje</button>
-
-        <div id="c-${p.id}" style="display:none;">
-          <input id="i-${p.id}">
-          <button onclick="addComment('${p.id}')">Enviar</button>
+      feed.innerHTML += `
+        <div class="post">
+          <b>@${d.username}</b>
+          <p>${d.text}</p>
         </div>
+      `;
+    });
 
-      </div>
-    `;
-  });
+  } catch (e) {
+    showError("Error cargando feed");
+  }
 }
 
-// ================= COMMENTS =================
-window.toggleComment = (id) => {
-  const box = document.getElementById("c-" + id);
-  box.style.display = box.style.display === "block" ? "none" : "block";
-};
+// ================= PROFILE SAFE =================
+async function loadProfile() {
 
-window.addComment = async (id) => {
+  try {
 
-  const text = document.getElementById("i-" + id).value;
+    const p = safe("profileView");
+    p.style.display = "block";
+    p.innerHTML = "<h3>Perfil</h3>";
 
-  await db.collection("comments").add({
-    postId: id,
-    text,
-    user
-  });
+  } catch (e) {
+    showError("Error perfil");
+  }
+}
 
-  loadFeed();
-};
-
-// ================= PROFILE =================
-window.openProfile = async (uid, username) => {
-
-  view = "profile";
-  render();
-
-  const snap = await db.collection("posts")
-    .where("userId", "==", uid)
-    .get();
-
-  let html = `<h2>@${username}</h2>`;
-
-  snap.forEach(p => {
-    html += `<div class="post">${p.data().text}</div>`;
-  });
-
-  document.getElementById("profileView").innerHTML = html;
-};
-
-// ================= CHAT =================
-window.openChat = async (targetId) => {
-
-  const chat = await db.collection("chats").add({
-    users: [userId, targetId]
-  });
-
-  chatActive = chat.id;
-  view = "chat";
-  render();
-
-  loadChat();
-};
-
+// ================= CHAT SAFE =================
 async function loadChat() {
 
-  const snap = await db.collection("messages")
-    .where("chatId", "==", chatActive)
-    .get();
+  try {
 
-  let html = "";
+    const c = safe("chatView");
+    c.style.display = "block";
+    c.innerHTML = "<h3>Chat</h3>";
 
-  snap.forEach(m => {
-    html += `<div>${m.data().from}: ${m.data().text}</div>`;
-  });
-
-  document.getElementById("chatView").innerHTML = html;
+  } catch (e) {
+    showError("Error chat");
+  }
 }
-
-// ================= SEND =================
-window.sendMessage = async () => {
-
-  await db.collection("messages").add({
-    chatId: chatActive,
-    from: user,
-    text: msgInput.value
-  });
-
-  msgInput.value = "";
-  loadChat();
-};
