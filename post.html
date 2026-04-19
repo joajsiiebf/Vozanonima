@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Post</title>
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div id="postView"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, doc, getDoc } 
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+  authDomain: "vozanonimasm.firebaseapp.com",
+  projectId: "vozanonimasm"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const id = new URLSearchParams(location.search).get("id");
+
+async function load() {
+  const snap = await getDoc(doc(db, "posts", id));
+
+  if (!snap.exists()) {
+    document.body.innerHTML = "Post no encontrado";
+    return;
+  }
+
+  const p = snap.data();
+
+  document.getElementById("postView").innerHTML = `
+    <div class="post">
+      <p>${p.text}</p>
+      <small>Likes: ${p.likes || 0}</small>
+    </div>
+
+    <button onclick="location.href='index.html'">
+      Volver
+    </button>
+  `;
+}
+
+load();
+</script>
+
+</body>
+</html>
