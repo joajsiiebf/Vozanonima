@@ -2,16 +2,19 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Voz Social</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
+<!-- TUTORIAL -->
 <div id="tutorial" class="tutorial">
   <h2>👁️ Voz Social</h2>
   <button onclick="entrar()">Entrar</button>
 </div>
 
+<!-- APP -->
 <div id="app" style="display:none;">
 
   <div class="topbar">
@@ -19,22 +22,14 @@
     <button onclick="toggleConfig()">⚙️</button>
   </div>
 
-  <!-- CONFIG COMPLETA -->
+  <!-- CONFIG -->
   <div id="config" class="config">
-    <h3>Configuración</h3>
-
     <input id="configUser" placeholder="Usuario">
-
     <button onclick="cambiarUsuario()">Guardar usuario</button>
-
     <button onclick="toggleTheme()">🌙 Modo oscuro</button>
-
-    <button onclick="toggleComments()">💬 Comentarios ON/OFF</button>
-
-    <button onclick="toggleConfig()">Cerrar</button>
   </div>
 
-  <!-- POST BOX -->
+  <!-- POST -->
   <div class="post-box">
     <textarea id="inputPost" placeholder="¿Qué estás pensando?"></textarea>
     <button onclick="crearPost()">Publicar</button>
