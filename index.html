@@ -3,17 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Social</title>
+<title>Social App</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
 <!-- LOGIN -->
-<div id="setup">
-  <h2>Crear usuario</h2>
-  <input id="username" placeholder="Usuario">
-  <button onclick="createUser()">Entrar</button>
+<div id="auth">
+  <h2>Acceder</h2>
+  <input id="user" placeholder="usuario">
+  <input id="pass" type="password" placeholder="contraseña">
+
+  <button onclick="login()">Entrar</button>
+  <button onclick="register()">Registrar</button>
 </div>
 
 <!-- APP -->
@@ -21,7 +24,6 @@
 
   <div class="topbar">
     <span id="me"></span>
-    <button onclick="logout()">Salir</button>
   </div>
 
   <div class="post-box">
@@ -30,6 +32,12 @@
   </div>
 
   <div id="feed"></div>
+
+  <div class="bottom-nav">
+    <button onclick="loadFeed()">Inicio</button>
+    <button onclick="openProfile()">Perfil</button>
+    <button onclick="openSettings()">Ajustes</button>
+  </div>
 
 </div>
 
