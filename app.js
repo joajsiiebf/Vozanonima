@@ -8,20 +8,15 @@ import {
   where,
   orderBy,
   limit,
-  doc,
   updateDoc,
-  increment,
-  onSnapshot
+  doc,
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ================= FIREBASE =================
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
-  projectId: "vozanonimasm",
-  storageBucket: "vozanonimasm.firebasestorage.app",
-  messagingSenderId: "533740152067",
-  appId: "1:533740152067:web:1ec05c7842f09a9e32f536"
+  projectId: "vozanonimasm"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -32,36 +27,55 @@ let user = null;
 let userId = null;
 let postsLimit = 10;
 
-// ================= AUTO DARK MODE =================
+// ================= AUTO DARK =================
 document.body.classList.add("dark");
 
-// ================= USER =================
-window.createUser = async function () {
-  const name = document.getElementById("username").value.trim();
-  if (!name) return;
+// ================= AUTH =================
+window.register = async function () {
+  const u = userInput();
+  const p = passInput();
 
-  const q = query(collection(db, "users"), where("username", "==", name));
-  const snap = await getDocs(q);
+  await addDoc(collection(db, "users"), {
+    username: u,
+    password: p,
+    bio: "",
+    reputation: 0
+  });
 
-  if (snap.empty) {
-    const ref = await addDoc(collection(db, "users"), {
-      username: name,
-      reputation: 0
-    });
-    userId = ref.id;
-  } else {
-    snap.forEach(d => userId = d.id);
-  }
-
-  user = name;
-
-  localStorage.setItem("user", JSON.stringify({ user, userId }));
-
-  enterApp();
+  alert("Usuario creado");
 };
 
-function enterApp() {
-  document.getElementById("setup").style.display = "none";
+window.login = async function () {
+  const u = userInput();
+  const p = passInput();
+
+  const q = query(collection(db, "users"),
+    where("username", "==", u),
+    where("password", "==", p)
+  );
+
+  const snap = await getDocs(q);
+
+  if (snap.empty) return alert("Incorrecto");
+
+  snap.forEach(d => {
+    user = d.data().username;
+    userId = d.id;
+  });
+
+  enter();
+};
+
+function userInput() {
+  return document.getElementById("user").value;
+}
+
+function passInput() {
+  return document.getElementById("pass").value;
+}
+
+function enter() {
+  document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
 
   document.getElementById("me").innerText = "@" + user;
@@ -69,40 +83,33 @@ function enterApp() {
   loadFeed();
 }
 
-// auto login
-const saved = JSON.parse(localStorage.getItem("user"));
-if (saved) {
-  user = saved.user;
-  userId = saved.userId;
-  setTimeout(enterApp, 0);
-}
-
-// ================= CREATE POST =================
+// ================= POSTS =================
 window.createPost = async function () {
   const text = document.getElementById("postText").value;
-  if (!text) return;
 
   await addDoc(collection(db, "posts"), {
     text,
     userId,
-    likes: 0,
-    createdAt: new Date()
+    createdAt: new Date(),
+    likes: 0
   });
 
   document.getElementById("postText").value = "";
+
+  loadFeed();
 };
 
 // ================= LIKE =================
 window.like = async function (id) {
-  const ref = doc(db, "posts", id);
-
-  await updateDoc(ref, {
+  await updateDoc(doc(db, "posts", id), {
     likes: increment(1)
   });
+
+  loadFeed();
 };
 
 // ================= FEED =================
-async function loadFeed() {
+window.loadFeed = async function () {
   const feed = document.getElementById("feed");
 
   const q = query(
@@ -127,7 +134,7 @@ async function loadFeed() {
         </button>
 
         <a href="post.html?id=${p.id}">
-          Ver publicación
+          Ver post
         </a>
       </div>
     `;
@@ -135,19 +142,22 @@ async function loadFeed() {
 
   if (snap.size === postsLimit) {
     feed.innerHTML += `
-      <button onclick="showMore()">Show more</button>
+      <button onclick="more()">Show more</button>
     `;
   }
-}
+};
 
-// ================= SHOW MORE =================
-window.showMore = function () {
+window.more = function () {
   postsLimit += 10;
   loadFeed();
 };
 
-// ================= LOGOUT =================
-window.logout = function () {
-  localStorage.clear();
-  location.reload();
+// ================= PROFILE =================
+window.openProfile = function () {
+  alert("Perfil: @" + user);
+};
+
+// ================= SETTINGS =================
+window.openSettings = function () {
+  alert("Settings: idioma / tema / usuario");
 };
