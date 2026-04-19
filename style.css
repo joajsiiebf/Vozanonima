@@ -1,176 +1,102 @@
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, Arial;
+  font-family: system-ui;
   background: #0f1115;
-  color: #fff;
-}
-
-/* ================= LOGIN ================= */
-#setup {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 20px;
-  gap: 10px;
-  text-align: center;
-}
-
-#setup input {
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
-  outline: none;
-}
-
-#setup button {
-  padding: 12px;
-  border-radius: 12px;
-  border: none;
-  background: #1877f2;
   color: white;
-  font-weight: bold;
 }
 
-/* ================= TOP BAR ================= */
+/* APP */
+#app {
+  padding-bottom: 70px;
+}
+
+/* TOP */
 .topbar {
   position: fixed;
   top: 0;
   width: 100%;
-  height: 55px;
-  background: #181a20;
+  height: 50px;
+  background: #18191a;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 15px;
-  z-index: 1000;
-  border-bottom: 1px solid #222;
+  padding: 0 12px;
+  border-bottom: 1px solid #2a2a2a;
+  z-index: 10;
 }
 
-/* ================= APP ================= */
-#app {
-  padding-top: 65px;
-}
-
-/* ================= POST BOX ================= */
-.post-box {
-  background: #181a20;
-  margin: 10px;
-  padding: 12px;
-  border-radius: 14px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-.post-box textarea {
-  width: 100%;
-  height: 70px;
-  background: #0f1115;
-  border: none;
-  border-radius: 10px;
-  padding: 10px;
-  color: white;
-  outline: none;
-  resize: none;
-}
-
-.post-box button {
-  margin-top: 8px;
-  width: 100%;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  background: #1877f2;
-  color: white;
-  font-weight: bold;
-}
-
-/* ================= FEED ================= */
+/* FEED */
 #feed {
+  margin-top: 60px;
   padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 }
 
-/* POST CARD */
+/* POST */
 #feed > div {
-  background: #181a20;
+  background: #242526;
   padding: 12px;
-  border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  margin-bottom: 10px;
+  border-radius: 10px;
 }
 
-/* TEXT POST */
+/* POST TEXT */
 #feed p {
-  margin: 0 0 10px 0;
-  font-size: 15px;
+  margin: 0 0 8px 0;
 }
 
-/* BUTTONS */
+/* INPUT */
+.post-box {
+  margin: 60px 10px 10px;
+  background: #242526;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+textarea {
+  width: 100%;
+  height: 60px;
+  border: none;
+  background: #3a3b3c;
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+/* BOTONES */
 button {
-  cursor: pointer;
-}
-
-#feed button {
-  margin-right: 5px;
+  background: #3a3b3c;
+  border: none;
+  color: white;
   padding: 6px 10px;
   border-radius: 20px;
-  border: none;
-  background: #2a2d36;
-  color: white;
-  font-size: 13px;
+  margin-top: 5px;
 }
 
-/* INPUT COMMENT */
-#feed input {
+/* BOTTOM NAV (FACEBOOK STYLE) */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
   width: 100%;
-  margin-top: 8px;
-  padding: 8px;
-  border-radius: 10px;
-  border: none;
-  background: #0f1115;
-  color: white;
-  outline: none;
+  height: 55px;
+  background: #18191a;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #2a2a2a;
 }
 
-/* ================= NOTIFICATIONS PANEL ================= */
-#notificationsPanel,
-#settingsPanel {
+.bottom-nav button {
+  background: none;
+  font-size: 18px;
+}
+
+/* NOTIFICATIONS PANEL */
+.panel {
   position: fixed;
   top: 0;
-  right: 0;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   background: #0f1115;
+  z-index: 999;
   padding: 20px;
-  z-index: 2000;
-  overflow-y: auto;
-}
-
-#notificationsPanel h3,
-#settingsPanel h3 {
-  margin-top: 40px;
-}
-
-/* NOTI ITEM */
-#notificationsList p {
-  background: #181a20;
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 8px;
-}
-
-/* ================= BADGE ================= */
-#notiCount {
-  background: red;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 11px;
-  margin-left: 5px;
-}
-
-/* ================= DARK MODE (extra toggle futuro) ================= */
-body.dark {
-  background: #000;
 }
