@@ -1,103 +1,155 @@
-console.log("APP INICIADA");
+// ================= FIREBASE MODULAR =================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  doc,
+  updateDoc,
+  increment,
+  query,
+  orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-
-// ================= FIREBASE (CDN COMPATIBLE) =================
+// ================= CONFIG FIREBASE =================
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "XXX",
-  appId: "XXX"
+  apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+  authDomain: "vozanonimasm.firebaseapp.com",
+  projectId: "vozanonimasm",
+  storageBucket: "vozanonimasm.firebasestorage.app",
+  messagingSenderId: "533740152067",
+  appId: "1:533740152067:web:1ec05c7842f09a9e32f536",
+  measurementId: "G-S53MVLKF66"
 };
 
-// Firebase scripts desde CDN
-const app = firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+// ================= INIT FIREBASE =================
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
 // ================= USER =================
-function getUser() {
-  return localStorage.getItem("user");
-}
+let currentUser = localStorage.getItem("user") || null;
 
-function setUser(u) {
+// ================= CREAR USER =================
+window.createUser = function () {
+  const u = document.getElementById("username").value.trim();
+
+  if (!u) return alert("Escribe un usuario");
+
+  currentUser = u;
   localStorage.setItem("user", u);
-}
 
-// ================= APP START =================
-window.entrar = function () {
-  document.getElementById("tutorial").style.display = "none";
+  document.getElementById("setup").style.display = "none";
   document.getElementById("app").style.display = "block";
 
-  if (!getUser()) {
-    setUser("Anon_" + Math.floor(Math.random() * 9999));
-  }
+  document.getElementById("me").innerText = "@" + u;
 
   loadPosts();
 };
 
-// ================= CONFIG =================
-window.toggleConfig = function () {
-  const c = document.getElementById("config");
-  c.style.display = c.style.display === "block" ? "none" : "block";
-};
+// AUTO LOGIN
+if (currentUser) {
+  setTimeout(() => {
+    document.getElementById("setup").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("me").innerText = "@" + currentUser;
+    loadPosts();
+  }, 0);
+}
 
-window.saveUser = function () {
-  const u = document.getElementById("userInput").value;
-  if (!u) return;
-  setUser(u);
-};
-
-window.toggleTheme = function () {
-  document.body.classList.toggle("dark");
-};
-
-// ================= POSTS =================
+// ================= CREAR POST =================
 window.createPost = async function () {
-  const text = document.getElementById("text").value.trim();
+  const text = document.getElementById("postText").value.trim();
   if (!text) return;
 
-  await db.collection("posts").add({
+  await addDoc(collection(db, "posts"), {
     text,
-    user: getUser(),
+    user: currentUser,
     likes: 0,
     createdAt: new Date()
   });
 
-  document.getElementById("text").value = "";
+  document.getElementById("postText").value = "";
 };
 
 // ================= LIKE =================
 window.like = async function (id) {
-  const ref = db.collection("posts").doc(id);
-  const doc = await ref.get();
-  ref.update({
-    likes: (doc.data().likes || 0) + 1
+  const ref = doc(db, "posts", id);
+
+  await updateDoc(ref, {
+    likes: increment(1)
   });
 };
 
-// ================= LOAD POSTS =================
+// ================= COMENTARIOS =================
+window.comment = async function (postId) {
+  const input = document.getElementById("c-" + postId);
+  const text = input.value.trim();
+
+  if (!text) return;
+
+  await addDoc(collection(db, "comments"), {
+    postId,
+    text,
+    user: currentUser,
+    createdAt: new Date()
+  });
+
+  input.value = "";
+};
+
+// ================= POSTS =================
 function loadPosts() {
   const feed = document.getElementById("feed");
 
-  db.collection("posts")
-    .orderBy("createdAt", "desc")
-    .onSnapshot(snapshot => {
-      feed.innerHTML = "";
+  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
 
-      snapshot.forEach(doc => {
-        const p = doc.data();
+  onSnapshot(q, (snap) => {
+    feed.innerHTML = "";
 
-        const div = document.createElement("div");
-        div.className = "post";
+    snap.forEach(post => {
+      const p = post.data();
 
-        div.innerHTML = `
-          <b>${p.user}</b>
-          <p>${p.text}</p>
-          <button onclick="like('${doc.id}')">❤️ ${p.likes || 0}</button>
-        `;
+      const div = document.createElement("div");
+      div.className = "post";
 
-        feed.appendChild(div);
-      });
+      div.innerHTML = `
+        <b>@${p.user}</b>
+        <p>${p.text}</p>
+
+        <button onclick="like('${post.id}')">❤️ ${p.likes || 0}</button>
+
+        <div id="comments-${post.id}"></div>
+
+        <input id="c-${post.id}" placeholder="Comentar...">
+        <button onclick="comment('${post.id}')">Enviar</button>
+      `;
+
+      feed.appendChild(div);
+
+      loadComments(post.id);
     });
+  });
+}
+
+// ================= COMMENTS REAL TIME =================
+function loadComments(postId) {
+  const box = document.getElementById("comments-" + postId);
+
+  const q = query(collection(db, "comments"), orderBy("createdAt", "asc"));
+
+  onSnapshot(q, (snap) => {
+    box.innerHTML = "";
+
+    snap.forEach(c => {
+      const d = c.data();
+
+      if (d.postId === postId) {
+        const div = document.createElement("div");
+        div.className = "comment";
+        div.innerHTML = `<b>@${d.user}</b>: ${d.text}`;
+        box.appendChild(div);
+      }
+    });
+  });
 }
