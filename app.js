@@ -3,17 +3,17 @@ import {
   getFirestore,
   collection,
   addDoc,
+  getDocs,
+  query,
+  where,
   onSnapshot,
+  orderBy,
   doc,
   updateDoc,
-  increment,
-  query,
-  orderBy,
-  getDocs,
-  where
+  increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ================= FIREBASE =================
+// ================= FIREBASE AUTO =================
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
@@ -23,50 +23,67 @@ const firebaseConfig = {
   appId: "1:533740152067:web:1ec05c7842f09a9e32f536"
 };
 
+// INIT
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 // ================= STATE =================
-let currentUser = null;
+let user = null;
+let userId = null;
 
-// ================= USER =================
+// ================= AUTO USER =================
 window.createUser = async function () {
-  const u = document.getElementById("username").value.trim();
-  if (!u) return;
+  const username = document.getElementById("username").value.trim();
+  if (!username) return;
 
-  const exists = await getDocs(query(collection(db, "users"), where("username", "==", u)));
+  // crea o reutiliza usuario automáticamente
+  const q = query(collection(db, "users"), where("username", "==", username));
+  const snap = await getDocs(q);
 
-  if (!exists.empty) return alert("Usuario en uso");
+  if (!snap.empty) {
+    snap.forEach(d => {
+      userId = d.id;
+      user = username;
+    });
+  } else {
+    const docRef = await addDoc(collection(db, "users"), {
+      username,
+      reputation: 0,
+      createdAt: new Date()
+    });
 
-  await addDoc(collection(db, "users"), { username: u });
+    user = username;
+    userId = docRef.id;
+  }
 
-  currentUser = u;
-  localStorage.setItem("user", u);
+  localStorage.setItem("user", JSON.stringify({ user, userId }));
 
   enterApp();
 };
 
-function enterApp() {
-  document.getElementById("setup").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  document.getElementById("me").innerText = "@" + currentUser;
-
-  loadFeed();
-}
-
-// auto login
-if (localStorage.getItem("user")) {
-  currentUser = localStorage.getItem("user");
+// ================= AUTO LOGIN =================
+const saved = JSON.parse(localStorage.getItem("user"));
+if (saved) {
+  user = saved.user;
+  userId = saved.userId;
   setTimeout(enterApp, 0);
 }
 
-// ================= POST =================
+// ================= ENTER APP =================
+function enterApp() {
+  document.getElementById("setup").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  loadFeed();
+}
+
+// ================= POSTS AUTO =================
 window.createPost = async function () {
   const text = document.getElementById("postText").value;
+  if (!text) return;
 
   await addDoc(collection(db, "posts"), {
     text,
-    user: currentUser,
+    userId,
     likes: 0,
     createdAt: new Date()
   });
@@ -74,62 +91,30 @@ window.createPost = async function () {
   document.getElementById("postText").value = "";
 };
 
-// ================= LIKE (1 POR USER) =================
+// ================= LIKE =================
 window.like = async function (postId) {
 
-  const likeCheck = await getDocs(
+  const check = await getDocs(
     query(collection(db, "likes"),
     where("postId", "==", postId),
-    where("user", "==", currentUser))
+    where("userId", "==", userId))
   );
 
-  if (!likeCheck.empty) return;
+  if (!check.empty) return;
 
   await addDoc(collection(db, "likes"), {
     postId,
-    user: currentUser
+    userId
   });
 
   const ref = doc(db, "posts", postId);
+
   await updateDoc(ref, {
     likes: increment(1)
   });
 };
 
-// ================= FOLLOW =================
-window.follow = async function (user) {
-  await addDoc(collection(db, "follows"), {
-    from: currentUser,
-    to: user
-  });
-};
-
-// ================= PROFILE =================
-window.openProfile = async function (user) {
-  document.getElementById("profileModal").style.display = "block";
-  document.getElementById("profileName").innerText = "@" + user;
-
-  const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-
-  const snap = await getDocs(q);
-
-  const box = document.getElementById("profilePosts");
-  box.innerHTML = "";
-
-  snap.forEach(p => {
-    if (p.data().user === user) {
-      const div = document.createElement("div");
-      div.innerHTML = `<p>${p.data().text}</p>`;
-      box.appendChild(div);
-    }
-  });
-};
-
-window.closeProfile = function () {
-  document.getElementById("profileModal").style.display = "none";
-};
-
-// ================= FEED =================
+// ================= FEED AUTO =================
 function loadFeed() {
   const feed = document.getElementById("feed");
 
@@ -138,65 +123,21 @@ function loadFeed() {
   onSnapshot(q, snap => {
     feed.innerHTML = "";
 
-    snap.forEach(post => {
-      const p = post.data();
+    snap.forEach(pDoc => {
+      const p = pDoc.data();
 
       const div = document.createElement("div");
 
       div.innerHTML = `
-        <b onclick="openProfile('${p.user}')">@${p.user}</b>
-        <button onclick="follow('${p.user}')">Seguir</button>
-
+        <b>@${p.userId}</b>
         <p>${p.text}</p>
 
-        <button onclick="like('${post.id}')">❤️ ${p.likes || 0}</button>
-
-        <div id="c-${post.id}"></div>
-
-        <input id="i-${post.id}" placeholder="Comentario">
-        <button onclick="comment('${post.id}')">Enviar</button>
+        <button onclick="like('${pDoc.id}')">
+          ❤️ ${p.likes || 0}
+        </button>
       `;
 
       feed.appendChild(div);
-
-      loadComments(post.id);
     });
   });
 }
-
-// ================= COMMENTS =================
-window.comment = async function (postId) {
-  const input = document.getElementById("i-" + postId);
-
-  await addDoc(collection(db, "comments"), {
-    postId,
-    text: input.value,
-    user: currentUser
-  });
-
-  input.value = "";
-};
-
-// ================= COMMENTS LOAD =================
-function loadComments(postId) {
-  const box = document.getElementById("c-" + postId);
-
-  onSnapshot(collection(db, "comments"), snap => {
-    box.innerHTML = "";
-
-    snap.forEach(c => {
-      const d = c.data();
-      if (d.postId === postId) {
-        const div = document.createElement("div");
-        div.innerHTML = `<small>@${d.user}: ${d.text}</small>`;
-        box.appendChild(div);
-      }
-    });
-  });
-}
-
-// ================= LOGOUT =================
-window.logout = function () {
-  localStorage.removeItem("user");
-  location.reload();
-};
