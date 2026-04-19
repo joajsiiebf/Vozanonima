@@ -8,7 +8,8 @@ import {
   onSnapshot,
   doc,
   updateDoc,
-  increment
+  increment,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 /* FIREBASE */
@@ -34,11 +35,6 @@ function user() {
 function setUser(u) {
   localStorage.setItem("user", u);
 }
-
-/* ======================
-   CONFIG OPTIONS
-====================== */
-let commentsEnabled = true;
 
 /* ======================
    ENTRAR
@@ -69,44 +65,81 @@ window.cambiarUsuario = function () {
   setUser(u);
 };
 
+/* ======================
+   THEME
+====================== */
 window.toggleTheme = function () {
   document.body.classList.toggle("dark");
+  localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
 };
 
-window.toggleComments = function () {
-  commentsEnabled = !commentsEnabled;
-  alert("Comentarios: " + (commentsEnabled ? "ON" : "OFF"));
-};
+function loadTheme() {
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark");
+  }
+}
 
 /* ======================
    POST
 ====================== */
 window.crearPost = async function () {
-  const text = document.getElementById("inputPost").value;
+  const text = document.getElementById("inputPost").value.trim();
   if (!text) return;
 
   await addDoc(collection(db, "posts"), {
     text,
     user: user(),
-    reactions: {
-      like: 0,
-      love: 0,
-      wow: 0,
-      angry: 0
-    }
+    likes: 0
   });
 
   document.getElementById("inputPost").value = "";
 };
 
 /* ======================
-   REACCIONES (1 POR USUARIO SIMULADO)
+   LIKE
 ====================== */
-window.react = async function (id, type) {
+window.like = async function (id) {
   await updateDoc(doc(db, "posts", id), {
-    [`reactions.${type}`]: increment(1)
+    likes: increment(1)
   });
 };
+
+/* ======================
+   COMMENT
+====================== */
+window.comentar = async function (postId) {
+  const input = document.getElementById("c-" + postId);
+  const text = input.value.trim();
+  if (!text || !user()) return;
+
+  await addDoc(collection(db, "comments"), {
+    postId,
+    text,
+    user: user()
+  });
+
+  input.value = "";
+};
+
+/* ======================
+   LOAD COMMENTS
+====================== */
+async function loadComments(postId, container) {
+  const snap = await getDocs(collection(db, "comments"));
+
+  container.innerHTML = "";
+
+  snap.forEach(d => {
+    const c = d.data();
+
+    if (c.postId === postId) {
+      const div = document.createElement("div");
+      div.className = "comment";
+      div.innerHTML = `<b>${c.user}</b>: ${c.text}`;
+      container.appendChild(div);
+    }
+  });
+}
 
 /* ======================
    POSTS
@@ -129,30 +162,27 @@ function loadPosts() {
         <b>${data.user}</b>
         <p>${data.text}</p>
 
-        <div class="reactions">
-          <button onclick="react('${d.id}','like')">👍 ${data.reactions?.like || 0}</button>
-          <button onclick="react('${d.id}','love')">❤️ ${data.reactions?.love || 0}</button>
-          <button onclick="react('${d.id}','wow')">😮 ${data.reactions?.wow || 0}</button>
-          <button onclick="react('${d.id}','angry')">😡 ${data.reactions?.angry || 0}</button>
+        <div class="actions">
+          <button onclick="like('${d.id}')">❤️ ${data.likes || 0}</button>
         </div>
 
+        <div class="comments" id="comments-${d.id}"></div>
+
         ${
-          commentsEnabled && user()
-            ? `<button onclick="alert('comentarios en siguiente upgrade')">💬 Comentar</button>`
+          user()
+            ? `<div class="comment-box">
+                <input id="c-${d.id}" placeholder="Comentar...">
+                <button onclick="comentar('${d.id}')">Enviar</button>
+              </div>`
             : ""
         }
       `;
 
       feed.appendChild(div);
+
+      setTimeout(() => {
+        loadComments(d.id, document.getElementById("comments-" + d.id));
+      }, 300);
     });
   });
-}
-
-/* ======================
-   THEME LOAD
-====================== */
-function loadTheme() {
-  if (localStorage.getItem("theme") === "dark") {
-    document.body.classList.add("dark");
-  }
 }
