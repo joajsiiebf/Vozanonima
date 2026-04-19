@@ -26,7 +26,38 @@ const db = getFirestore(app);
 // ================= STATE =================
 let user = null;
 let userId = null;
-const followingMap = {};
+
+const OWNER = "jscol_owner";
+
+// ================= VIEW SYSTEM =================
+window.showView = function (view) {
+
+  hideAll();
+
+  if (view === "home") {
+    document.getElementById("feedView").style.display = "block";
+    loadFeed();
+  }
+
+  if (view === "search") {
+    document.getElementById("searchView").style.display = "block";
+  }
+
+  if (view === "profile") {
+    openProfile(userId, user);
+  }
+
+  if (view === "settings") {
+    document.getElementById("settingsView").style.display = "block";
+  }
+};
+
+function hideAll() {
+  document.getElementById("feedView").style.display = "none";
+  document.getElementById("searchView").style.display = "none";
+  document.getElementById("profileView").style.display = "none";
+  document.getElementById("settingsView").style.display = "none";
+}
 
 // ================= REGISTER =================
 window.register = async function () {
@@ -35,11 +66,9 @@ window.register = async function () {
   const phone = document.getElementById("phone").value.trim();
   const pass = document.getElementById("pass").value;
 
-  if (!username || !phone || !pass) return;
-
   const q1 = query(collection(db, "users"), where("phone", "==", phone));
   const s1 = await getDocs(q1);
-  if (!s1.empty) return alert("Teléfono ya registrado");
+  if (!s1.empty) return alert("Teléfono usado");
 
   const q2 = query(collection(db, "users"), where("username", "==", username));
   const s2 = await getDocs(q2);
@@ -49,7 +78,7 @@ window.register = async function () {
     username,
     phone,
     password: pass,
-    followers: 0,
+    followers: username === OWNER ? 110000 : 0,
     following: 0
   });
 
@@ -70,27 +99,22 @@ window.login = async function () {
 
   const snap = await getDocs(q);
 
-  if (snap.empty) return alert("Datos incorrectos");
+  if (snap.empty) return alert("Error login");
 
   snap.forEach(u => {
     user = u.data().username;
     userId = u.id;
   });
 
-  enterApp();
-};
-
-// ================= ENTER APP =================
-function enterApp() {
   document.getElementById("auth").style.display = "none";
   document.getElementById("app").style.display = "block";
 
   document.getElementById("me").innerText = "@" + user;
 
-  loadFeed();
-}
+  showView("home");
+};
 
-// ================= CREATE POST =================
+// ================= POSTS =================
 window.createPost = async function () {
 
   const text = document.getElementById("postText").value;
@@ -108,19 +132,8 @@ window.createPost = async function () {
   loadFeed();
 };
 
-// ================= LIKE =================
-window.like = async function (id) {
-  await updateDoc(doc(db, "posts", id), {
-    likes: increment(1)
-  });
-
-  loadFeed();
-};
-
 // ================= FEED =================
 window.loadFeed = async function () {
-
-  document.getElementById("profileView").innerHTML = "";
 
   const feed = document.getElementById("feed");
 
@@ -135,47 +148,43 @@ window.loadFeed = async function () {
   feed.innerHTML = "";
 
   snap.forEach(p => {
+
     const d = p.data();
 
     feed.innerHTML += `
       <div class="post">
 
-        <div class="username"
-          onclick="openProfile('${d.userId}','${d.username}')">
+        <div onclick="openProfile('${d.userId}','${d.username}')"
+             class="username">
           @${d.username}
         </div>
 
         <p>${d.text}</p>
-
-        <button onclick="like('${p.id}')">
-          Like (${d.likes || 0})
-        </button>
 
       </div>
     `;
   });
 };
 
-// ================= PROFILE REAL =================
+// ================= PROFILE VIEW =================
 window.openProfile = async function (uid, username) {
+
+  hideAll();
 
   const q = query(collection(db, "posts"), where("userId", "==", uid));
   const snap = await getDocs(q);
 
-  const userData = await getUser(uid);
+  let followers = username === OWNER ? 110000 : 0;
 
   let html = `
     <div class="profile-header">
+
       <h2>@${username}</h2>
 
       <p>
-        Seguidores: ${userData.followers || 0} |
-        Siguiendo: ${userData.following || 0}
+        Seguidores: ${followers} | Siguiendo: 0
       </p>
 
-      <button onclick="toggleFollow('${uid}')">
-        Seguir / Dejar de seguir
-      </button>
     </div>
   `;
 
@@ -187,31 +196,8 @@ window.openProfile = async function (uid, username) {
     `;
   });
 
-  document.getElementById("feed").innerHTML = "";
   document.getElementById("profileView").innerHTML = html;
-};
-
-// ================= GET USER =================
-async function getUser(uid) {
-  const q = query(collection(db, "users"), where("__name__", "==", uid));
-  const snap = await getDocs(q);
-
-  let data = {};
-  snap.forEach(u => data = u.data());
-
-  return data;
-}
-
-// ================= FOLLOW =================
-window.toggleFollow = function (uid) {
-
-  if (!followingMap[uid]) {
-    followingMap[uid] = true;
-    alert("Siguiendo usuario");
-  } else {
-    delete followingMap[uid];
-    alert("Dejaste de seguir");
-  }
+  document.getElementById("profileView").style.display = "block";
 };
 
 // ================= SEARCH =================
@@ -236,11 +222,7 @@ window.searchUsers = async function () {
           <p>@${d.username}</p>
 
           <button onclick="openProfile('${u.id}','${d.username}')">
-            Ver perfil
-          </button>
-
-          <button onclick="toggleFollow('${u.id}')">
-            Follow
+            Ver
           </button>
 
         </div>
@@ -252,10 +234,6 @@ window.searchUsers = async function () {
 };
 
 // ================= SETTINGS =================
-window.openSettings = function () {
-  document.getElementById("settings").style.display = "block";
-};
-
 window.toggleTheme = function () {
   document.body.classList.toggle("light");
 };
@@ -265,10 +243,10 @@ window.toggleLang = function () {
 };
 
 window.changeUser = function () {
-  const newUser = prompt("Nuevo usuario");
-  if (!newUser) return;
+  const u = prompt("Nuevo usuario");
+  if (!u) return;
 
-  user = newUser;
+  user = u;
   document.getElementById("me").innerText = "@" + user;
 };
 
