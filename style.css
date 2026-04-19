@@ -1,40 +1,176 @@
 body {
   margin: 0;
-  font-family: system-ui;
-  background: #eef0f3;
+  font-family: system-ui, -apple-system, Arial;
+  background: #0f1115;
+  color: #fff;
 }
 
+/* ================= LOGIN ================= */
 #setup {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   padding: 20px;
+  gap: 10px;
+  text-align: center;
 }
 
-input, textarea {
-  width: 100%;
-  padding: 10px;
-  margin-top: 10px;
+#setup input {
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  outline: none;
 }
 
-button {
-  margin-top: 10px;
-  padding: 10px;
-  width: 100%;
-}
-
-.topbar {
-  background: white;
-  padding: 10px;
+#setup button {
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: #1877f2;
+  color: white;
   font-weight: bold;
 }
 
-.post {
-  background: white;
-  margin: 10px;
-  padding: 10px;
-  border-radius: 10px;
+/* ================= TOP BAR ================= */
+.topbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 55px;
+  background: #181a20;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 15px;
+  z-index: 1000;
+  border-bottom: 1px solid #222;
 }
 
-.comment {
-  margin-left: 10px;
+/* ================= APP ================= */
+#app {
+  padding-top: 65px;
+}
+
+/* ================= POST BOX ================= */
+.post-box {
+  background: #181a20;
+  margin: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.post-box textarea {
+  width: 100%;
+  height: 70px;
+  background: #0f1115;
+  border: none;
+  border-radius: 10px;
+  padding: 10px;
+  color: white;
+  outline: none;
+  resize: none;
+}
+
+.post-box button {
+  margin-top: 8px;
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #1877f2;
+  color: white;
+  font-weight: bold;
+}
+
+/* ================= FEED ================= */
+#feed {
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* POST CARD */
+#feed > div {
+  background: #181a20;
+  padding: 12px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* TEXT POST */
+#feed p {
+  margin: 0 0 10px 0;
+  font-size: 15px;
+}
+
+/* BUTTONS */
+button {
+  cursor: pointer;
+}
+
+#feed button {
+  margin-right: 5px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  border: none;
+  background: #2a2d36;
+  color: white;
   font-size: 13px;
-  color: #444;
+}
+
+/* INPUT COMMENT */
+#feed input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  border-radius: 10px;
+  border: none;
+  background: #0f1115;
+  color: white;
+  outline: none;
+}
+
+/* ================= NOTIFICATIONS PANEL ================= */
+#notificationsPanel,
+#settingsPanel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100vh;
+  background: #0f1115;
+  padding: 20px;
+  z-index: 2000;
+  overflow-y: auto;
+}
+
+#notificationsPanel h3,
+#settingsPanel h3 {
+  margin-top: 40px;
+}
+
+/* NOTI ITEM */
+#notificationsList p {
+  background: #181a20;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+
+/* ================= BADGE ================= */
+#notiCount {
+  background: red;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 11px;
+  margin-left: 5px;
+}
+
+/* ================= DARK MODE (extra toggle futuro) ================= */
+body.dark {
+  background: #000;
 }
