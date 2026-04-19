@@ -8,16 +8,18 @@
 </head>
 <body>
 
+<!-- TUTORIAL -->
 <div id="tutorial" class="tutorial">
   <h2>👁️ Voz Social</h2>
   <button onclick="entrar()">Entrar</button>
 </div>
 
+<!-- APP -->
 <div id="app" style="display:none;">
 
+  <!-- TOP -->
   <div class="topbar">
-    Voz Social
-    <span id="notif">🔔 0</span>
+    <span>Voz Social</span>
     <button onclick="toggleConfig()">⚙️</button>
   </div>
 
@@ -25,13 +27,13 @@
   <div id="config" class="config">
     <input id="configUser" placeholder="Cambiar usuario">
     <button onclick="cambiarUsuario()">Guardar</button>
-    <button onclick="toggleTheme()">Modo oscuro</button>
+    <button onclick="toggleTheme()">🌙 Modo</button>
   </div>
 
   <!-- STORIES -->
   <div id="stories"></div>
 
-  <!-- COMPOSER -->
+  <!-- POST -->
   <div class="post-box">
     <textarea id="inputChisme" placeholder="¿Qué estás pensando?"></textarea>
     <button onclick="enviarPost()">Publicar</button>
