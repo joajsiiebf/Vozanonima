@@ -3,7 +3,6 @@ body {
   font-family: system-ui;
   background: var(--bg);
   color: var(--text);
-  transition: 0.3s;
 }
 
 /* LIGHT */
@@ -22,7 +21,7 @@ body.dark {
   --border: #3a3b3c;
 }
 
-/* TOPBAR */
+/* TOP */
 .topbar {
   position: fixed;
   top: 0;
@@ -34,31 +33,11 @@ body.dark {
   border-bottom: 1px solid var(--border);
 }
 
-/* APP */
+/* APP CENTER */
 #app {
-  padding-top: 60px;
   max-width: 600px;
   margin: auto;
-}
-
-/* STORIES */
-#stories {
-  margin-top: 60px;
-  display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  padding: 10px;
-}
-
-.story {
-  min-width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: #1877f2;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding-top: 60px;
 }
 
 /* POST */
@@ -74,12 +53,40 @@ body.dark {
   height: 70px;
   border: 1px solid var(--border);
   border-radius: 10px;
+  padding: 10px;
 }
 
-/* POST ITEM */
+/* POST CARD */
 .post {
   background: var(--card);
   margin: 10px;
   padding: 12px;
+  border-radius: 14px;
+}
+
+/* REACTIONS */
+.reactions button {
+  margin-right: 5px;
+  border: none;
+  padding: 5px 8px;
+  border-radius: 8px;
+}
+
+/* COMMENTS */
+.comment {
+  font-size: 13px;
+  margin-top: 5px;
+  opacity: 0.8;
+}
+
+/* CONFIG */
+.config {
+  display: none;
+  position: fixed;
+  right: 10px;
+  top: 60px;
+  background: var(--card);
+  padding: 12px;
   border-radius: 12px;
+  width: 220px;
 }
