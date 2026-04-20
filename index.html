@@ -7,75 +7,61 @@
 
 <style>
 
-:root{
-  --bg:#07070b;
-  --card:rgba(255,255,255,0.05);
-  --text:#f5f5f7;
-  --muted:#9ca3af;
-  --accent:#7c3aed;
-  --stroke:rgba(255,255,255,0.06);
-}
-
-.light{
-  --bg:#f5f5f7;
-  --card:#ffffff;
-  --text:#0b0b10;
-  --muted:#6b7280;
-}
-
-/* ================= BASE ================= */
 body{
   margin:0;
   font-family:-apple-system,BlinkMacSystemFont;
-  background:var(--bg);
-  color:var(--text);
+  background:#0b0b10;
+  color:white;
   overflow:hidden;
 }
 
-/* ================= ROUTER ================= */
-.screen{
-  position:absolute;
+/* ================= APP ROOT ================= */
+#app{
+  position:relative;
   width:100%;
   height:100vh;
+  overflow:hidden;
+}
+
+/* ================= SCREEN SYSTEM ================= */
+.screen{
+  position:absolute;
+  inset:0;
   opacity:0;
-  transform:translateY(20px);
+  transform:translateX(30px);
   pointer-events:none;
-  transition:.35s ease;
+  transition:.35s cubic-bezier(.2,.8,.2,1);
+  background:#0b0b10;
 }
 
 .screen.active{
   opacity:1;
-  transform:translateY(0);
+  transform:translateX(0);
   pointer-events:auto;
 }
 
-/* ================= TOPBAR ================= */
-.topbar{
+/* ================= HEADER ================= */
+.header{
   display:flex;
   justify-content:space-between;
   padding:16px;
   font-weight:700;
+  align-items:center;
 }
 
-/* ================= POST ================= */
+/* ================= FEED ================= */
 .post{
-  margin:10px 12px;
+  margin:10px;
   padding:14px;
-  background:var(--card);
-  border-radius:18px;
-  border:1px solid var(--stroke);
+  background:#15151c;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,0.05);
   animation:fade .2s ease;
 }
 
 @keyframes fade{
   from{opacity:0;transform:scale(.98)}
   to{opacity:1;transform:scale(1)}
-}
-
-.header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
 }
 
 /* ================= NAV ================= */
@@ -85,67 +71,60 @@ body{
   left:50%;
   transform:translateX(-50%);
   width:92%;
-  height:64px;
-  background:rgba(20,20,25,0.6);
-  backdrop-filter:blur(30px);
-  border-radius:24px;
+  height:60px;
+  background:rgba(20,20,25,0.7);
+  backdrop-filter:blur(20px);
+  border-radius:20px;
   display:flex;
   justify-content:space-around;
   align-items:center;
-  border:1px solid var(--stroke);
 }
 
 /* ================= BUTTON ================= */
 .btn{
   padding:8px 12px;
-  background:var(--accent);
+  background:#7c3aed;
   border:none;
-  border-radius:12px;
+  border-radius:10px;
   color:white;
-  font-weight:600;
 }
-
-/* ================= PANEL ================= */
-.panel{
-  position:absolute;
-  top:0;
-  right:-100%;
-  width:85%;
-  height:100vh;
-  background:#0f0f14;
-  transition:.35s ease;
-  padding:16px;
-}
-
-.panel.active{right:0}
 
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="login" class="screen active">
-  <div class="topbar">Instant</div>
-  <div style="padding:16px">
-    <button class="btn" onclick="go('feed')">Entrar</button>
-  </div>
-</div>
+<div id="app">
 
 <!-- FEED -->
-<div id="feed" class="screen">
+<div id="feed" class="screen active">
 
-  <div class="topbar">
+  <div class="header">
     <div>Instant</div>
-    <button class="btn" onclick="toggleSettings()">⚙</button>
+    <button class="btn" onclick="router.push('settings')">⚙</button>
   </div>
 
   <div id="feedBox"></div>
 
   <div class="nav">
-    <button class="btn" onclick="go('feed')">Home</button>
-    <button class="btn" onclick="go('profile')">Perfil</button>
-    <button class="btn" onclick="createPost()">+</button>
+    <button onclick="router.replace('feed')">Home</button>
+    <button onclick="router.push('create')">+</button>
+    <button onclick="router.push('profile')">Perfil</button>
+  </div>
+
+</div>
+
+<!-- CREATE -->
+<div id="create" class="screen">
+
+  <div class="header">
+    <button class="btn" onclick="router.back()">←</button>
+    Crear post
+  </div>
+
+  <div style="padding:16px">
+    <textarea id="text" style="width:100%;height:120px"></textarea>
+    <button class="btn" onclick="createPost()">Publicar</button>
   </div>
 
 </div>
@@ -153,26 +132,30 @@ body{
 <!-- PROFILE -->
 <div id="profile" class="screen">
 
-  <div class="topbar">
-    <div onclick="go('feed')">←</div>
+  <div class="header">
+    <button class="btn" onclick="router.back()">←</button>
     Perfil
   </div>
 
   <div style="padding:16px">
-    <h3 id="meName"></h3>
-    <p>Followers: <span id="followers">0</span></p>
-    <p>Following: <span id="following">0</span></p>
+    <h3 id="me"></h3>
   </div>
 
 </div>
 
 <!-- SETTINGS -->
-<div id="settings" class="panel">
+<div id="settings" class="screen">
 
-  <h3>Settings</h3>
+  <div class="header">
+    <button class="btn" onclick="router.back()">←</button>
+    Settings
+  </div>
 
-  <button class="btn" onclick="toggleTheme()">Tema</button>
-  <button class="btn" onclick="logout()">Logout</button>
+  <div style="padding:16px">
+    <button class="btn" onclick="logout()">Logout</button>
+  </div>
+
+</div>
 
 </div>
 
@@ -191,25 +174,43 @@ firebase.initializeApp({
 
 const db=firebase.firestore();
 
-/* ================= USER ================= */
-let me={
-  username:"Jscol_Owner",
-  role:"admin"
+/* ================= ROUTER ENGINE PRO ================= */
+const router={
+  stack:["feed"],
+
+  get current(){
+    return this.stack[this.stack.length-1];
+  },
+
+  render(){
+    document.querySelectorAll(".screen")
+    .forEach(s=>s.classList.remove("active"));
+
+    document.getElementById(this.current)
+    .classList.add("active");
+  },
+
+  push(screen){
+    if(this.current===screen) return;
+    this.stack.push(screen);
+    this.render();
+  },
+
+  replace(screen){
+    this.stack=[screen];
+    this.render();
+  },
+
+  back(){
+    if(this.stack.length>1){
+      this.stack.pop();
+      this.render();
+    }
+  }
 };
 
-/* ================= ROUTER ================= */
-function go(s){
-
-  document.querySelectorAll(".screen")
-  .forEach(e=>e.classList.remove("active"));
-
-  document.getElementById(s)
-  .classList.add("active");
-
-  if(s==="feed") loadFeed();
-  if(s==="profile") loadProfile();
-
-}
+/* ================= USER ================= */
+let me="Jscol_Owner";
 
 /* ================= FEED ================= */
 function loadFeed(){
@@ -226,16 +227,8 @@ function loadFeed(){
 
       html+=`
       <div class="post">
-
-        <div class="header">
-          <b>@${p.username}</b>
-          <button class="btn" onclick="like('${d.id}')">
-            ❤️ ${p.likes||0}
-          </button>
-        </div>
-
+        <b>@${p.username}</b>
         <p>${p.text}</p>
-
       </div>`;
     });
 
@@ -245,62 +238,30 @@ function loadFeed(){
 
 }
 
-/* ================= CREATE POST ================= */
+/* ================= CREATE ================= */
 function createPost(){
 
-  let t=prompt("Escribe algo");
-  if(!t)return;
+  let t=text.value;
+  if(!t) return;
 
   db.collection("posts").add({
-    username:me.username,
+    username:me,
     text:t,
-    created:Date.now(),
-    likes:0
+    created:Date.now()
   });
 
-}
-
-/* ================= LIKE (REAL TOGGLE) ================= */
-async function like(id){
-
-  let ref=db.collection("likes")
-  .doc(id+"_"+me.username);
-
-  let doc=await ref.get();
-
-  if(doc.exists){
-    ref.delete();
-  }else{
-    ref.set({postId:id,user:me.username});
-  }
+  router.back();
 
 }
 
-/* ================= PROFILE ================= */
-function loadProfile(){
-
-  meName.innerText=me.username;
-
-}
-
-/* ================= SETTINGS ================= */
-function toggleSettings(){
-  document.getElementById("settings")
-  .classList.toggle("active");
-}
-
-/* ================= THEME ================= */
-function toggleTheme(){
-  document.body.classList.toggle("light");
-}
-
-/* ================= LOGOUT ================= */
+/* ================= AUTH CLEAN EXIT ================= */
 function logout(){
   location.reload();
 }
 
 /* ================= INIT ================= */
-go("login");
+loadFeed();
+router.render();
 
 </script>
 
