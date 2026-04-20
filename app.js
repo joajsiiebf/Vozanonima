@@ -1,3 +1,4 @@
+// ================= FIREBASE =================
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
@@ -11,121 +12,129 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
+// ================= STATE =================
 let currentUser = JSON.parse(localStorage.getItem("user")) || null;
 
-// ================= RENDER ÚNICO (CLAVE DEL FIX) =================
-function render(view) {
-  const app = document.getElementById("appView");
-  const login = document.getElementById("loginView");
+// ================= UI CONTROL =================
+function renderApp() {
+  document.getElementById("loginView").style.display = "none";
+  document.getElementById("appView").style.display = "block";
 
-  // SIEMPRE OCULTA TODO
-  login.style.display = "none";
-  app.style.display = "none";
-
-  if (view === "login") {
-    login.style.display = "block";
-  }
-
-  if (view === "app") {
-    app.style.display = "block";
-  }
+  updateRoleUI();
 }
 
-// ================= SPA NAV (SOLO UNA VISTA ACTIVA) =================
-function go(viewId, title) {
-  document.querySelectorAll(".screen").forEach(el => {
-    el.style.display = "none";
-  });
+function renderLogin() {
+  document.getElementById("loginView").style.display = "block";
+  document.getElementById("appView").style.display = "none";
+}
 
-  const target = document.getElementById(viewId);
-  if (target) target.style.display = "block";
+// ================= INIT =================
+window.onload = () => {
+  if (currentUser?.id) {
+    renderApp();
+    go("feedView", "Inicio");
+    loadFeed();
+  } else {
+    renderLogin();
+  }
+};
+
+// ================= NAV =================
+function go(viewId, title) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+
+  const view = document.getElementById(viewId);
+  if (view) view.classList.add("active");
 
   document.getElementById("title").innerText = title;
 
   if (viewId === "feedView") loadFeed();
 }
 
-// ================= INIT =================
-function init() {
-  if (currentUser && currentUser.id) {
-    render("app");
-    go("feedView", "Inicio");
-    loadFeed();
-  } else {
-    render("login");
-  }
+// ================= ADMIN LOGIN =================
+function isAdminLogin(phone, pass) {
+  return phone === "admin" && pass === "admin";
 }
 
-// ================= AUTH =================
+// ================= REGISTER =================
 async function register() {
-  try {
-    const username = regUser.value.trim();
-    const phone = regPhone.value.trim();
-    const password = regPass.value;
+  const username = regUser.value.trim();
+  const phone = regPhone.value.trim();
+  const pass = regPass.value;
 
-    if (!username || !phone || !password) return alert("Completa todo");
+  if (!username || !phone || !pass) return alert("Completa todo");
 
-    const exists = await db.collection("users")
-      .where("username", "==", username)
-      .get();
+  const exists = await db.collection("users")
+    .where("username", "==", username)
+    .get();
 
-    if (!exists.empty) return alert("Username ya existe");
+  if (!exists.empty) return alert("Usuario ya existe");
 
-    const doc = await db.collection("users").add({
-      username,
-      phone,
-      password,
-      created: Date.now()
-    });
+  const doc = await db.collection("users").add({
+    username,
+    phone,
+    password: pass,
+    role: "user",
+    created: Date.now()
+  });
 
-    currentUser = { id: doc.id, username };
-    localStorage.setItem("user", JSON.stringify(currentUser));
+  currentUser = { id: doc.id, username, role: "user" };
+  localStorage.setItem("user", JSON.stringify(currentUser));
 
-    render("app");
-    go("feedView", "Inicio");
-    loadFeed();
-
-  } catch (e) {
-    console.error(e);
-    alert("Error registro");
-  }
+  renderApp();
+  go("feedView", "Inicio");
+  loadFeed();
 }
 
+// ================= LOGIN =================
 async function login() {
-  try {
-    const phone = loginPhone.value.trim();
-    const password = loginPass.value;
+  const phone = loginPhone.value.trim();
+  const pass = loginPass.value;
 
-    const snap = await db.collection("users")
-      .where("phone", "==", phone)
-      .where("password", "==", password)
-      .get();
-
-    if (snap.empty) return alert("Datos incorrectos");
-
-    const u = snap.docs[0];
-
+  // 👑 ADMIN FIX
+  if (isAdminLogin(phone, pass)) {
     currentUser = {
-      id: u.id,
-      username: u.data().username
+      id: "admin",
+      username: "admin",
+      role: "admin"
     };
 
     localStorage.setItem("user", JSON.stringify(currentUser));
 
-    render("app");
+    renderApp();
     go("feedView", "Inicio");
     loadFeed();
 
-  } catch (e) {
-    console.error(e);
-    alert("Error login");
+    return;
   }
+
+  const snap = await db.collection("users")
+    .where("phone", "==", phone)
+    .where("password", "==", pass)
+    .get();
+
+  if (snap.empty) return alert("Datos incorrectos");
+
+  const u = snap.docs[0].data();
+
+  currentUser = {
+    id: snap.docs[0].id,
+    username: u.username,
+    role: u.role || "user"
+  };
+
+  localStorage.setItem("user", JSON.stringify(currentUser));
+
+  renderApp();
+  go("feedView", "Inicio");
+  loadFeed();
 }
 
+// ================= LOGOUT =================
 function logout() {
   localStorage.removeItem("user");
   currentUser = null;
-  render("login");
+  renderLogin();
 }
 
 // ================= POSTS =================
@@ -162,15 +171,24 @@ async function loadFeed() {
     div.innerHTML = `
       <b>@${p.username}</b>
       <p>${p.text}</p>
+
       <button onclick="likePost('${doc.id}', ${p.likes})">
         ❤️ ${p.likes}
       </button>
+
+      ${currentUser.role === "admin"
+        ? `<button style="background:red;" onclick="deletePost('${doc.id}')">
+            🗑 Eliminar
+          </button>`
+        : ""
+      }
     `;
 
     feed.appendChild(div);
   });
 }
 
+// ================= LIKE =================
 async function likePost(id, likes) {
   await db.collection("posts").doc(id).update({
     likes: likes + 1
@@ -179,12 +197,30 @@ async function likePost(id, likes) {
   loadFeed();
 }
 
-// ================= SEARCH =================
-function searchUsers() {
-  const q = searchInput.value.trim();
-  const box = searchResults;
-  box.innerHTML = "";
+// ================= DELETE (ADMIN) =================
+async function deletePost(id) {
+  if (currentUser.role !== "admin") return;
+
+  await db.collection("posts").doc(id).delete();
+  loadFeed();
 }
 
-// ================= START =================
-window.onload = init;
+// ================= SEARCH =================
+function searchUsers() {}
+
+// ================= THEME =================
+function toggleTheme() {
+  document.body.classList.toggle("light");
+}
+
+// ================= ROLE UI =================
+function updateRoleUI() {
+  const badge = document.getElementById("roleBadge");
+
+  if (!badge) return;
+
+  badge.innerText =
+    currentUser.role === "admin"
+      ? "👑 ADMIN"
+      : "USER";
+}
