@@ -16,6 +16,7 @@
 <!-- LOGIN -->
 <div id="loginView" class="view">
   <div class="card">
+
     <h2>Login</h2>
 
     <input id="loginPhone" placeholder="Teléfono o admin">
@@ -32,6 +33,7 @@
     <input id="regPass" type="password" placeholder="Contraseña">
 
     <button onclick="register()">Crear cuenta</button>
+
   </div>
 </div>
 
@@ -44,7 +46,7 @@
   </header>
 
   <!-- COMPOSER ARRIBA -->
-  <div class="composer top">
+  <div class="composer">
     <input id="postText" placeholder="¿Qué estás pensando?">
     <button onclick="createPost()">Publicar</button>
   </div>
@@ -53,10 +55,7 @@
   <section id="feedView" class="screen active"></section>
 
   <!-- SEARCH -->
-  <section id="searchView" class="screen hidden">
-    <input id="searchInput" placeholder="Buscar...">
-    <div id="searchResults"></div>
-  </section>
+  <section id="searchView" class="screen hidden"></section>
 
   <!-- PROFILE -->
   <section id="profileView" class="screen hidden"></section>
@@ -72,9 +71,7 @@
 
     <button onclick="go('feedView','Inicio')">🏠</button>
     <button onclick="go('searchView','Buscar')">🔍</button>
-
     <button onclick="focusPost()">➕</button>
-
     <button onclick="go('profileView','Perfil'); loadProfile()">👤</button>
     <button onclick="go('settingsView','Ajustes')">⚙️</button>
 
