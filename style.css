@@ -6,69 +6,77 @@
 }
 
 body{
-  background:#0b0f14;
-  color:white;
-}
-
-/* LOGIN */
-.card{
-  width:90%;
-  margin:18vh auto;
-  padding:20px;
-  border-radius:16px;
-  background:#121824;
-}
-
-input{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border-radius:10px;
-  border:none;
-  background:#0f1522;
-  color:white;
-}
-
-button{
-  width:100%;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  background:#4c7dff;
+  background:#000;
   color:white;
 }
 
 /* TOP */
 .topbar{
-  padding:12px;
   display:flex;
   justify-content:space-between;
+  align-items:center;
+  padding:12px;
+  border-bottom:1px solid #222;
 }
 
-/* PROFILE HEADER */
-.profile{
-  padding:12px;
-  background:#121824;
-  margin:10px;
-  border-radius:14px;
+.logo{
+  font-weight:bold;
+  font-size:18px;
+}
+
+/* ICONS */
+.icon{
+  width:24px;
+  height:24px;
+  fill:white;
+  cursor:pointer;
+  opacity:0.9;
+}
+
+/* COMPOSER */
+.composer{
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+
+input{
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  background:#111;
+  color:white;
+}
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#3897f0;
+  color:white;
 }
 
 /* FEED */
-.feed{
-  padding:10px;
-}
-
 .post{
-  background:#121824;
-  padding:12px;
-  border-radius:14px;
-  margin-bottom:10px;
-  animation:fade .2s ease;
+  padding:10px;
+  border-bottom:1px solid #222;
 }
 
-@keyframes fade{
-  from{opacity:0;transform:translateY(6px)}
-  to{opacity:1;transform:translateY(0)}
+/* POST HEADER */
+.post-header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* IMAGE */
+.post-img{
+  width:100%;
+  height:320px;
+  background:#111;
+  margin-top:10px;
+  border-radius:10px;
 }
 
 /* NAV */
@@ -77,11 +85,13 @@ button{
   bottom:0;
   width:100%;
   display:flex;
-  background:#121824;
+  justify-content:space-around;
+  padding:12px 0;
+  border-top:1px solid #222;
+  background:#000;
 }
 
-.nav button{
-  flex:1;
-  background:transparent;
-  font-size:18px;
+.plus{
+  transform:scale(1.2);
 }
+.hidden{display:none;}
