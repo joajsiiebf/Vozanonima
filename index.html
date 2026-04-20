@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Social App</title>
 <link rel="stylesheet" href="style.css">
 
@@ -12,35 +12,37 @@
 
 <body>
 
-<!-- LOGIN VIEW -->
-<div id="loginView" class="view active">
-  <div class="card center">
-    <h1>Bienvenido</h1>
+<!-- LOGIN -->
+<div id="loginView" class="view">
+  <div class="card">
+    <h2>Iniciar sesión</h2>
 
-    <input id="loginPhone" placeholder="Teléfono">
+    <input id="loginPhone" placeholder="Teléfono o admin">
     <input id="loginPass" type="password" placeholder="Contraseña">
 
     <button onclick="login()">Entrar</button>
 
-    <p class="muted">o crea una cuenta</p>
+    <hr>
 
+    <h3>Crear cuenta</h3>
     <input id="regUser" placeholder="Username">
     <input id="regPhone" placeholder="Teléfono">
     <input id="regPass" type="password" placeholder="Contraseña">
 
-    <button class="secondary" onclick="register()">Crear cuenta</button>
+    <button onclick="register()">Registrar</button>
   </div>
 </div>
 
-<!-- APP VIEW -->
-<div id="appView" class="view">
+<!-- APP -->
+<div id="appView" class="view hidden">
 
   <header class="topbar">
     <span id="title">Inicio</span>
+    <span id="roleBadge"></span>
   </header>
 
   <!-- FEED -->
-  <section id="feedView" class="screen active"></section>
+  <section id="feedView" class="screen"></section>
 
   <!-- SEARCH -->
   <section id="searchView" class="screen hidden">
@@ -53,11 +55,11 @@
 
   <!-- SETTINGS -->
   <section id="settingsView" class="screen hidden">
-    <button onclick="toggleTheme()">Modo oscuro/claro</button>
+    <button onclick="toggleTheme()">Modo claro/oscuro</button>
     <button onclick="logout()">Cerrar sesión</button>
   </section>
 
-  <!-- POST INPUT -->
+  <!-- CREATE POST -->
   <div class="composer">
     <input id="postText" placeholder="¿Qué estás pensando?">
     <button onclick="createPost()">Publicar</button>
