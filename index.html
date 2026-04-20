@@ -3,326 +3,538 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>INSTANT 𝕏 | ELITE V9</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <title>INSTANT 𝕏 | V12 OMNI-INFINITY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <style>
+        /* CSS ARQUITECTURA ELITE */
         :root {
-            --bg: #000000; --s1: #0A0A0A; --s2: #161616; --t1: #FFFFFF;
-            --t2: #71767B; --accent: #8B5CF6; --glass: rgba(0, 0, 0, 0.9);
+            --bg: #000000;
+            --s1: #0A0A0A;
+            --s2: #161616;
+            --s3: #1D1F23;
+            --t1: #FFFFFF;
+            --t2: #71767B;
+            --accent: #8B5CF6;
+            --accent-soft: rgba(139, 92, 246, 0.15);
+            --danger: #F91880;
+            --glass: rgba(0, 0, 0, 0.85);
             --safe-bottom: env(safe-area-inset-bottom);
         }
-        body.light-mode {
-            --bg: #FFFFFF; --s1: #F7F9F9; --s2: #EFF3F4; --t1: #0F1419; --t2: #536471;
+
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            outline: none; 
+            -webkit-font-smoothing: antialiased;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
-        body { background: var(--bg); color: var(--t1); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; }
+        body { 
+            margin: 0; background: var(--bg); color: var(--t1); 
+            font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; 
+            overscroll-behavior: none;
+        }
 
-        #app { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; position: relative; display: flex; flex-direction: column; }
+        #app { 
+            width: 100%; max-width: 500px; height: 100vh; 
+            margin: 0 auto; position: relative; overflow: hidden; 
+            border-left: 0.5px solid rgba(255,255,255,0.05);
+            border-right: 0.5px solid rgba(255,255,255,0.05);
+        }
 
-        .screen { position: absolute; inset: 0; display: none; flex-direction: column; background: var(--bg); z-index: 10; padding-bottom: calc(80px + var(--safe-bottom)); }
-        .screen.active { display: flex; animation: fadeIn 0.2s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* SISTEMA DE ANIMACIONES iOS */
+        #scr-welcome {
+            position: absolute; inset: 0; z-index: 5000; background: var(--bg);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .ios-gradient {
+            width: 120px; height: 120px; border-radius: 30px;
+            background: linear-gradient(135deg, #8B5CF6 0%, #D8B4FE 100%);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 20px 40px rgba(139, 92, 246, 0.3);
+            animation: bounceIn 1.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
 
-        .header { height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 0.5px solid rgba(255,255,255,0.05); background: var(--glass); backdrop-filter: blur(15px); }
+        /* PANTALLAS */
+        .screen { 
+            position: absolute; inset: 0; display: none; flex-direction: column; 
+            background: var(--bg); z-index: 10; 
+            padding-bottom: calc(85px + var(--safe-bottom));
+        }
+        .screen.active { display: flex; animation: slideIn 0.4s cubic-bezier(0.1, 0.9, 0.2, 1); }
+        @keyframes slideIn { from { transform: scale(1.1); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        /* NAVEGACIÓN V12 */
+        .nav-main { 
+            position: absolute; bottom: 0; width: 100%; height: calc(75px + var(--safe-bottom));
+            background: var(--glass); backdrop-filter: blur(30px); display: none; 
+            align-items: center; border-top: 0.5px solid rgba(255,255,255,0.1); 
+            z-index: 2000; padding-bottom: var(--safe-bottom);
+        }
+        .tab { 
+            flex: 1; display: flex; justify-content: center; align-items: center; 
+            height: 100%; color: var(--t2); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab.active { color: var(--t1); }
+        .tab svg { width: 26px; height: 26px; stroke-width: 2; transition: 0.3s; }
+        .tab.active svg { transform: scale(1.2); fill: rgba(255,255,255,0.05); }
+
+        .btn-center { 
+            width: 52px; height: 52px; background: var(--accent); border-radius: 18px; 
+            display: flex; align-items: center; justify-content: center; 
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4); 
+            transform: translateY(-5px); border: 3px solid var(--bg);
+        }
+
+        /* CONTENIDO & HILOS */
         .feed { flex: 1; overflow-y: auto; scrollbar-width: none; }
         .feed::-webkit-scrollbar { display: none; }
 
-        .post { padding: 16px; border-bottom: 0.5px solid rgba(255,255,255,0.05); display: flex; gap: 12px; }
-        .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--s2); flex-shrink: 0; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; font-weight: bold; color: var(--accent); overflow: hidden; }
+        .post { 
+            padding: 16px 20px; border-bottom: 0.5px solid rgba(255,255,255,0.08); 
+            display: flex; gap: 14px; position: relative; transition: 0.2s;
+        }
+        .post:active { background: var(--s1); }
+        
+        .avatar { 
+            width: 48px; height: 48px; border-radius: 50%; background: var(--s2); 
+            overflow: hidden; flex-shrink: 0; display: flex; align-items: center; 
+            justify-content: center; font-weight: 800; border: 1.5px solid rgba(255,255,255,0.1);
+        }
         .avatar img { width: 100%; height: 100%; object-fit: cover; }
 
-        .chat-bubble { padding: 12px 16px; border-radius: 20px; max-width: 80%; margin-bottom: 8px; font-size: 15px; }
-        .me { background: var(--accent); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .them { background: var(--s2); color: var(--t1); align-self: flex-start; border-bottom-left-radius: 4px; }
+        .v-check { width: 16px; height: 16px; fill: #1D9BF0; margin-left: 4px; vertical-align: middle; }
+        .user-row { display: flex; align-items: center; margin-bottom: 3px; }
+        .user-name { font-weight: 700; font-size: 15px; color: var(--t1); }
 
-        .section-label { padding: 20px 16px 8px; font-size: 11px; font-weight: 800; color: var(--t2); text-transform: uppercase; }
-        .card { background: var(--s1); border-radius: 18px; margin: 0 15px 15px; overflow: hidden; border: 0.5px solid rgba(255,255,255,0.05); }
-        .row { padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-bottom: 0.5px solid rgba(255,255,255,0.03); }
-        .row span { font-size: 14px; font-weight: 500; }
-        .val { color: var(--t2); font-size: 13px; }
+        .post-content { font-size: 15px; line-height: 1.5; color: #E7E9EA; margin-bottom: 12px; }
 
-        .nav { position: absolute; bottom: 0; width: 100%; height: calc(75px + var(--safe-bottom)); background: var(--glass); backdrop-filter: blur(20px); display: flex; align-items: center; border-top: 0.5px solid rgba(255,255,255,0.05); z-index: 1000; }
-        .tab { flex: 1; text-align: center; color: var(--t2); font-size: 22px; cursor: pointer; }
-        .tab.active { color: var(--t1); }
-        .fab { width: 50px; height: 50px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -30px; border: 4px solid var(--bg); box-shadow: 0 8px 15px rgba(139, 92, 246, 0.3); color: white; font-size: 24px; font-weight: bold; }
+        .action-bar { display: flex; justify-content: space-between; max-width: 300px; color: var(--t2); }
+        .act-btn { 
+            display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; 
+            transition: 0.2s; cursor: pointer;
+        }
+        .act-btn:hover { color: var(--accent); }
+        .act-btn.liked { color: var(--accent); }
+        .act-btn.disliked { color: var(--danger); }
 
-        .btn-m { padding: 10px 20px; border-radius: 20px; border: none; font-weight: 800; cursor: pointer; background: var(--t1); color: var(--bg); }
+        /* COMPONENTES DE UI */
+        .apple-input {
+            width: 100%; padding: 18px; background: var(--s2); border: 1.5px solid transparent;
+            border-radius: 18px; color: white; font-size: 16px; transition: 0.3s;
+        }
+        .apple-input:focus { border-color: var(--accent); background: var(--bg); }
+
+        .btn-apple {
+            width: 100%; padding: 18px; border-radius: 18px; border: none; font-weight: 800;
+            font-size: 16px; cursor: pointer; transition: 0.3s;
+        }
+        .btn-primary { background: var(--t1); color: var(--bg); }
+        .btn-primary:active { transform: scale(0.96); opacity: 0.9; }
+
+        /* PERFIL PRO */
+        .profile-hero { padding: 40px 20px; text-align: center; border-bottom: 1px solid #111; position: relative; }
+        .profile-av { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 15px; border: 4px solid var(--s2); }
+
+        /* HILOS / COMENTARIOS */
+        .comment-box { 
+            padding: 12px 20px; border-bottom: 0.5px solid #111; animation: fadeIn 0.3s;
+            display: flex; gap: 12px;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* HEADER */
+        .main-header {
+            height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+            background: var(--glass); backdrop-filter: blur(20px); border-bottom: 0.5px solid #222;
+        }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div id="scr-auth" class="screen" style="justify-content:center; align-items:center; padding:40px;">
-        <h1 style="font-size:60px; margin-bottom:20px">𝕏</h1>
-        <input id="auth-input" style="width:100%; padding:16px; background:var(--s1); border:1px solid var(--s2); border-radius:14px; color:white; margin-bottom:15px;" placeholder="Tu @usuario">
-        <button onclick="Core.Auth.login()" class="btn-m" style="width:100%">Entrar</button>
-    </div>
-
-    <div id="scr-feed" class="screen">
-        <header class="header"><h1>Instant 𝕏</h1><div onclick="Core.Router.go('settings')">⚙️</div></header>
-        <div id="wall" class="feed"></div>
-    </div>
-
-    <div id="scr-profile" class="screen">
-        <header class="header"><div onclick="Core.Router.back()">←</div><h1 id="p-nav">Perfil</h1><div style="width:20px"></div></header>
-        <div class="feed">
-            <div id="p-top" style="padding:25px 20px; text-align:center; border-bottom:0.5px solid #111"></div>
-            <div id="p-posts"></div>
+    <div id="scr-welcome">
+        <div class="ios-gradient">
+            <svg width="60" height="60" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+        </div>
+        <h1 style="margin-top:25px; font-weight:900; font-size:28px">Instant 𝕏</h1>
+        <p id="active-users" style="color:var(--t2); font-size:14px; margin-top:10px">Cargando comunidad...</p>
+        <div style="margin-top:50px">
+            <button onclick="Core.UI.enterApp()" class="btn-apple btn-primary" style="width:220px">Comenzar</button>
         </div>
     </div>
 
-    <div id="scr-inbox" class="screen">
-        <header class="header"><h1>Inbox</h1><div></div></header>
-        <div id="inbox-list" class="feed"></div>
+    <div id="scr-auth" class="screen" style="justify-content:center; padding:40px;">
+        <h2 style="font-size:32px; font-weight:900; margin-bottom:10px">¿Quién eres hoy?</h2>
+        <p style="color:var(--t2); margin-bottom:40px">Tu voz, tus reglas, tu comunidad.</p>
+        <input id="auth-u" class="apple-input" placeholder="@usuario">
+        <div style="margin-top:20px">
+            <button onclick="Core.Auth.login()" class="btn-apple btn-primary">Iniciar Sesión</button>
+        </div>
     </div>
 
-    <div id="scr-chat" class="screen" style="padding-bottom:0">
-        <header class="header"><div onclick="Core.Router.go('inbox')">←</div><h1 id="chat-u">Chat</h1><div style="width:20px"></div></header>
-        <div id="chat-msgs" class="feed" style="display:flex; flex-direction:column; padding:15px"></div>
-        <div style="padding:15px; display:flex; gap:10px; background:var(--bg); border-top:0.5px solid #222">
-            <input id="chat-in" style="flex:1; padding:12px; border-radius:20px; border:none; background:var(--s1); color:white" placeholder="Escribe un inbox...">
-            <button onclick="Core.Inbox.send()" style="background:var(--accent); border:none; color:white; width:40px; height:40px; border-radius:50%">↑</button>
+    <div id="scr-feed" class="screen">
+        <header class="main-header">
+            <h1 style="font-size:20px; font-weight:900">𝕏</h1>
+            <div id="top-av-box" onclick="Core.Router.go('settings')" style="width:34px; height:34px; background:var(--s2); border-radius:50%; overflow:hidden"></div>
+        </header>
+        <div id="wall" class="feed"></div>
+    </div>
+
+    <div id="scr-thread" class="screen">
+        <header class="main-header">
+            <div onclick="Core.Router.back()"><svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+            <h1 style="font-size:18px; font-weight:800">Hilo</h1>
+            <div style="width:24px"></div>
+        </header>
+        <div class="feed" id="thread-scroll">
+            <div id="thread-op"></div>
+            <div style="height:8px; background:var(--s2)"></div>
+            <div id="thread-replies"></div>
+        </div>
+        <div style="padding:15px; background:var(--bg); border-top:0.5px solid #222; display:flex; gap:12px; position:absolute; bottom:0; width:100%">
+            <input id="reply-msg" style="flex:1; padding:14px; border-radius:25px; border:none; background:var(--s2); color:white" placeholder="Escribe tu comentario...">
+            <button onclick="Core.Social.sendComment()" style="background:var(--accent); border:none; color:white; width:45px; height:45px; border-radius:50%; font-weight:bold">↑</button>
+        </div>
+    </div>
+
+    <div id="scr-profile" class="screen">
+        <header class="main-header">
+            <div onclick="Core.Router.back()"><svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+            <h1 id="p-title" style="font-size:18px">Perfil</h1>
+            <div style="width:24px"></div>
+        </header>
+        <div class="feed">
+            <div id="p-header-box"></div>
+            <div id="p-hilos-box"></div>
         </div>
     </div>
 
     <div id="scr-settings" class="screen">
-        <header class="header"><div onclick="Core.Router.back()">←</div><h1>Ajustes Pro</h1><div></div></header>
-        <div class="feed">
-            <div class="section-label">Identidad</div>
-            <div class="card">
-                <div class="row" onclick="Core.UI.uploadAvatar()"><span>Foto de Perfil</span><span class="val">Subir Foto</span></div>
-                <div class="row" onclick="Core.UI.edit('name', 'Nombre')"><span>Nombre Público</span><span class="val" id="st-name">...</span></div>
-                <div class="row" onclick="Core.UI.edit('bio', 'Bio')"><span>Biografía</span><span class="val" id="st-bio">...</span></div>
-            </div>
-
-            <div class="section-label">Verificación Personalizada</div>
-            <div class="card">
-                <div class="row" onclick="Core.UI.verify()"><span>Solicitar Check Azul</span><span class="val">📩 Por Email</span></div>
-            </div>
-
-            <div class="section-label">Sistema Elite</div>
-            <div class="card" id="settings-dynamic-rows"></div>
-
-            <div class="card" style="margin-top:20px">
-                <div class="row" onclick="Core.Auth.logout()" style="color:red"><span>Cerrar Sesión</span></div>
-            </div>
+        <header class="main-header">
+            <div onclick="Core.Router.back()"><svg width="24" height="24" fill="none" stroke="white" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+            <h1 style="font-size:18px">Ajustes</h1>
+            <div style="width:24px"></div>
+        </header>
+        <div class="feed" style="padding:20px">
+            <div style="color:var(--t2); font-size:11px; font-weight:900; margin-bottom:15px; text-transform:uppercase">Personalización</div>
+            <button onclick="Core.UI.triggerUpload()" class="btn-apple" style="background:var(--s2); color:white; margin-bottom:12px">Subir Foto de Perfil</button>
+            <button onclick="Core.UI.reqVerify()" class="btn-apple" style="background:var(--s2); color:var(--accent); margin-bottom:40px">Solicitar Verificación</button>
+            
+            <div style="color:var(--t2); font-size:11px; font-weight:900; margin-bottom:15px; text-transform:uppercase">Seguridad</div>
+            <button onclick="Core.Auth.logout()" class="btn-apple" style="background:var(--accent-soft); color:var(--danger)">Cerrar Sesión</button>
         </div>
     </div>
 
-    <nav id="nav-bar" class="nav" style="display:none">
-        <div class="tab" onclick="Core.Router.go('feed')">🏠</div>
-        <div class="tab" onclick="Core.Router.go('inbox')">✉️</div>
-        <div onclick="Core.Social.post()" class="fab">+</div>
-        <div class="tab" onclick="Core.Router.goProfile(Core.State.me)">👤</div>
+    <nav id="nav-bar" class="nav-main">
+        <div class="tab" onclick="Core.Router.go('feed')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg>
+        </div>
+        <div class="tab" onclick="alert('Explorar en desarrollo')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        </div>
+        <div class="tab" onclick="Core.Social.openPostModal()">
+            <div class="btn-center">
+                <svg width="24" height="24" fill="none" stroke="white" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+        </div>
+        <div class="tab" onclick="alert('Inbox protegido')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>
+        </div>
+        <div class="tab" onclick="Core.Router.goProfile(Core.State.me)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
     </nav>
 </div>
 
-<input type="file" id="avatar-file" style="display:none" accept="image/*">
+<input type="file" id="hidden-file" style="display:none" accept="image/*">
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-    firebase.initializeApp({
+    // CONFIGURACIÓN FIREBASE
+    const firebaseConfig = {
         apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
         authDomain: "vozanonimasm.firebaseapp.com",
         projectId: "vozanonimasm"
-    });
+    };
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // MOTOR CORE V12
     const Core = {
-        State: { me: localStorage.getItem('_u_id'), stack: ['feed'], target: null },
+        State: { 
+            me: localStorage.getItem('_u_v12'), 
+            stack: ['feed'], 
+            activeThread: null,
+            isAdmin: false
+        },
 
+        // CONTROLADOR DE RUTAS
         Router: {
             go(id) {
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-                document.getElementById('scr-' + id).classList.add('active');
-                document.getElementById('nav-bar').style.display = id === 'auth' ? 'none' : 'flex';
-                
-                document.querySelectorAll('.tab').forEach((t, i) => {
-                    t.classList.toggle('active', (id==='feed' && i===0) || (id==='inbox' && i===1) || (id==='profile' && i===2));
-                });
+                const target = document.getElementById('scr-' + id);
+                if(target) target.classList.add('active');
 
-                if(id === 'feed') Core.Social.listen();
-                if(id === 'inbox') Core.Inbox.list();
-                if(id === 'settings') Core.UI.renderSettings();
-                if(id !== Core.State.stack[Core.State.stack.length-1]) Core.State.stack.push(id);
-            },
-            back() { Core.State.stack.pop(); this.go(Core.State.stack[Core.State.stack.length-1] || 'feed'); },
-            goProfile(u) { this.go('profile'); Core.Social.profile(u); }
-        },
+                // Visibilidad de Nav
+                const hideNav = ['welcome', 'auth'].includes(id);
+                document.getElementById('nav-bar').style.display = hideNav ? 'none' : 'flex';
 
-        Social: {
-            listen() {
-                db.collection("posts").orderBy("created", "desc").limit(30).onSnapshot(snap => {
-                    const w = document.getElementById('wall'); w.innerHTML = "";
-                    snap.forEach(doc => {
-                        const p = doc.data();
-                        const el = document.createElement('div');
-                        el.className = 'post';
-                        el.innerHTML = `<div class="avatar" onclick="Core.Router.goProfile('${p.user}')">${p.av ? `<img src="${p.av}">` : p.user[0].toUpperCase()}</div>
-                                        <div style="flex:1"><b>@${p.user}</b><p style="margin-top:4px">${p.text}</p></div>`;
-                        w.appendChild(el);
-                    });
-                });
-            },
-            async profile(u) {
-                document.getElementById('p-nav').innerText = '@' + u;
-                const doc = await db.collection("users").doc(u).get();
-                const d = doc.data() || { bio: "...", name: u };
-                
-                const myF = await db.collection("users").doc(Core.State.me).collection("following").doc(u).get();
-                const hisF = await db.collection("users").doc(u).collection("following").doc(Core.State.me).get();
-                const isMut = myF.exists && hisF.exists;
+                // Tabs Activas
+                const tabs = document.querySelectorAll('.tab');
+                tabs.forEach(t => t.classList.remove('active'));
+                const tabMap = { 'feed': 0, 'explore': 1, 'inbox': 3, 'profile': 4 };
+                if(tabMap[id] !== undefined) tabs[tabMap[id]].classList.add('active');
 
-                document.getElementById('p-top').innerHTML = `
-                    <div class="avatar" style="width:80px; height:80px; margin:0 auto; font-size:30px">${d.av ? `<img src="${d.av}">` : u[0].toUpperCase()}</div>
-                    <h2 style="margin-top:10px">${d.name || u}</h2>
-                    <p style="color:var(--t2); margin:8px 0">${d.bio || 'Sin biografía'}</p>
-                    ${u !== Core.State.me ? `
-                        <button class="btn-m" onclick="Core.Social.follow('${u}')">${myF.exists ? 'Siguiendo' : 'Seguir'}</button>
-                        ${isMut ? `<button class="btn-m" style="background:#222; color:white; margin-left:5px" onclick="Core.Inbox.open('${u}')">Inbox</button>` : ''}
-                    ` : ''}
-                `;
-                
-                db.collection("posts").where("user", "==", u).orderBy("created", "desc").get().then(snap => {
-                    const container = document.getElementById('p-posts'); container.innerHTML = "";
-                    snap.forEach(d => {
-                        const p = d.data();
-                        const el = document.createElement('div');
-                        el.className = 'post';
-                        el.innerHTML = `<div class="avatar">${p.av ? `<img src="${p.av}">` : u[0].toUpperCase()}</div><div><b>@${u}</b><p>${p.text}</p></div>`;
-                        container.appendChild(el);
-                    });
-                });
+                if(id === 'feed') Core.Social.listenFeed();
+                if(Core.State.stack[Core.State.stack.length-1] !== id) Core.State.stack.push(id);
             },
-            async follow(u) {
-                const ref = db.collection("users").doc(Core.State.me).collection("following").doc(u);
-                (await ref.get()).exists ? await ref.delete() : await ref.set({ u });
-                this.profile(u);
-            },
-            async post() {
-                const t = prompt("¿Qué quieres publicar?");
-                if(!t) return;
-                const me = await db.collection("users").doc(Core.State.me).get();
-                const av = me.data().av || null;
-                db.collection("posts").add({ user: Core.State.me, text: t, created: Date.now(), av });
-            }
-        },
-
-        Inbox: {
-            hid(u1, u2) { return u1 < u2 ? u1+'_'+u2 : u2+'_'+u1; },
-            open(u) {
-                Core.State.target = u;
-                document.getElementById('chat-u').innerText = '@' + u;
-                Core.Router.go('chat');
-                this.listen(u);
-            },
-            listen(u) {
-                const id = this.hid(Core.State.me, u);
-                db.collection("chats").doc(id).collection("m").orderBy("t", "asc").onSnapshot(snap => {
-                    const b = document.getElementById('chat-msgs'); b.innerHTML = "";
-                    snap.forEach(d => {
-                        const m = d.data();
-                        const el = document.createElement('div');
-                        el.className = `chat-bubble ${m.f === Core.State.me ? 'me' : 'them'}`;
-                        el.innerText = m.x;
-                        b.appendChild(el);
-                    });
-                    b.scrollTop = b.scrollHeight;
-                });
-            },
-            async send() {
-                const i = document.getElementById('chat-in');
-                const x = i.value.trim();
-                if(!x) return;
-                const id = this.hid(Core.State.me, Core.State.target);
-                await db.collection("chats").doc(id).collection("m").add({ f: Core.State.me, x, t: Date.now() });
-                const update = { last: x, t: Date.now() };
-                await db.collection("users").doc(Core.State.me).collection("inboxes").doc(Core.State.target).set(update);
-                await db.collection("users").doc(Core.State.target).collection("inboxes").doc(Core.State.me).set(update);
-                i.value = "";
-            },
-            list() {
-                db.collection("users").doc(Core.State.me).collection("inboxes").orderBy("t", "desc").onSnapshot(snap => {
-                    const l = document.getElementById('inbox-list'); l.innerHTML = "";
-                    snap.forEach(doc => {
-                        const d = doc.data();
-                        const el = document.createElement('div');
-                        el.className = 'post'; el.style.border = "none";
-                        el.onclick = () => this.open(doc.id);
-                        el.innerHTML = `<div class="avatar">${doc.id[0].toUpperCase()}</div><div><b>@${doc.id}</b><div style="color:var(--t2); font-size:13px">${d.last}</div></div>`;
-                        l.appendChild(el);
-                    });
-                });
-            }
-        },
-
-        UI: {
-            renderSettings() {
-                const rows = [
-                    ["Modo Oscuro", "ON"], ["Calidad de Imagen", "Alta"], ["Idioma", "Español"],
-                    ["Efectos de Sonido", "OFF"], ["Modo Lectura", "OFF"], ["Auto-Scroll", "OFF"],
-                    ["Animaciones", "ON"], ["Estado del Servidor", "Excelente"], ["Ubicación", "Privada"], ["Copia de Seguridad", "Exportar"]
-                ];
-                const container = document.getElementById('settings-dynamic-rows');
-                container.innerHTML = rows.map(r => `<div class="row" onclick="alert('Ajuste: ${r[0]}')"><span>${r[0]}</span><span class="val">${r[1]}</span></div>`).join('');
-                db.collection("users").doc(Core.State.me).get().then(doc => {
-                    const d = doc.data();
-                    if(d) {
-                        document.getElementById('st-name').innerText = d.name || '...';
-                        document.getElementById('st-bio').innerText = d.bio || '...';
-                    }
-                });
-            },
-            async edit(f, l) {
-                const v = prompt("Nuevo " + l);
-                if(v) {
-                    await db.collection("users").doc(Core.State.me).update({ [f]: v });
-                    Core.UI.renderSettings();
+            back() {
+                if(Core.State.stack.length > 1) {
+                    Core.State.stack.pop();
+                    this.go(Core.State.stack[Core.State.stack.length-1]);
                 }
             },
-            uploadAvatar() {
-                const input = document.getElementById('avatar-file');
-                input.click();
-                input.onchange = e => {
+            goProfile(u) {
+                this.go('profile');
+                Core.Social.renderProfile(u);
+            }
+        },
+
+        // MOTOR SOCIAL
+        Social: {
+            // Icono de Paloma Verificada (SVG)
+            vTag: `<svg class="v-check" viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.88-2.95-2.18-3.66.26-1.55-.25-3.15-1.4-4.3s-2.74-1.65-4.3-1.4c-.71-1.3-2.08-2.18-3.66-2.18s-2.95.88-3.66 2.18c-1.55-.25-3.15.25-4.3 1.4s-1.65 2.74-1.4 4.3c-1.3.71-2.18 2.08-2.18 3.66s.88 2.95 2.18 3.66c-.25 1.55.25 3.15 1.4 4.3s2.74 1.65 4.3 1.4c.71 1.3 2.08 2.18 3.66 2.18s2.95-.88 3.66-2.18c1.55.25 3.15-.25 4.3-1.4s1.65-2.74 1.4-4.3c1.3-.71 2.18-2.08 2.18-3.66zm-11.23 4.47l-3.64-3.64 1.41-1.41 2.23 2.23 4.88-4.88 1.41 1.41-6.29 6.29z"/></svg>`,
+
+            listenFeed() {
+                db.collection("posts").orderBy("created", "desc").limit(40).onSnapshot(snap => {
+                    const wall = document.getElementById('wall');
+                    wall.innerHTML = "";
+                    snap.forEach(doc => {
+                        wall.appendChild(this.createPostElement(doc.id, doc.data()));
+                    });
+                });
+            },
+
+            createPostElement(id, p) {
+                const el = document.createElement('div');
+                el.className = 'post';
+                const isVerified = p.user === 'jscol_owner' || p.verified === true;
+                
+                el.innerHTML = `
+                    <div class="avatar" onclick="event.stopPropagation(); Core.Router.goProfile('${p.user}')">
+                        ${p.av ? `<img src="${p.av}">` : p.user[0].toUpperCase()}
+                    </div>
+                    <div style="flex:1" onclick="Core.Social.openThread('${id}', ${JSON.stringify(p).replace(/"/g, '&quot;')})">
+                        <div class="user-row">
+                            <span class="user-name">@${p.user}</span>
+                            ${isVerified ? this.vTag : ''}
+                        </div>
+                        <div class="post-content">${p.text}</div>
+                        <div class="action-bar">
+                            <div class="act-btn" onclick="event.stopPropagation(); Core.Social.vote('${id}', 'likes')">❤️ <span>${p.likes || 0}</span></div>
+                            <div class="act-btn" onclick="event.stopPropagation(); Core.Social.vote('${id}', 'dislikes')">👎 <span>${p.dislikes || 0}</span></div>
+                            <div class="act-btn">💬 <span>${p.comments || 0}</span></div>
+                        </div>
+                    </div>
+                `;
+                return el;
+            },
+
+            openThread(id, data) {
+                Core.State.activeThread = id;
+                Core.Router.go('thread');
+                const opBox = document.getElementById('thread-op');
+                opBox.innerHTML = "";
+                opBox.appendChild(this.createPostElement(id, data));
+
+                // Escuchar comentarios en tiempo real
+                db.collection("posts").doc(id).collection("replies").orderBy("created", "asc").onSnapshot(snap => {
+                    const repBox = document.getElementById('thread-replies');
+                    repBox.innerHTML = "";
+                    snap.forEach(doc => {
+                        const r = doc.data();
+                        const comment = document.createElement('div');
+                        comment.className = 'comment-box';
+                        comment.innerHTML = `
+                            <div class="avatar" style="width:32px; height:32px; font-size:12px">${r.user[0].toUpperCase()}</div>
+                            <div style="flex:1">
+                                <div class="user-row"><span class="user-name" style="font-size:13px">@${r.user}</span></div>
+                                <div style="font-size:14px; color:#ccc">${r.text}</div>
+                            </div>
+                        `;
+                        repBox.appendChild(comment);
+                    });
+                });
+            },
+
+            async sendComment() {
+                const input = document.getElementById('reply-msg');
+                const text = input.value.trim();
+                if(!text || !Core.State.activeThread) return;
+
+                const tid = Core.State.activeThread;
+                await db.collection("posts").doc(tid).collection("replies").add({
+                    user: Core.State.me,
+                    text: text,
+                    created: Date.now()
+                });
+                await db.collection("posts").doc(tid).update({
+                    comments: firebase.firestore.FieldValue.increment(1)
+                });
+                input.value = "";
+            },
+
+            vote(id, type) {
+                db.collection("posts").doc(id).update({
+                    [type]: firebase.firestore.FieldValue.increment(1)
+                });
+            },
+
+            async openPostModal() {
+                const msg = prompt("¿Qué quieres compartir con el mundo?");
+                if(!msg) return;
+                
+                const userDoc = await db.collection("users").doc(Core.State.me).get();
+                const userData = userDoc.data();
+
+                await db.collection("posts").add({
+                    user: Core.State.me,
+                    text: msg,
+                    created: Date.now(),
+                    likes: 0,
+                    dislikes: 0,
+                    comments: 0,
+                    av: userData.av || null,
+                    verified: Core.State.me === 'jscol_owner'
+                });
+            },
+
+            async renderProfile(u) {
+                const header = document.getElementById('p-header-box');
+                const hilosBox = document.getElementById('p-hilos-box');
+                hilosBox.innerHTML = "";
+                
+                const doc = await db.collection("users").doc(u).get();
+                const d = doc.data() || { name: u };
+                const isV = u === 'jscol_owner' || d.verified === true;
+
+                header.innerHTML = `
+                    <div class="profile-hero">
+                        <div class="avatar profile-av">
+                            ${d.av ? `<img src="${d.av}">` : u[0].toUpperCase()}
+                        </div>
+                        <h2 style="font-weight:900; margin:0; display:flex; align-items:center; justify-content:center">
+                            @${u} ${isV ? this.vTag : ''}
+                        </h2>
+                        <p style="color:var(--t2); margin-top:10px">Aspiring Developer & Admin</p>
+                        <div style="display:flex; justify-content:center; gap:15px; margin-top:20px">
+                            <button class="btn-apple btn-primary" style="width:120px; padding:10px" onclick="Core.Social.follow('${u}')">Seguir</button>
+                        </div>
+                    </div>
+                `;
+
+                // Cargar hilos del usuario
+                db.collection("posts").where("user", "==", u).orderBy("created", "desc").get().then(snap => {
+                    snap.forEach(p => {
+                        hilosBox.appendChild(this.createPostElement(p.id, p.data()));
+                    });
+                });
+            },
+
+            async follow(u) {
+                if(u === Core.State.me) return alert("No puedes seguirte a ti mismo.");
+                const ref = db.collection("users").doc(Core.State.me).collection("following").doc(u);
+                const snap = await ref.get();
+                if(snap.exists) {
+                    await ref.delete();
+                    alert("Dejaste de seguir a @" + u);
+                } else {
+                    await ref.set({ u: u, t: Date.now() });
+                    alert("Siguiendo a @" + u);
+                }
+            }
+        },
+
+        // MOTOR DE INTERFAZ
+        UI: {
+            enterApp() {
+                const welcome = document.getElementById('scr-welcome');
+                welcome.style.opacity = "0";
+                welcome.style.transform = "scale(1.5)";
+                setTimeout(() => {
+                    welcome.style.display = "none";
+                    if(Core.State.me) Core.Router.go('feed'); else Core.Router.go('auth');
+                }, 800);
+            },
+            triggerUpload() {
+                document.getElementById('hidden-file').click();
+                document.getElementById('hidden-file').onchange = e => {
                     const file = e.target.files[0];
                     const reader = new FileReader();
                     reader.onload = async () => {
                         const base64 = reader.result;
                         await db.collection("users").doc(Core.State.me).update({ av: base64 });
-                        alert("Avatar actualizado");
+                        alert("Foto de perfil actualizada con éxito.");
+                        location.reload();
                     };
                     reader.readAsDataURL(file);
                 };
             },
-            verify() {
-                const email = "Borrerosanjuanjhossue@gmail.com";
-                const subject = encodeURIComponent("SOLICITUD DE VERIFICACIÓN - @" + Core.State.me);
-                const body = encodeURIComponent("Estimado Administrador,\n\nSolicito la verificación de mi cuenta @" + Core.State.me + ".\n\nMotivo de la solicitud:\n(Escribe aquí por qué deberías ser verificado)");
-                window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+            reqVerify() {
+                const mail = "Borrerosanjuanjhossue@gmail.com";
+                const sub = "SOLICITUD VERIFICACIÓN INSTANT X - " + Core.State.me;
+                const body = "Deseo solicitar la paloma de verificado para mi cuenta @" + Core.State.me;
+                window.location.href = `mailto:${mail}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
             }
         },
 
+        // MOTOR DE AUTENTICACIÓN
         Auth: {
             login() {
-                const u = document.getElementById('auth-input').value.trim().toLowerCase();
-                if(u.length < 3) return;
+                let u = document.getElementById('auth-u').value.trim().toLowerCase().replace('@', '');
+                if(u.length < 3) return alert("Usuario demasiado corto");
+                
                 Core.State.me = u;
-                localStorage.setItem('_u_id', u);
-                db.collection("users").doc(u).get().then(doc => {
-                    if(!doc.exists) db.collection("users").doc(u).set({ u, name: u, bio: "¡Hola! Estoy en Instant X." });
-                    Core.Router.go('feed');
-                });
+                localStorage.setItem('_u_v12', u);
+                
+                db.collection("users").doc(u).set({
+                    u: u,
+                    lastLogin: Date.now(),
+                    verified: u === 'jscol_owner'
+                }, { merge: true });
+
+                Core.Router.go('feed');
             },
-            logout() { localStorage.clear(); location.reload(); }
+            logout() {
+                localStorage.removeItem('_u_v12');
+                location.reload();
+            }
         }
     };
 
-    window.onload = () => {
-        if(Core.State.me) Core.Router.go('feed'); else Core.Router.go('auth');
+    // INICIALIZACIÓN GLOBAL
+    window.onload = async () => {
+        // Contador de usuarios
+        const usersSnap = await db.collection("users").get();
+        document.getElementById('active-users').innerText = `${usersSnap.size} personas conectadas ahora`;
+
+        // Si ya hay sesión, precargar avatar
+        if(Core.State.me) {
+            const myDoc = await db.collection("users").doc(Core.State.me).get();
+            if(myDoc.exists && myDoc.data().av) {
+                document.getElementById('top-av-box').innerHTML = `<img src="${myDoc.data().av}" style="width:100%;height:100%;object-fit:cover">`;
+            }
+        }
     };
 </script>
 </body>
