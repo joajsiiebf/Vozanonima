@@ -3,123 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>INSTANT | Social Engine</title>
+    <title>INSTANT Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <style>
         :root {
             --primary: linear-gradient(135deg, #C04FBA 0%, #7A2C76 100%);
-            --bg: #000000;
-            --card: #1C1C1E;
-            --text: #FFFFFF;
-            --border: rgba(255, 255, 255, 0.1);
-            --muted: #8E8E93;
-            --ios-blue: #0A84FF;
+            --bg: #000000; --card: #1C1C1E; --text: #FFFFFF;
+            --border: rgba(255, 255, 255, 0.1); --muted: #8E8E93;
+            --ios-blue: #0A84FF; --glass: rgba(15, 15, 15, 0.8);
         }
 
-        body.light-mode {
-            --bg: #F2F2F7; --card: #FFFFFF; --text: #000000;
-            --border: rgba(0, 0, 0, 0.1); --muted: #636366;
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { 
+            margin: 0; background: #000; color: var(--text); 
+            font-family: -apple-system, system-ui, sans-serif; 
+            height: 100vh; overflow: hidden; display: flex; justify-content: center;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: #000; color: var(--text); font-family: -apple-system, system-ui, sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        /* VIEWPORT & ROUTER */
+        #app-shell {
+            width: 100%; max-width: 430px; background: var(--bg);
+            height: 100%; position: relative; overflow: hidden;
+            display: flex; flex-direction: column;
+        }
 
-        .app-viewport { width: 100%; max-width: 430px; background: var(--bg); height: 100%; position: relative; display: flex; flex-direction: column; }
+        .view {
+            position: absolute; inset: 0; display: none;
+            flex-direction: column; background: var(--bg); z-index: 10;
+            padding-bottom: 90px; overflow-y: auto;
+        }
+        .view.active { display: flex; animation: slideIn 0.3s cubic-bezier(0.1, 0.7, 0.1, 1); }
 
-        /* SCREENS */
-        .screen { position: absolute; inset: 0; display: none; flex-direction: column; padding-bottom: 110px; overflow-y: auto; background: var(--bg); z-index: 10; }
-        .screen.active { display: flex; animation: iosSlide 0.3s cubic-bezier(0.15, 1, 0.3, 1); }
-        @keyframes iosSlide { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes slideIn { from { transform: translateX(30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* HEADER */
-        .header { position: sticky; top: 0; padding: 18px 20px; background: rgba(10,10,10,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--border); z-index: 100; }
-        .logo { font-weight: 800; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px; letter-spacing: -1.2px; }
+        /* UI COMPONENTS */
+        .header {
+            position: sticky; top: 0; padding: 20px;
+            background: var(--glass); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 0.5px solid var(--border); z-index: 100;
+        }
 
-        /* POSTS */
-        .post-card { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; gap: 14px; }
-        .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0; cursor: pointer; }
-        .post-main { flex: 1; }
-        .post-user { font-weight: 700; font-size: 15px; margin-bottom: 3px; cursor: pointer; }
-        .post-content { font-size: 15px; line-height: 1.4; margin-bottom: 12px; }
+        .logo { font-weight: 800; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 24px; letter-spacing: -1.2px; }
 
-        /* PROFILE SPECIALS */
-        .profile-hero { padding: 30px 20px; text-align: center; border-bottom: 0.5px solid var(--border); }
-        .stat-grid { display: flex; justify-content: center; gap: 40px; margin: 20px 0; }
-        .stat-item { text-align: center; }
-        .stat-val { display: block; font-size: 20px; font-weight: 800; }
-        .stat-lab { font-size: 12px; color: var(--muted); text-transform: uppercase; }
+        /* POST & INTERACTIONS */
+        .post { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; gap: 12px; }
+        .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; cursor: pointer; }
+        .post-content { flex: 1; }
+        .post-user { font-weight: 700; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .post-text { font-size: 15px; line-height: 1.4; margin-bottom: 12px; }
+        
+        .actions { display: flex; gap: 24px; }
+        .action-btn { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .action-btn.liked { color: #FF2D55; }
 
-        .btn-follow { width: 100%; max-width: 200px; padding: 10px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; }
-        .btn-follow.active { background: var(--card); color: var(--text); border: 1px solid var(--border); }
-        .btn-follow.not-active { background: var(--primary); color: white; }
+        /* PROFILE */
+        .profile-header { padding: 30px 20px; text-align: center; border-bottom: 0.5px solid var(--border); }
+        .stats { display: flex; justify-content: center; gap: 35px; margin: 20px 0; }
+        .stat-val { display: block; font-size: 18px; font-weight: 800; }
+        .stat-lab { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
 
-        /* NAVBAR */
-        .nav-bar { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; height: 68px; background: var(--primary); border-radius: 34px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000; }
+        .btn-follow { 
+            padding: 8px 30px; border-radius: 20px; border: none; font-weight: 700; 
+            cursor: pointer; transition: 0.3s;
+        }
+        .btn-follow.following { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+        .btn-follow.not-following { background: #FFFFFF; color: #000; }
+
+        /* NAV BAR */
+        .nav-bar {
+            position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%);
+            width: 90%; height: 65px; background: var(--primary); border-radius: 32px;
+            display: flex; justify-content: space-around; align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000;
+        }
         .nav-item { color: white; opacity: 0.6; font-size: 10px; font-weight: 800; text-align: center; cursor: pointer; }
         .nav-item.active { opacity: 1; }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 2px; }
+        .nav-item svg { width: 22px; height: 22px; margin-bottom: 2px; }
 
-        /* AUTH */
-        .auth-box { height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 40px; text-align: center; }
-        .ios-input { width: 100%; padding: 18px; border-radius: 14px; border: 1px solid var(--border); background: var(--card); color: white; margin-bottom: 15px; font-size: 16px; }
-        .ios-btn { width: 100%; padding: 18px; border-radius: 14px; border: none; background: var(--primary); color: white; font-weight: 800; cursor: pointer; }
+        /* NOTIFICATIONS BADGE */
+        .badge { position: absolute; top: -5px; right: -5px; background: #FF3B30; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: flex; align-items: center; justify-content: center; border: 2px solid #7A2C76; }
 
+        /* MODAL POST */
+        .composer { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: none; flex-direction: column; }
     </style>
 </head>
 <body>
 
-<div class="app-viewport">
-
-    <div id="scr-auth" class="screen active">
-        <div class="auth-box">
-            <div class="logo" style="font-size: 60px; margin-bottom: 40px;">INSTANT</div>
-            <input id="login-user" class="ios-input" type="text" placeholder="Usuario">
-            <button onclick="SocialApp.login()" class="ios-btn">Entrar</button>
-        </div>
+<div id="app-shell">
+    <div id="view-auth" class="view active" style="justify-content: center; padding: 40px; text-align: center;">
+        <div class="logo" style="font-size: 50px; margin-bottom: 40px;">INSTANT</div>
+        <input id="in-username" style="width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: var(--card); color: white; margin-bottom: 15px;" placeholder="Username">
+        <button onclick="Router.auth()" style="width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--primary); color: white; font-weight: 700;">Entrar</button>
     </div>
 
-    <div id="scr-feed" class="screen">
+    <div id="view-feed" class="view">
         <header class="header">
             <div class="logo">INSTANT</div>
-            <div onclick="SocialApp.navigate('settings')" style="cursor:pointer">⚙️</div>
+            <div onclick="Router.go('notifications')" style="position:relative; cursor:pointer">
+                🔔 <span id="notif-count" class="badge" style="display:none">0</span>
+            </div>
         </header>
-        <div id="feed-container"></div>
+        <div id="feed-items"></div>
     </div>
 
-    <div id="scr-profile" class="screen">
+    <div id="view-profile" class="view">
         <header class="header">
-            <div onclick="SocialApp.navigate('feed')" style="color:var(--ios-blue); cursor:pointer">← Volver</div>
-            <div id="profile-title" class="logo" style="font-size:18px">PERFIL</div>
+            <div onclick="Router.back()" style="color:var(--ios-blue); cursor:pointer">← Atrás</div>
+            <div id="profile-user-title" class="logo" style="font-size:18px">PERFIL</div>
+            <div onclick="Router.logout()" style="color:#FF3B30; font-size:12px; font-weight:700">SALIR</div>
+        </header>
+        <div id="profile-content"></div>
+    </div>
+
+    <div id="view-notifications" class="view">
+        <header class="header">
+            <div onclick="Router.back()" style="color:var(--ios-blue); cursor:pointer">← Volver</div>
+            <div class="logo">ACTIVIDAD</div>
             <div style="width:40px"></div>
         </header>
-        <div id="profile-ui"></div>
-        <div id="profile-posts"></div>
+        <div id="notif-list"></div>
     </div>
 
-    <div id="scr-settings" class="screen">
-        <header class="header">
-            <div onclick="SocialApp.navigate('feed')" style="color:var(--ios-blue); cursor:pointer">← Atrás</div>
-            <div class="logo">AJUSTES</div>
-            <div style="width:40px"></div>
-        </header>
-        <div style="padding: 20px;">
-            <button onclick="SocialApp.logout()" class="ios-btn" style="background:#FF3B30">Cerrar Sesión</button>
-        </div>
-    </div>
-
-    <nav id="main-nav" class="nav-bar" style="display:none">
-        <div class="nav-item active" onclick="SocialApp.navigate('feed')">
+    <nav id="app-nav" class="nav-bar" style="display:none">
+        <div class="nav-item active" onclick="Router.go('feed')">
             <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            FEED
+            INICIO
         </div>
-        <div onclick="SocialApp.openComposer()" style="width:60px; height:60px; background:white; border-radius:50%; margin-top:-40px; display:flex; align-items:center; justify-content:center; color:#7A2C76; font-size:30px; border:6px solid var(--bg); cursor:pointer">+</div>
-        <div class="nav-item" onclick="SocialApp.viewProfile(SocialApp.me)">
+        <div onclick="UI.openComposer()" style="width:55px; height:55px; background:white; border-radius:50%; margin-top:-35px; display:flex; align-items:center; justify-content:center; color:#7A2C76; font-size:28px; cursor:pointer; border:5px solid var(--bg)">+</div>
+        <div class="nav-item" onclick="Router.viewProfile(State.me)">
             <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            YO
+            PERFIL
         </div>
     </nav>
 
+    <div id="modal-composer" class="composer">
+        <div class="header">
+            <span onclick="UI.closeComposer()" style="color:var(--ios-blue); cursor:pointer">Cerrar</span>
+            <b>Nuevo Post</b>
+            <button onclick="Social.post()" style="background:var(--primary); border:none; padding:8px 18px; border-radius:20px; color:white; font-weight:700">Postear</button>
+        </div>
+        <textarea id="composer-text" style="flex:1; padding:20px; background:transparent; border:none; color:white; font-size:18px; resize:none" placeholder="¿Qué tienes en mente?"></textarea>
+    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -133,132 +158,186 @@
     });
     const db = firebase.firestore();
 
-    const SocialApp = {
-        me: localStorage.getItem('inst_me'),
-        
-        init() {
-            if(this.me) this.navigate('feed');
-        },
+    // 1. ESTADO GLOBAL
+    const State = {
+        me: localStorage.getItem('inst_u'),
+        cid: localStorage.getItem('inst_c'),
+        history: ['feed'],
+        notifCount: 0
+    };
 
-        login() {
-            const u = document.getElementById('login-user').value.trim().toLowerCase();
+    // 2. ROUTER & AUTH
+    const Router = {
+        auth() {
+            const u = document.getElementById('in-username').value.trim().toLowerCase();
             if(u.length < 3) return;
-            this.me = u;
-            localStorage.setItem('inst_me', u);
-            db.collection("users").doc(u).set({ username: u }, { merge: true });
-            this.navigate('feed');
+            State.me = u;
+            State.cid = 'cid_' + Math.random().toString(36).substr(2, 9);
+            localStorage.setItem('inst_u', u);
+            localStorage.setItem('inst_c', State.cid);
+            db.collection("users").doc(u).set({ username: u, followers: 0, following: 0 }, { merge: true });
+            this.go('feed');
         },
-
-        navigate(id) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('scr-'+id).classList.add('active');
-            document.getElementById('main-nav').style.display = (id === 'auth') ? 'none' : 'flex';
-            if(id === 'feed') this.loadFeed();
+        go(id) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-'+id).classList.add('active');
+            document.getElementById('app-nav').style.display = (id === 'auth') ? 'none' : 'flex';
+            if(id !== State.history[State.history.length - 1]) State.history.push(id);
+            if(id === 'feed') Social.loadFeed();
+            if(id === 'notifications') Social.loadNotifications();
         },
-
-        // --- SISTEMA DE SEGUIDORES (REAL) ---
-        async followUser(targetUser) {
-            const followID = `${this.me}_${targetUser}`;
-            const ref = db.collection("follows").doc(followID);
-            const doc = await ref.get();
-
-            if (!doc.exists) {
-                // SEGUIR
-                await ref.set({ follower: this.me, following: targetUser });
-                this.updateCounter(this.me, 'following', 1);
-                this.updateCounter(targetUser, 'followers', 1);
-            } else {
-                // DEJAR DE SEGUIR
-                await ref.delete();
-                this.updateCounter(this.me, 'following', -1);
-                this.updateCounter(targetUser, 'followers', -1);
-            }
-            this.viewProfile(targetUser); // Refresh UI
-        },
-
-        updateCounter(user, field, inc) {
-            db.collection("users").doc(user).update({
-                [field]: firebase.firestore.FieldValue.increment(inc)
-            });
-        },
-
-        // --- CARGA DE PERFIL DINÁMICO ---
-        async viewProfile(username) {
-            this.navigate('profile');
-            const uDoc = await db.collection("users").doc(username).get();
-            const data = uDoc.data() || { followers: 0, following: 0 };
-            
-            // Chequear si yo lo sigo
-            const fDoc = await db.collection("follows").doc(`${this.me}_${username}`).get();
-            const isFollowing = fDoc.exists;
-
-            document.getElementById('profile-ui').innerHTML = `
-                <div class="profile-hero">
-                    <div class="avatar" style="width:80px; height:80px; margin:0 auto 15px; font-size:30px">
-                        ${username.charAt(0).toUpperCase()}
-                    </div>
-                    <h2 style="margin:0">@${username}</h2>
-                    <div class="stat-grid">
-                        <div class="stat-item"><span class="stat-val">${data.followers || 0}</span><span class="stat-lab">Seguidores</span></div>
-                        <div class="stat-item"><span class="stat-val">${data.following || 0}</span><span class="stat-lab">Seguidos</span></div>
-                    </div>
-                    ${username !== this.me ? `
-                        <button onclick="SocialApp.followUser('${username}')" class="btn-follow ${isFollowing ? 'active' : 'not-active'}">
-                            ${isFollowing ? 'Siguiendo' : 'Seguir'}
-                        </button>
-                    ` : ''}
-                </div>
-            `;
-            this.loadUserPosts(username);
-        },
-
-        // --- FEED & POSTS ---
-        loadFeed() {
-            db.collection("posts").orderBy("created", "desc").limit(30).onSnapshot(snap => {
-                const container = document.getElementById('feed-container');
-                container.innerHTML = "";
-                snap.forEach(doc => {
-                    const p = doc.data();
-                    const el = document.createElement('div');
-                    el.className = 'post-card';
-                    el.innerHTML = `
-                        <div class="avatar" onclick="SocialApp.viewProfile('${p.user}')">${p.user.charAt(0).toUpperCase()}</div>
-                        <div class="post-main">
-                            <div class="post-user" onclick="SocialApp.viewProfile('${p.user}')">@${p.user}</div>
-                            <div class="post-content">${p.text}</div>
-                        </div>
-                    `;
-                    container.appendChild(el);
-                });
-            });
-        },
-
-        loadUserPosts(u) {
-            db.collection("posts").where("user", "==", u).get().then(snap => {
-                const container = document.getElementById('profile-posts');
-                container.innerHTML = `<p style="text-align:center; color:var(--muted); font-size:12px; margin-top:20px">POSTS DEL USUARIO</p>`;
-                snap.forEach(doc => {
-                    const p = doc.data();
-                    container.innerHTML += `<div class="post-card"><div class="post-main"><div class="post-content">${p.text}</div></div></div>`;
-                });
-            });
-        },
-
-        openComposer() {
-            const txt = prompt("¿Qué estás pensando?");
-            if(txt) {
-                db.collection("posts").add({
-                    user: this.me,
-                    text: txt,
-                    created: Date.now()
-                });
+        back() {
+            if(State.history.length > 1) {
+                State.history.pop();
+                this.go(State.history[State.history.length - 1]);
             }
         },
-
+        viewProfile(u) {
+            State.viewing = u;
+            this.go('profile');
+            Social.loadProfile(u);
+        },
         logout() { localStorage.clear(); location.reload(); }
     };
 
-    SocialApp.init();
+    // 3. SOCIAL ENGINE (RELEVANCE & GRAPH)
+    const Social = {
+        async loadFeed() {
+            const container = document.getElementById('feed-items');
+            // Enfoque Algorítmico: Cargar seguidos primero
+            const followSnap = await db.collection("follows").where("follower", "==", State.me).get();
+            const following = followSnap.docs.map(d => d.data().following);
+            following.push(State.me); // Incluirme a mi mismo
+
+            // Cargar posts de mis seguidos (Checklist 4)
+            db.collection("posts")
+              .where("user", "in", following.slice(0, 10)) // Limitado por Firebase 'in' rules
+              .orderBy("created", "desc")
+              .limit(20)
+              .onSnapshot(snap => {
+                  container.innerHTML = "";
+                  snap.forEach(doc => container.appendChild(UI.renderPost(doc.id, doc.data())));
+              });
+        },
+
+        async post() {
+            const text = document.getElementById('composer-text').value;
+            if(!text) return;
+            await db.collection("posts").add({
+                user: State.me, text, created: Date.now(), likes: 0
+            });
+            UI.closeComposer();
+            document.getElementById('composer-text').value = "";
+        },
+
+        async toggleFollow(target) {
+            const id = `${State.me}_${target}`;
+            const ref = db.collection("follows").doc(id);
+            const doc = await ref.get();
+
+            const batch = db.batch();
+            if(!doc.exists) {
+                batch.set(ref, { follower: State.me, following: target, created: Date.now() });
+                batch.update(db.collection("users").doc(State.me), { following: firebase.firestore.FieldValue.increment(1)});
+                batch.update(db.collection("users").doc(target), { followers: firebase.firestore.FieldValue.increment(1)});
+                Social.notify(target, 'follow');
+            } else {
+                batch.delete(ref);
+                batch.update(db.collection("users").doc(State.me), { following: firebase.firestore.FieldValue.increment(-1)});
+                batch.update(db.collection("users").doc(target), { followers: firebase.firestore.FieldValue.increment(-1)});
+            }
+            await batch.commit();
+            Router.viewProfile(target);
+        },
+
+        async toggleLike(postId, owner) {
+            const id = `${State.me}_${postId}`;
+            const ref = db.collection("likes").doc(id);
+            const doc = await ref.get();
+            
+            if(!doc.exists) {
+                await ref.set({ u: State.me, p: postId });
+                await db.collection("posts").doc(postId).update({ likes: firebase.firestore.FieldValue.increment(1)});
+                if(owner !== State.me) Social.notify(owner, 'like');
+            } else {
+                await ref.delete();
+                await db.collection("posts").doc(postId).update({ likes: firebase.firestore.FieldValue.increment(-1)});
+            }
+        },
+
+        notify(to, type) {
+            db.collection("notifications").add({
+                to, from: State.me, type, created: Date.now(), read: false
+            });
+        },
+
+        loadNotifications() {
+            db.collection("notifications").where("to", "==", State.me).orderBy("created", "desc").onSnapshot(snap => {
+                const list = document.getElementById('notif-list');
+                list.innerHTML = "";
+                snap.forEach(doc => {
+                    const n = doc.data();
+                    const item = document.createElement('div');
+                    item.className = 'post';
+                    item.innerHTML = `<b>@${n.from}</b> ${n.type === 'like' ? 'le dio like a tu post' : 'empezó a seguirte'}`;
+                    list.appendChild(item);
+                });
+            });
+        },
+
+        async loadProfile(u) {
+            const data = (await db.collection("users").doc(u).get()).data() || {followers:0, following:0};
+            const isFollowing = (await db.collection("follows").doc(`${State.me}_${u}`).get()).exists;
+            
+            document.getElementById('profile-content').innerHTML = `
+                <div class="profile-header">
+                    <div class="avatar" style="width:80px; height:80px; margin:0 auto 15px; font-size:30px">${u[0].toUpperCase()}</div>
+                    <h2 style="margin:0">@${u}</h2>
+                    <div class="stats">
+                        <div class="stat-item"><span class="stat-val">${data.followers}</span><span class="stat-lab">Followers</span></div>
+                        <div class="stat-item"><span class="stat-val">${data.following}</span><span class="stat-lab">Following</span></div>
+                    </div>
+                    ${u !== State.me ? `<button onclick="Social.toggleFollow('${u}')" class="btn-follow ${isFollowing?'following':'not-following'}">${isFollowing?'Siguiendo':'Seguir'}</button>` : ''}
+                </div>
+            `;
+        }
+    };
+
+    // 4. UI RENDERER
+    const UI = {
+        renderPost(id, data) {
+            const div = document.createElement('div');
+            div.className = 'post';
+            div.innerHTML = `
+                <div class="avatar" onclick="Router.viewProfile('${data.user}')">${data.user[0].toUpperCase()}</div>
+                <div class="post-content">
+                    <div class="post-user" onclick="Router.viewProfile('${data.user}')">@${data.user}</div>
+                    <div class="post-text">${data.text}</div>
+                    <div class="actions">
+                        <div class="action-item" onclick="Social.toggleLike('${id}', '${data.user}')">❤️ ${data.likes}</div>
+                        <div class="action-item">💬 0</div>
+                    </div>
+                </div>
+            `;
+            return div;
+        },
+        openComposer() { document.getElementById('modal-composer').style.display = 'flex'; },
+        closeComposer() { document.getElementById('modal-composer').style.display = 'none'; }
+    };
+
+    // Listeners Globales para Notificaciones
+    if(State.me) {
+        db.collection("notifications").where("to", "==", State.me).where("read", "==", false)
+          .onSnapshot(snap => {
+              const el = document.getElementById('notif-count');
+              el.innerText = snap.size;
+              el.style.display = snap.size > 0 ? 'flex' : 'none';
+          });
+    }
+
+    // Init
+    if(!State.me) Router.go('auth'); else Router.go('feed');
+
 </script>
 </body>
 </html>
