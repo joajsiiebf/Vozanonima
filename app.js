@@ -1,4 +1,3 @@
-// ================= FIREBASE =================
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
@@ -12,47 +11,49 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ================= ESTADO GLOBAL =================
 let currentUser = JSON.parse(localStorage.getItem("user")) || null;
 
-// ================= SEGURIDAD GLOBAL =================
-window.onerror = function (msg, src, line) {
-  console.error("GLOBAL ERROR:", msg, src, line);
-  return true;
-};
+// ================= RENDER ÚNICO (CLAVE DEL FIX) =================
+function render(view) {
+  const app = document.getElementById("appView");
+  const login = document.getElementById("loginView");
 
-// ================= HELPERS UI =================
-function showAuth() {
-  document.getElementById("loginView").classList.add("active");
-  document.getElementById("appView").classList.remove("active");
+  // SIEMPRE OCULTA TODO
+  login.style.display = "none";
+  app.style.display = "none";
+
+  if (view === "login") {
+    login.style.display = "block";
+  }
+
+  if (view === "app") {
+    app.style.display = "block";
+  }
 }
 
-function showApp() {
-  document.getElementById("loginView").classList.remove("active");
-  document.getElementById("appView").classList.add("active");
-
-  go("feedView", "Inicio");
-  loadFeed();
-}
-
-// SPA NAVIGATION (CONTROL REAL)
+// ================= SPA NAV (SOLO UNA VISTA ACTIVA) =================
 function go(viewId, title) {
-  const screens = document.querySelectorAll(".screen");
-
-  screens.forEach(s => {
-    s.classList.remove("active");
-    s.classList.add("hidden");
+  document.querySelectorAll(".screen").forEach(el => {
+    el.style.display = "none";
   });
 
-  const active = document.getElementById(viewId);
-  if (active) {
-    active.classList.remove("hidden");
-    active.classList.add("active");
-  }
+  const target = document.getElementById(viewId);
+  if (target) target.style.display = "block";
 
   document.getElementById("title").innerText = title;
 
   if (viewId === "feedView") loadFeed();
+}
+
+// ================= INIT =================
+function init() {
+  if (currentUser && currentUser.id) {
+    render("app");
+    go("feedView", "Inicio");
+    loadFeed();
+  } else {
+    render("login");
+  }
 }
 
 // ================= AUTH =================
@@ -62,33 +63,31 @@ async function register() {
     const phone = regPhone.value.trim();
     const password = regPass.value;
 
-    if (!username || !phone || !password)
-      return alert("Completa todos los campos");
+    if (!username || !phone || !password) return alert("Completa todo");
 
     const exists = await db.collection("users")
       .where("username", "==", username)
       .get();
 
-    if (!exists.empty)
-      return alert("Username ya existe");
+    if (!exists.empty) return alert("Username ya existe");
 
     const doc = await db.collection("users").add({
       username,
       phone,
       password,
-      followers: 0,
-      following: 0,
       created: Date.now()
     });
 
     currentUser = { id: doc.id, username };
     localStorage.setItem("user", JSON.stringify(currentUser));
 
-    showApp();
+    render("app");
+    go("feedView", "Inicio");
+    loadFeed();
 
   } catch (e) {
-    console.error("REGISTER ERROR:", e);
-    alert("Error creando cuenta");
+    console.error(e);
+    alert("Error registro");
   }
 }
 
@@ -97,146 +96,95 @@ async function login() {
     const phone = loginPhone.value.trim();
     const password = loginPass.value;
 
-    if (!phone || !password)
-      return alert("Completa login");
-
     const snap = await db.collection("users")
       .where("phone", "==", phone)
       .where("password", "==", password)
       .get();
 
-    if (snap.empty)
-      return alert("Datos incorrectos");
+    if (snap.empty) return alert("Datos incorrectos");
 
-    const user = snap.docs[0];
+    const u = snap.docs[0];
 
     currentUser = {
-      id: user.id,
-      username: user.data().username
+      id: u.id,
+      username: u.data().username
     };
 
     localStorage.setItem("user", JSON.stringify(currentUser));
 
-    showApp();
+    render("app");
+    go("feedView", "Inicio");
+    loadFeed();
 
   } catch (e) {
-    console.error("LOGIN ERROR:", e);
-    alert("Error iniciando sesión");
+    console.error(e);
+    alert("Error login");
   }
 }
 
 function logout() {
   localStorage.removeItem("user");
   currentUser = null;
-  showAuth();
+  render("login");
 }
 
 // ================= POSTS =================
 async function createPost() {
-  try {
-    const text = postText.value.trim();
-    if (!text) return;
+  const text = postText.value.trim();
+  if (!text) return;
 
-    await db.collection("posts").add({
-      text,
-      userId: currentUser.id,
-      username: currentUser.username,
-      likes: 0,
-      created: Date.now()
-    });
+  await db.collection("posts").add({
+    text,
+    username: currentUser.username,
+    likes: 0,
+    created: Date.now()
+  });
 
-    postText.value = "";
-    loadFeed();
-
-  } catch (e) {
-    console.error("POST ERROR:", e);
-  }
+  postText.value = "";
+  loadFeed();
 }
 
 async function loadFeed() {
-  try {
-    const feed = document.getElementById("feedView");
-    feed.innerHTML = "";
+  const feed = document.getElementById("feedView");
+  feed.innerHTML = "";
 
-    const snap = await db.collection("posts")
-      .orderBy("created", "desc")
-      .limit(10)
-      .get();
+  const snap = await db.collection("posts")
+    .orderBy("created", "desc")
+    .limit(10)
+    .get();
 
-    snap.forEach(doc => {
-      const p = doc.data();
+  snap.forEach(doc => {
+    const p = doc.data();
 
-      const div = document.createElement("div");
-      div.className = "post";
+    const div = document.createElement("div");
+    div.className = "post";
 
-      div.innerHTML = `
-        <b>@${p.username}</b>
-        <p>${p.text}</p>
-        <button onclick="likePost('${doc.id}', ${p.likes})">
-          ❤️ ${p.likes}
-        </button>
-      `;
+    div.innerHTML = `
+      <b>@${p.username}</b>
+      <p>${p.text}</p>
+      <button onclick="likePost('${doc.id}', ${p.likes})">
+        ❤️ ${p.likes}
+      </button>
+    `;
 
-      feed.appendChild(div);
-    });
-
-  } catch (e) {
-    console.error("FEED ERROR:", e);
-  }
+    feed.appendChild(div);
+  });
 }
 
 async function likePost(id, likes) {
-  try {
-    await db.collection("posts").doc(id).update({
-      likes: likes + 1
-    });
+  await db.collection("posts").doc(id).update({
+    likes: likes + 1
+  });
 
-    loadFeed();
-
-  } catch (e) {
-    console.error("LIKE ERROR:", e);
-  }
+  loadFeed();
 }
 
 // ================= SEARCH =================
-async function searchUsers() {
-  try {
-    const q = searchInput.value.trim();
-    const box = document.getElementById("searchResults");
-    box.innerHTML = "";
-
-    if (!q) return;
-
-    const snap = await db.collection("users")
-      .where("username", ">=", q)
-      .where("username", "<=", q + "z")
-      .get();
-
-    snap.forEach(u => {
-      const d = u.data();
-
-      const div = document.createElement("div");
-      div.className = "post";
-      div.innerHTML = `@${d.username}`;
-
-      box.appendChild(div);
-    });
-
-  } catch (e) {
-    console.error("SEARCH ERROR:", e);
-  }
+function searchUsers() {
+  const q = searchInput.value.trim();
+  const box = searchResults;
+  box.innerHTML = "";
 }
 
-// ================= SETTINGS =================
-function toggleTheme() {
-  document.body.classList.toggle("light");
-}
-
-// ================= INIT =================
-(function init() {
-  if (currentUser && currentUser.id) {
-    showApp();
-  } else {
-    showAuth();
-  }
-})();
+// ================= START =================
+window.onload = init;
