@@ -2,29 +2,23 @@
   margin:0;
   padding:0;
   box-sizing:border-box;
-  font-family:-apple-system, system-ui;
+  font-family:-apple-system;
 }
 
 body{
-  background:#0a0f1c;
-  color:#eaf0ff;
-}
-
-body.light{
-  background:#f5f7fb;
-  color:#111;
+  background:#0b0f14;
+  color:white;
 }
 
 /* LOGIN */
 .card{
-  width:92%;
+  width:90%;
   margin:18vh auto;
   padding:20px;
   border-radius:16px;
   background:#121824;
 }
 
-/* INPUT */
 input{
   width:100%;
   padding:12px;
@@ -35,64 +29,64 @@ input{
   color:white;
 }
 
-/* BUTTON */
 button{
   width:100%;
   padding:12px;
-  margin-top:8px;
-  border:none;
   border-radius:10px;
   background:#4c7dff;
+  border:none;
   color:white;
 }
 
-/* TOPBAR */
+/* HEADER */
 .topbar{
   padding:14px;
-  background:#121824;
+  font-weight:bold;
   display:flex;
   justify-content:space-between;
 }
 
+/* STORIES */
+.stories{
+  display:flex;
+  padding:10px;
+  gap:10px;
+  overflow-x:auto;
+}
+
+.story{
+  width:55px;
+  height:55px;
+  border-radius:50%;
+  background:linear-gradient(45deg,#ff4c4c,#4c7dff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
 /* COMPOSER */
 .composer{
-  position:sticky;
-  top:0;
-  z-index:10;
-  background:#121824;
-  padding:10px;
   display:flex;
   gap:6px;
-}
-
-/* SCREEN */
-.screen{
   padding:10px;
-  height:calc(100vh - 170px);
-  overflow:auto;
 }
 
-/* POST */
+/* FEED */
+.feed{
+  padding:10px;
+}
+
 .post{
   background:#121824;
   padding:12px;
   border-radius:14px;
   margin-bottom:10px;
-
-  animation:fadeIn .2s ease;
+  animation:fade .2s ease;
 }
 
-@keyframes fadeIn{
-  from{opacity:0; transform:translateY(6px);}
-  to{opacity:1; transform:translateY(0);}
-}
-
-/* REACTIONS */
-.reactions button{
-  width:auto;
-  padding:6px 8px;
-  margin:4px;
-  font-size:12px;
+@keyframes fade{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
 /* NAV */
@@ -108,12 +102,4 @@ button{
   flex:1;
   background:transparent;
   font-size:18px;
-  opacity:.7;
-  transition:.2s;
-}
-
-.nav button.activeTab{
-  opacity:1;
-  color:#4c7dff;
-  transform:translateY(-2px);
 }
