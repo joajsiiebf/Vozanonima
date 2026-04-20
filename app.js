@@ -27,14 +27,11 @@ function showApp(){
   appView.style.display="block";
 
   listenFeed();
-  updateRoleUI();
 }
 
 // ================= NAV =================
 function go(view){
-  document.querySelectorAll(".screen")
-    .forEach(s=>s.classList.add("hidden"));
-
+  document.querySelectorAll(".screen").forEach(s=>s.classList.add("hidden"));
   const el=document.getElementById(view);
   if(el) el.classList.remove("hidden");
 }
@@ -54,7 +51,7 @@ async function login(){
     .where("password","==",loginPass.value)
     .get();
 
-  if(snap.empty) return alert("Error");
+  if(snap.empty) return alert("Error login");
 
   const u=snap.docs[0].data();
 
@@ -105,7 +102,7 @@ function listenFeed(){
 
   db.collection("posts")
     .orderBy("created","desc")
-    .limit(30)
+    .limit(50)
     .onSnapshot(snap=>{
 
       const feed=document.getElementById("feedView");
@@ -117,8 +114,13 @@ function listenFeed(){
 
         html+=`
           <div class="post">
+
             <b>@${p.username}</b>
             <p>${p.text}</p>
+
+            <button onclick="like('${doc.id}')">❤️ Like</button>
+            <button onclick="openComments('${doc.id}')">💬 Comentar</button>
+
           </div>
         `;
       });
@@ -127,27 +129,51 @@ function listenFeed(){
     });
 }
 
+// ================= LIKE =================
+async function like(id){
+  const ref=db.collection("posts").doc(id);
+  const doc=await ref.get();
+
+  let likes=doc.data().likes||0;
+  await ref.update({likes:likes+1});
+}
+
+// ================= COMMENTS =================
+function openComments(postId){
+
+  const text=prompt("Escribe comentario:");
+
+  if(!text) return;
+
+  db.collection("posts")
+    .doc(postId)
+    .collection("comments")
+    .add({
+      text,
+      user:currentUser.username,
+      created:Date.now()
+    });
+}
+
 // ================= PROFILE =================
-async function loadProfile(){
+async function goProfile(){
+
+  go("profileView");
 
   const snap=await db.collection("posts")
     .where("username","==",currentUser.username)
     .get();
 
   profileView.innerHTML=`
-    <div class="post">
+    <div class="profile">
       <h2>@${currentUser.username}</h2>
       <p>Posts: ${snap.size}</p>
     </div>
   `;
 }
 
-// ================= UX =================
+// ================= LOGOUT =================
 function logout(){
   localStorage.clear();
   location.reload();
-}
-
-function updateRoleUI(){
-  roleBadge.innerText=currentUser.role==="admin"?"👑 ADMIN":"";
 }
