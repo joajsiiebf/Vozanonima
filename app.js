@@ -12,85 +12,129 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ================= ESTADO =================
+// ================= ESTADO GLOBAL =================
 let currentUser = JSON.parse(localStorage.getItem("user")) || null;
 
-// ================= SEGURIDAD =================
-window.onerror = function () {
-  alert("Error interno. Recargando...");
-  location.reload();
+// ================= SEGURIDAD GLOBAL =================
+window.onerror = function (msg, src, line) {
+  console.error("GLOBAL ERROR:", msg, src, line);
+  return true;
 };
+
+// ================= HELPERS UI =================
+function showAuth() {
+  document.getElementById("loginView").classList.add("active");
+  document.getElementById("appView").classList.remove("active");
+}
+
+function showApp() {
+  document.getElementById("loginView").classList.remove("active");
+  document.getElementById("appView").classList.add("active");
+
+  go("feedView", "Inicio");
+  loadFeed();
+}
+
+// SPA NAVIGATION (CONTROL REAL)
+function go(viewId, title) {
+  const screens = document.querySelectorAll(".screen");
+
+  screens.forEach(s => {
+    s.classList.remove("active");
+    s.classList.add("hidden");
+  });
+
+  const active = document.getElementById(viewId);
+  if (active) {
+    active.classList.remove("hidden");
+    active.classList.add("active");
+  }
+
+  document.getElementById("title").innerText = title;
+
+  if (viewId === "feedView") loadFeed();
+}
 
 // ================= AUTH =================
 async function register() {
   try {
     const username = regUser.value.trim();
     const phone = regPhone.value.trim();
-    const pass = regPass.value;
+    const password = regPass.value;
 
-    if (!username || !phone || !pass) return alert("Completa todo");
+    if (!username || !phone || !password)
+      return alert("Completa todos los campos");
 
-    const usersRef = db.collection("users");
+    const exists = await db.collection("users")
+      .where("username", "==", username)
+      .get();
 
-    const existing = await usersRef.where("username", "==", username).get();
-    if (!existing.empty) return alert("Username ya existe");
+    if (!exists.empty)
+      return alert("Username ya existe");
 
-    const doc = await usersRef.add({
+    const doc = await db.collection("users").add({
       username,
       phone,
-      password: pass,
+      password,
       followers: 0,
-      following: 0
+      following: 0,
+      created: Date.now()
     });
 
     currentUser = { id: doc.id, username };
     localStorage.setItem("user", JSON.stringify(currentUser));
 
     showApp();
+
   } catch (e) {
-    console.error(e);
+    console.error("REGISTER ERROR:", e);
+    alert("Error creando cuenta");
   }
 }
 
 async function login() {
   try {
-    const phone = loginPhone.value;
-    const pass = loginPass.value;
+    const phone = loginPhone.value.trim();
+    const password = loginPass.value;
+
+    if (!phone || !password)
+      return alert("Completa login");
 
     const snap = await db.collection("users")
       .where("phone", "==", phone)
-      .where("password", "==", pass)
+      .where("password", "==", password)
       .get();
 
-    if (snap.empty) return alert("Datos incorrectos");
+    if (snap.empty)
+      return alert("Datos incorrectos");
 
     const user = snap.docs[0];
-    currentUser = { id: user.id, username: user.data().username };
+
+    currentUser = {
+      id: user.id,
+      username: user.data().username
+    };
 
     localStorage.setItem("user", JSON.stringify(currentUser));
+
     showApp();
 
   } catch (e) {
-    console.error(e);
+    console.error("LOGIN ERROR:", e);
+    alert("Error iniciando sesión");
   }
-}
-
-// ================= APP =================
-function showApp() {
-  loginScreen.classList.remove("active");
-  appScreen.classList.add("active");
-  loadFeed();
 }
 
 function logout() {
   localStorage.removeItem("user");
-  location.reload();
+  currentUser = null;
+  showAuth();
 }
 
 // ================= POSTS =================
 async function createPost() {
   try {
-    const text = postText.value;
+    const text = postText.value.trim();
     if (!text) return;
 
     await db.collection("posts").add({
@@ -103,13 +147,15 @@ async function createPost() {
 
     postText.value = "";
     loadFeed();
+
   } catch (e) {
-    console.error(e);
+    console.error("POST ERROR:", e);
   }
 }
 
 async function loadFeed() {
   try {
+    const feed = document.getElementById("feedView");
     feed.innerHTML = "";
 
     const snap = await db.collection("posts")
@@ -135,7 +181,7 @@ async function loadFeed() {
     });
 
   } catch (e) {
-    console.error("Feed error", e);
+    console.error("FEED ERROR:", e);
   }
 }
 
@@ -144,42 +190,53 @@ async function likePost(id, likes) {
     await db.collection("posts").doc(id).update({
       likes: likes + 1
     });
-    loadFeed();
-  } catch (e) {
-    console.error(e);
-  }
-}
 
-// ================= NAV =================
-function navigate(view) {
-  document.querySelectorAll(".view").forEach(v => v.classList.add("hidden"));
-  document.getElementById(view).classList.remove("hidden");
-  topTitle.innerText = view.toUpperCase();
+    loadFeed();
+
+  } catch (e) {
+    console.error("LIKE ERROR:", e);
+  }
 }
 
 // ================= SEARCH =================
 async function searchUsers() {
-  const q = searchInput.value;
+  try {
+    const q = searchInput.value.trim();
+    const box = document.getElementById("searchResults");
+    box.innerHTML = "";
 
-  const snap = await db.collection("users")
-    .where("username", ">=", q)
-    .where("username", "<=", q + "z")
-    .get();
+    if (!q) return;
 
-  searchResults.innerHTML = "";
+    const snap = await db.collection("users")
+      .where("username", ">=", q)
+      .where("username", "<=", q + "z")
+      .get();
 
-  snap.forEach(u => {
-    const d = u.data();
-    const div = document.createElement("div");
-    div.innerHTML = `@${d.username}`;
-    searchResults.appendChild(div);
-  });
+    snap.forEach(u => {
+      const d = u.data();
+
+      const div = document.createElement("div");
+      div.className = "post";
+      div.innerHTML = `@${d.username}`;
+
+      box.appendChild(div);
+    });
+
+  } catch (e) {
+    console.error("SEARCH ERROR:", e);
+  }
 }
 
-// ================= THEME =================
+// ================= SETTINGS =================
 function toggleTheme() {
   document.body.classList.toggle("light");
 }
 
 // ================= INIT =================
-if (currentUser) showApp();
+(function init() {
+  if (currentUser && currentUser.id) {
+    showApp();
+  } else {
+    showAuth();
+  }
+})();
