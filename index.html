@@ -7,7 +7,6 @@
 
 <style>
 
-/* ================= THEMES ================= */
 :root{
   --bg:#07070b;
   --card:rgba(255,255,255,0.04);
@@ -15,15 +14,6 @@
   --muted:#9ca3af;
   --accent:#7c3aed;
   --stroke:rgba(255,255,255,0.06);
-}
-
-.light{
-  --bg:#f5f5f7;
-  --card:#ffffff;
-  --text:#0b0b10;
-  --muted:#6b7280;
-  --accent:#7c3aed;
-  --stroke:rgba(0,0,0,0.08);
 }
 
 body{
@@ -34,65 +24,21 @@ body{
   overflow:hidden;
 }
 
-/* ================= SCREEN SYSTEM ================= */
+/* ================= SCREENS ================= */
 .screen{
   position:absolute;
   width:100%;
   height:100vh;
   opacity:0;
-  transform:translateY(12px);
-  transition:.35s ease;
+  transform:scale(1.02);
   pointer-events:none;
+  transition:.35s ease;
 }
 
 .screen.active{
   opacity:1;
-  transform:translateY(0);
+  transform:scale(1);
   pointer-events:auto;
-}
-
-/* ================= WELCOME ================= */
-#welcome{
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-}
-
-.logo{
-  font-size:54px;
-  font-weight:900;
-  color:var(--accent);
-}
-
-.sub{color:var(--muted)}
-
-.btn{
-  margin-top:12px;
-  padding:12px 18px;
-  border-radius:14px;
-  border:none;
-  background:var(--accent);
-  color:white;
-  font-weight:600;
-}
-
-/* ================= LOGIN ================= */
-#login{
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding:24px;
-  gap:12px;
-}
-
-input{
-  padding:13px;
-  border-radius:14px;
-  border:1px solid var(--stroke);
-  background:var(--card);
-  color:var(--text);
 }
 
 /* ================= TOPBAR ================= */
@@ -103,26 +49,19 @@ input{
   font-weight:700;
 }
 
-/* ================= ONLINE COUNTER ================= */
-.online{
-  font-size:12px;
-  color:var(--muted);
-  padding:0 16px;
-}
-
-/* ================= FEED ================= */
+/* ================= POST ================= */
 .post{
   margin:10px 12px;
-  padding:12px;
+  padding:14px;
   background:var(--card);
   border-radius:18px;
   border:1px solid var(--stroke);
-  animation:pop .25s ease;
+  animation:fade .2s ease;
 }
 
-@keyframes pop{
-  from{opacity:0;transform:scale(.98)}
-  to{opacity:1;transform:scale(1)}
+@keyframes fade{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
 .header{
@@ -136,11 +75,16 @@ input{
   height:38px;
   border-radius:50%;
   background:var(--accent);
-  opacity:.7;
 }
 
-.textOnly{
-  padding-top:8px;
+/* ================= BUTTON ================= */
+.btn{
+  padding:8px 12px;
+  border:none;
+  border-radius:12px;
+  background:var(--accent);
+  color:white;
+  font-weight:600;
 }
 
 /* ================= NAV ================= */
@@ -151,7 +95,7 @@ input{
   transform:translateX(-50%);
   width:92%;
   height:64px;
-  background:rgba(20,20,25,0.6);
+  background:rgba(20,20,25,0.65);
   backdrop-filter:blur(26px);
   border-radius:24px;
   display:flex;
@@ -160,119 +104,63 @@ input{
   border:1px solid var(--stroke);
 }
 
-/* ICONS (NO EMOJIS) */
-.icon{
-  width:18px;
-  height:18px;
-  border-radius:4px;
-  background:var(--muted);
-}
-
-/* ================= PROFILE ================= */
-#profile{
+/* ================= ADMIN PANEL ================= */
+#adminPanel{
+  position:absolute;
+  top:0;
+  right:-100%;
+  width:85%;
+  height:100vh;
+  background:#0f0f14;
+  transition:.35s ease;
   padding:16px;
+  overflow:auto;
+  border-left:1px solid var(--stroke);
 }
 
-.stats{
+#adminPanel.active{
+  right:0;
+}
+
+.userRow{
   display:flex;
-  justify-content:space-around;
+  justify-content:space-between;
+  padding:10px;
+  border-bottom:1px solid var(--stroke);
+}
+
+/* ================= ONLINE ================= */
+.online{
+  padding:0 16px;
+  font-size:12px;
   color:var(--muted);
 }
 
-/* ================= GRID ================= */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:2px;
-}
-
-.grid div{
-  height:120px;
-  background:#111118;
-}
-
-/* ================= SETTINGS ================= */
-#settings{
-  padding:16px;
-}
-
-.card{
-  background:var(--card);
-  padding:14px;
-  border-radius:16px;
-  margin-bottom:10px;
-}
 </style>
 </head>
 
 <body>
 
-<!-- WELCOME -->
-<div id="welcome" class="screen active">
-  <div class="logo">Instant</div>
-  <div class="sub">Share moments</div>
-
-  <button class="btn" onclick="goLogin()">Entrar</button>
-  <button class="btn" onclick="guest()">Invitado</button>
-</div>
-
-<!-- LOGIN -->
-<div id="login" class="screen">
-  <input id="user" placeholder="usuario">
-  <input id="pass" type="password" placeholder="contraseña">
-
-  <button class="btn" onclick="login()">Entrar</button>
-  <button class="btn" onclick="register()">Crear</button>
-</div>
-
 <!-- FEED -->
-<div id="feedScreen" class="screen">
+<div id="feedScreen" class="screen active">
 
   <div class="topbar">
     <div>Instant</div>
-    <div onclick="toggleTheme()">■</div>
+    <div onclick="toggleAdmin()" class="btn">⚙</div>
   </div>
 
-  <div class="online" id="online">Usuarios en línea: 0</div>
+  <div class="online" id="onlineCount">Usuarios en línea: 0</div>
 
   <div id="feed"></div>
 
-  <div class="nav">
-    <div class="icon"></div>
-    <div class="icon"></div>
-    <div class="icon"></div>
-  </div>
-
 </div>
 
-<!-- PROFILE -->
-<div id="profile" class="screen">
+<!-- ADMIN -->
+<div id="adminPanel">
 
-  <div style="padding:14px" onclick="showFeed()">←</div>
+  <h3>Panel Admin</h3>
+  <div id="usersBox"></div>
 
-  <h2 id="name"></h2>
-
-  <div class="stats">
-    <div><b id="posts">0</b><br>posts</div>
-    <div><b id="followers">0</b><br>followers</div>
-    <div><b id="following">0</b><br>following</div>
-  </div>
-
-  <div id="grid" class="grid"></div>
-
-</div>
-
-<!-- SETTINGS -->
-<div id="settings" class="screen">
-  <div style="padding:14px" onclick="showFeed()">←</div>
-
-  <div class="card" onclick="toggleTheme()">
-    Cambiar tema
-  </div>
-
-  <div class="card" onclick="logout()">
-    Cerrar sesión
-  </div>
 </div>
 
 <!-- FIREBASE -->
@@ -281,38 +169,30 @@ input{
 
 <script>
 
-const firebaseConfig={
-  apiKey:"AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
-  authDomain:"vozanonimasm.firebaseapp.com",
-  projectId:"vozanonimasm"
+/* ================= FIREBASE CONFIG ================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+  authDomain: "vozanonimasm.firebaseapp.com",
+  projectId: "vozanonimasm",
+  storageBucket: "vozanonimasm.firebasestorage.app",
+  messagingSenderId: "533740152067",
+  appId: "1:533740152067:web:1ec05c7842f09a9e32f536",
+  measurementId: "G-S53MVLKF66"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
+const db = firebase.firestore();
 
-/* ================= STATE ================= */
-let me={username:"guest"};
-let onlineCount=0;
+/* ================= USER ================= */
+let me = {
+  username: "Jscol_Owner",
+  role: "admin"
+};
 
-/* ================= START ================= */
+/* ================= NAV ================= */
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
-}
-
-let saved=localStorage.getItem("user");
-if(saved){
-  me=JSON.parse(saved);
-  show("feedScreen");
-  loadFeed();
-}else show("welcome");
-
-/* ================= AUTH ================= */
-function goLogin(){show("login");}
-
-function guest(){
-  show("feedScreen");
-  loadFeed();
 }
 
 /* ================= FEED ================= */
@@ -324,76 +204,117 @@ function loadFeed(){
 
     let html="";
 
-    s.forEach(d=>{
-      let p=d.data();
+    s.forEach(doc=>{
 
-      let isTextOnly = !p.image;
+      let p = doc.data();
 
-      html+=`
+      html += `
       <div class="post">
+
         <div class="header">
           <div class="avatar"></div>
           <b>@${p.username}</b>
         </div>
 
-        ${isTextOnly ? `
-          <div class="textOnly">${p.text}</div>
-        ` : `
-          <div class="image"></div>
-          <p>${p.text}</p>
-        `}
+        <p>${p.text}</p>
+
+        ${me.role==="admin" ? `
+          <button class="btn" onclick="deletePost('${doc.id}')">
+            borrar
+          </button>
+        ` : ""}
+
       </div>`;
     });
 
-    feed.innerHTML=html;
+    feed.innerHTML = html;
 
   });
 
 }
 
-/* ================= PROFILE FIXED ================= */
-function openProfile(){
+/* ================= DELETE ================= */
+function deletePost(id){
+  if(me.role!=="admin") return;
+  db.collection("posts").doc(id).delete();
+}
 
-  show("profile");
+/* ================= ADMIN ================= */
+function toggleAdmin(){
 
-  name.innerText="@JTS Call Owner";
+  if(me.role!=="admin"){
+    alert("No eres admin");
+    return;
+  }
 
-  followers.innerText="110000";
-  following.innerText="0";
+  let panel = document.getElementById("adminPanel");
+  panel.classList.toggle("active");
 
-  db.collection("posts")
-  .where("username","==","JTS Call Owner")
-  .get()
-  .then(s=>{
-    posts.innerText=s.size;
+  loadUsers();
 
-    let html="";
-    s.forEach(()=>html+="<div></div>");
-    grid.innerHTML=html;
+}
+
+/* ================= USERS ONLINE ================= */
+function loadUsers(){
+
+  db.collection("presence")
+  .onSnapshot(s=>{
+
+    let html="<h4>Usuarios</h4>";
+
+    let now = Date.now();
+    let online = 0;
+
+    s.forEach(doc=>{
+
+      let u = doc.data();
+
+      let isOnline = now - u.lastSeen < 10000;
+
+      if(isOnline) online++;
+
+      html += `
+      <div class="userRow">
+        <span>@${u.username}</span>
+        <small>${isOnline ? "online" : "offline"}</small>
+      </div>`;
+    });
+
+    usersBox.innerHTML = html;
+
+    document.getElementById("onlineCount").innerText =
+      "Usuarios en línea: " + online;
+
   });
 
 }
 
-/* ================= SETTINGS ================= */
-function toggleTheme(){
-  document.body.classList.toggle("light");
+/* ================= PRESENCE SYSTEM ================= */
+function setPresence(){
+
+  db.collection("presence")
+  .doc(me.username)
+  .set({
+    username: me.username,
+    lastSeen: Date.now()
+  });
+
 }
 
-function showFeed(){
-  show("feedScreen");
-}
-
-function logout(){
-  localStorage.clear();
-  location.reload();
-}
-
-/* ================= ONLINE SIM ================= */
 setInterval(()=>{
-  onlineCount = Math.floor(Math.random()*300)+50;
-  document.getElementById("online").innerText =
-  "Usuarios en línea: " + onlineCount;
-},3000);
+
+  db.collection("presence")
+  .doc(me.username)
+  .set({
+    username: me.username,
+    lastSeen: Date.now()
+  });
+
+},5000);
+
+/* ================= INIT ================= */
+loadFeed();
+setPresence();
 
 </script>
 
