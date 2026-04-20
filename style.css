@@ -1,110 +1,116 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:-apple-system, system-ui;
 }
 
-body {
-  background: #0f0f10;
-  color: white;
+body{
+  background:#0B0F14;
+  color:#EAF0FF;
 }
 
-.screen {
-  display: none;
-  height: 100vh;
+/* VIEWS */
+.view{
+  display:none;
+  height:100vh;
 }
 
-.screen.active {
-  display: block;
+.view.active{
+  display:block;
 }
 
-/* LOGIN */
-.authBox {
-  padding: 20px;
-  margin-top: 40%;
+/* LOGIN CARD */
+.card{
+  background:#121824;
+  padding:22px;
+  border-radius:16px;
+  width:90%;
+  margin:25% auto;
 }
 
-input {
-  width: 100%;
-  padding: 12px;
-  margin: 6px 0;
-  border-radius: 10px;
-  border: none;
+.center{
+  text-align:center;
 }
 
-button {
-  width: 100%;
-  padding: 12px;
-  margin-top: 8px;
-  border-radius: 10px;
-  border: none;
-  background: #2d6bff;
-  color: white;
+input{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:#0F1522;
+  color:white;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin-top:8px;
+  border-radius:10px;
+  border:none;
+  background:#4C7DFF;
+  color:white;
+  font-weight:600;
+}
+
+.secondary{
+  background:#19D38A;
 }
 
 /* TOPBAR */
-.topbar {
-  padding: 15px;
-  font-weight: bold;
-  background: #151518;
+.topbar{
+  padding:14px;
+  background:#121824;
+  font-weight:600;
 }
 
-/* FEED */
-.view {
-  padding: 10px;
-  height: calc(100vh - 160px);
-  overflow-y: auto;
+/* SCREENS */
+.screen{
+  display:none;
+  padding:10px;
+  height:calc(100vh - 160px);
+  overflow:auto;
 }
 
-.post {
-  background: #1a1a1d;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 12px;
+.screen.active{
+  display:block;
+}
+
+/* POST */
+.post{
+  background:#121824;
+  padding:12px;
+  border-radius:14px;
+  margin-bottom:10px;
+}
+
+/* COMPOSER */
+.composer{
+  position:fixed;
+  bottom:60px;
+  width:100%;
+  display:flex;
+  gap:6px;
+  padding:10px;
+}
+
+.composer input{
+  flex:1;
 }
 
 /* NAV */
-.nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-  display: flex;
-  background: #151518;
+.nav{
+  position:fixed;
+  bottom:0;
+  width:100%;
+  display:flex;
+  background:#121824;
+  border-top:1px solid rgba(255,255,255,0.06);
 }
 
-.nav button {
-  flex: 1;
-  background: transparent;
-  font-size: 12px;
-}
-
-/* CREATE POST */
-.createPost {
-  position: fixed;
-  bottom: 60px;
-  width: 100%;
-  display: flex;
-  gap: 5px;
-  padding: 10px;
-}
-
-.createPost input {
-  flex: 1;
-}
-
-/* hidden */
-.hidden {
-  display: none;
-}
-
-/* LIGHT MODE */
-body.light {
-  background: #f5f5f5;
-  color: black;
-}
-
-body.light .post {
-  background: white;
-  color: black;
+.nav button{
+  flex:1;
+  background:transparent;
+  font-size:12px;
 }
