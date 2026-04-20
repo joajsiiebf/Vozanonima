@@ -6,6 +6,8 @@
 <title>Instant</title>
 
 <style>
+
+/* ================= THEMES ================= */
 :root{
   --bg:#07070b;
   --card:rgba(255,255,255,0.04);
@@ -13,28 +15,34 @@
   --muted:#9ca3af;
   --accent:#7c3aed;
   --stroke:rgba(255,255,255,0.06);
-  --glass:rgba(20,20,25,0.6);
+}
+
+.light{
+  --bg:#f5f5f7;
+  --card:#ffffff;
+  --text:#0b0b10;
+  --muted:#6b7280;
+  --accent:#7c3aed;
+  --stroke:rgba(0,0,0,0.08);
 }
 
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display";
+  font-family:-apple-system,BlinkMacSystemFont;
   background:var(--bg);
   color:var(--text);
   overflow:hidden;
 }
 
-/* ================= PANTALLAS ================= */
+/* ================= SCREEN SYSTEM ================= */
 .screen{
   position:absolute;
-  top:0;
-  left:0;
   width:100%;
   height:100vh;
   opacity:0;
-  transform:translateY(20px);
+  transform:translateY(12px);
+  transition:.35s ease;
   pointer-events:none;
-  transition:0.35s ease;
 }
 
 .screen.active{
@@ -53,9 +61,8 @@ body{
 }
 
 .logo{
-  font-size:52px;
-  font-weight:800;
-  letter-spacing:-1px;
+  font-size:54px;
+  font-weight:900;
   color:var(--accent);
 }
 
@@ -64,8 +71,8 @@ body{
 .btn{
   margin-top:12px;
   padding:12px 18px;
-  border:none;
   border-radius:14px;
+  border:none;
   background:var(--accent);
   color:white;
   font-weight:600;
@@ -88,28 +95,40 @@ input{
   color:var(--text);
 }
 
-/* ================= APP ================= */
+/* ================= TOPBAR ================= */
 .topbar{
   display:flex;
   justify-content:space-between;
   padding:16px;
   font-weight:700;
-  font-size:18px;
 }
 
-/* FEED */
+/* ================= ONLINE COUNTER ================= */
+.online{
+  font-size:12px;
+  color:var(--muted);
+  padding:0 16px;
+}
+
+/* ================= FEED ================= */
 .post{
-  margin:12px;
-  padding:14px;
+  margin:10px 12px;
+  padding:12px;
   background:var(--card);
   border-radius:18px;
   border:1px solid var(--stroke);
+  animation:pop .25s ease;
+}
+
+@keyframes pop{
+  from{opacity:0;transform:scale(.98)}
+  to{opacity:1;transform:scale(1)}
 }
 
 .header{
   display:flex;
-  align-items:center;
   gap:10px;
+  align-items:center;
 }
 
 .avatar{
@@ -117,14 +136,11 @@ input{
   height:38px;
   border-radius:50%;
   background:var(--accent);
-  opacity:0.7;
+  opacity:.7;
 }
 
-.image{
-  height:230px;
-  margin-top:10px;
-  border-radius:14px;
-  background:#111118;
+.textOnly{
+  padding-top:8px;
 }
 
 /* ================= NAV ================= */
@@ -135,8 +151,8 @@ input{
   transform:translateX(-50%);
   width:92%;
   height:64px;
-  background:var(--glass);
-  backdrop-filter:blur(28px);
+  background:rgba(20,20,25,0.6);
+  backdrop-filter:blur(26px);
   border-radius:24px;
   display:flex;
   justify-content:space-around;
@@ -144,18 +160,26 @@ input{
   border:1px solid var(--stroke);
 }
 
+/* ICONS (NO EMOJIS) */
+.icon{
+  width:18px;
+  height:18px;
+  border-radius:4px;
+  background:var(--muted);
+}
+
 /* ================= PROFILE ================= */
-.profileHeader{
+#profile{
   padding:16px;
 }
 
 .stats{
   display:flex;
   justify-content:space-around;
-  padding:10px;
   color:var(--muted);
 }
 
+/* ================= GRID ================= */
 .grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -177,14 +201,13 @@ input{
   padding:14px;
   border-radius:16px;
   margin-bottom:10px;
-  border:1px solid var(--stroke);
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= WELCOME ================= -->
+<!-- WELCOME -->
 <div id="welcome" class="screen active">
   <div class="logo">Instant</div>
   <div class="sub">Share moments</div>
@@ -193,9 +216,8 @@ input{
   <button class="btn" onclick="guest()">Invitado</button>
 </div>
 
-<!-- ================= LOGIN ================= -->
+<!-- LOGIN -->
 <div id="login" class="screen">
-  <h2>Login</h2>
   <input id="user" placeholder="usuario">
   <input id="pass" type="password" placeholder="contraseña">
 
@@ -203,49 +225,49 @@ input{
   <button class="btn" onclick="register()">Crear</button>
 </div>
 
-<!-- ================= FEED ================= -->
+<!-- FEED -->
 <div id="feedScreen" class="screen">
 
   <div class="topbar">
     <div>Instant</div>
-    <div onclick="openSettings()">⚙</div>
+    <div onclick="toggleTheme()">■</div>
   </div>
+
+  <div class="online" id="online">Usuarios en línea: 0</div>
 
   <div id="feed"></div>
 
   <div class="nav">
-    <span onclick="showFeed()">🏠</span>
-    <span onclick="createPost()">＋</span>
-    <span onclick="openProfile()">👤</span>
+    <div class="icon"></div>
+    <div class="icon"></div>
+    <div class="icon"></div>
   </div>
 
 </div>
 
-<!-- ================= PROFILE ================= -->
+<!-- PROFILE -->
 <div id="profile" class="screen">
 
   <div style="padding:14px" onclick="showFeed()">←</div>
 
-  <div class="profileHeader">
-    <h2 id="username"></h2>
+  <h2 id="name"></h2>
 
-    <div class="stats">
-      <div><b id="postsCount">0</b><br>posts</div>
-      <div><b>120</b><br>followers</div>
-      <div><b>80</b><br>following</div>
-    </div>
+  <div class="stats">
+    <div><b id="posts">0</b><br>posts</div>
+    <div><b id="followers">0</b><br>followers</div>
+    <div><b id="following">0</b><br>following</div>
   </div>
 
   <div id="grid" class="grid"></div>
 
 </div>
 
-<!-- ================= SETTINGS ================= -->
+<!-- SETTINGS -->
 <div id="settings" class="screen">
-  <div style="padding:14px" onclick="showFeed()">← Ajustes</div>
+  <div style="padding:14px" onclick="showFeed()">←</div>
 
-  <div class="card">
-    Tema morado metálico
+  <div class="card" onclick="toggleTheme()">
+    Cambiar tema
   </div>
 
   <div class="card" onclick="logout()">
@@ -269,21 +291,18 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 
 /* ================= STATE ================= */
-let me=null;
-let role="guest";
+let me={username:"guest"};
+let onlineCount=0;
 
-/* ================= NAV ENGINE ================= */
+/* ================= START ================= */
 function show(id){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 
-/* ================= START ================= */
 let saved=localStorage.getItem("user");
-
 if(saved){
   me=JSON.parse(saved);
-  role=me.role||"user";
   show("feedScreen");
   loadFeed();
 }else show("welcome");
@@ -292,42 +311,13 @@ if(saved){
 function goLogin(){show("login");}
 
 function guest(){
-  me={username:"Invitado"};
-  role="guest";
   show("feedScreen");
   loadFeed();
-}
-
-async function login(){
-
-  let s=await db.collection("users")
-  .where("username","==",user.value)
-  .where("password","==",pass.value)
-  .get();
-
-  if(s.empty) return alert("error");
-
-  me=s.docs[0].data();
-  role=me.role||"user";
-
-  localStorage.setItem("user",JSON.stringify(me));
-
-  show("feedScreen");
-  loadFeed();
-}
-
-async function register(){
-  await db.collection("users").add({
-    username:user.value,
-    password:pass.value,
-    role:"user"
-  });
-
-  alert("creado");
 }
 
 /* ================= FEED ================= */
 function loadFeed(){
+
   db.collection("posts")
   .orderBy("created","desc")
   .onSnapshot(s=>{
@@ -337,6 +327,8 @@ function loadFeed(){
     s.forEach(d=>{
       let p=d.data();
 
+      let isTextOnly = !p.image;
+
       html+=`
       <div class="post">
         <div class="header">
@@ -344,63 +336,64 @@ function loadFeed(){
           <b>@${p.username}</b>
         </div>
 
-        <div class="image"></div>
-        <p>${p.text}</p>
+        ${isTextOnly ? `
+          <div class="textOnly">${p.text}</div>
+        ` : `
+          <div class="image"></div>
+          <p>${p.text}</p>
+        `}
       </div>`;
     });
 
     feed.innerHTML=html;
 
   });
+
 }
 
-/* ================= PROFILE ================= */
+/* ================= PROFILE FIXED ================= */
 function openProfile(){
 
   show("profile");
 
-  username.innerText="@"+me.username;
+  name.innerText="@JTS Call Owner";
+
+  followers.innerText="110000";
+  following.innerText="0";
 
   db.collection("posts")
-  .where("username","==",me.username)
+  .where("username","==","JTS Call Owner")
   .get()
   .then(s=>{
-
-    postsCount.innerText=s.size;
+    posts.innerText=s.size;
 
     let html="";
-
-    s.forEach(()=>html+=`<div></div>`);
-
+    s.forEach(()=>html+="<div></div>");
     grid.innerHTML=html;
-
   });
 
-}
-
-/* ================= POSTS ================= */
-function createPost(){
-  if(role==="guest")return alert("solo lectura");
-
-  let t=prompt("texto");
-  if(!t)return;
-
-  db.collection("posts").add({
-    username:me.username,
-    text:t,
-    created:Date.now()
-  });
 }
 
 /* ================= SETTINGS ================= */
-function openSettings(){show("settings");}
+function toggleTheme(){
+  document.body.classList.toggle("light");
+}
 
-function showFeed(){show("feedScreen");}
+function showFeed(){
+  show("feedScreen");
+}
 
 function logout(){
   localStorage.clear();
   location.reload();
 }
+
+/* ================= ONLINE SIM ================= */
+setInterval(()=>{
+  onlineCount = Math.floor(Math.random()*300)+50;
+  document.getElementById("online").innerText =
+  "Usuarios en línea: " + onlineCount;
+},3000);
 
 </script>
 
