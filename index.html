@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>InstaPro</title>
+<title>Instant</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -13,62 +13,57 @@
 
 <body>
 
-<!-- LOGIN -->
-<div id="loginView" class="view">
-  <div class="card">
+<div id="app">
 
-    <h2>InstaPro</h2>
+  <!-- TOP -->
+  <div class="topbar">
+    <div class="logo">Instant</div>
 
-    <input id="loginPhone" placeholder="Teléfono o admin">
-    <input id="loginPass" type="password" placeholder="Contraseña">
-
-    <button onclick="login()">Entrar</button>
-
-    <hr>
-
-    <input id="regUser" placeholder="Username">
-    <input id="regPhone" placeholder="Teléfono">
-    <input id="regPass" type="password" placeholder="Contraseña">
-
-    <button onclick="register()">Crear cuenta</button>
-
+    <div class="top-icons">
+      <!-- search -->
+      <svg class="icon" viewBox="0 0 24 24">
+        <path d="M10 2a8 8 0 105.3 14.1l4.3 4.3 1.4-1.4-4.3-4.3A8 8 0 0010 2z"/>
+      </svg>
+    </div>
   </div>
-</div>
-
-<!-- APP -->
-<div id="appView" class="view hidden">
-
-  <header class="topbar">
-    <b>InstaPro</b>
-    <span id="roleBadge"></span>
-  </header>
-
-  <!-- PROFILE HEADER -->
-  <section id="profileHeader" class="profile hidden"></section>
 
   <!-- COMPOSER -->
   <div class="composer">
-    <input id="postText" placeholder="Escribe algo...">
+    <input id="postText" placeholder="¿Qué estás pensando?">
+    <input id="postImg" placeholder="URL imagen (opcional)">
     <button onclick="createPost()">Publicar</button>
   </div>
 
   <!-- FEED -->
-  <section id="feedView" class="feed"></section>
+  <div id="feed"></div>
 
   <!-- PROFILE -->
-  <section id="profileView" class="screen hidden"></section>
+  <div id="profile" class="hidden"></div>
 
-  <!-- SETTINGS -->
-  <section id="settingsView" class="screen hidden">
-    <button onclick="logout()">Salir</button>
-  </section>
+  <!-- NAVBAR REAL -->
+  <div class="nav">
 
-  <!-- NAV -->
-  <nav class="nav">
-    <button onclick="go('feedView')">🏠</button>
-    <button onclick="goProfile()">👤</button>
-    <button onclick="go('settingsView')">⚙️</button>
-  </nav>
+    <svg onclick="showFeed()" class="icon" viewBox="0 0 24 24">
+      <path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2h-5v-6H10v6H5a2 2 0 0 1-2-2z"/>
+    </svg>
+
+    <svg onclick="searchUI()" class="icon" viewBox="0 0 24 24">
+      <path d="M10 2a8 8 0 105.3 14.1l4.3 4.3 1.4-1.4-4.3-4.3A8 8 0 0010 2z"/>
+    </svg>
+
+    <svg onclick="createPostFocus()" class="icon plus" viewBox="0 0 24 24">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+
+    <svg onclick="showProfile()" class="icon" viewBox="0 0 24 24">
+      <path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z"/>
+    </svg>
+
+    <svg onclick="settingsUI()" class="icon" viewBox="0 0 24 24">
+      <path d="M12 8a4 4 0 100 8 4 4 0 000-8zm9 4l-2 1 1 2-2 2-2-1-1 2h-3l-1-2-2 1-2-2 1-2-2-1v-3l2-1-1-2 2-2 2 1 1-2h3l1 2 2-1 2 2-1 2 2 1z"/>
+    </svg>
+
+  </div>
 
 </div>
 
