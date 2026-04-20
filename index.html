@@ -3,149 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>INSTANT 𝕏 | Clean Edition</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>INSTANT 𝕏 | Final Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #000000; --s1: #0A0A0A; --brd: transparent; 
-            --t1: #FFFFFF; --t2: #71767B; --accent: #8B5CF6;
+            --bg: #000000; --s1: #0A0A0A; --t1: #FFFFFF; --t2: #71767B;
+            --accent: #8B5CF6; --glass: rgba(10, 10, 10, 0.8);
         }
 
         body.light-mode {
-            --bg: #FFFFFF; --s1: #F7F9F9; --brd: transparent;
-            --t1: #0F1419; --t2: #536471; --accent: #7C3AED;
+            --bg: #FFFFFF; --s1: #F7F9F9; --t1: #0F1419; --t2: #536471;
+            --accent: #7C3AED; --glass: rgba(255, 255, 255, 0.8);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; background: var(--bg); color: var(--t1); font-family: 'Inter', sans-serif; transition: background 0.3s ease; height: 100vh; overflow: hidden; }
+        body { 
+            margin: 0; background: var(--bg); color: var(--t1); 
+            font-family: 'Inter', sans-serif; transition: background 0.3s;
+            height: 100vh; overflow: hidden;
+        }
 
-        #app { width: 100%; max-width: 480px; height: 100%; margin: 0 auto; position: relative; display: flex; flex-direction: column; }
-        
-        .screen { position: absolute; inset: 0; display: none; flex-direction: column; background: var(--bg); z-index: 10; padding-bottom: 70px; }
-        .screen.active { display: flex; }
+        #app { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; position: relative; display: flex; flex-direction: column; }
 
-        /* --- UI SIN LÍNEAS --- */
+        /* --- SCREENS --- */
+        .screen { 
+            position: absolute; inset: 0; display: none; flex-direction: column; 
+            background: var(--bg); z-index: 10; 
+            padding-bottom: 90px; /* Espacio para la Nav Bar */
+        }
+        .screen.active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- HEADERS --- */
         .header { 
-            height: 60px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
-            background: var(--bg); z-index: 100;
+            height: 64px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;
+            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            position: sticky; top: 0; z-index: 100;
         }
-        .header h1 { font-size: 20px; font-weight: 800; }
+        .header h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
 
-        .feed { flex: 1; overflow-y: auto; padding-top: 10px; }
-        .post { 
-            padding: 16px 20px; margin-bottom: 4px; display: flex; gap: 12px; 
-            transition: background 0.2s; border-radius: 16px;
-        }
+        /* --- FEED --- */
+        .feed { flex: 1; overflow-y: auto; padding: 10px 0; scrollbar-width: none; }
+        .feed::-webkit-scrollbar { display: none; }
+        
+        .post { padding: 16px 20px; display: flex; gap: 14px; transition: 0.2s; border-radius: 20px; margin: 0 8px 8px 8px; }
         .post:active { background: var(--s1); }
 
         .avatar { 
-            width: 45px; height: 45px; border-radius: 50%; background: var(--accent); 
+            width: 48px; height: 48px; border-radius: 50%; background: var(--accent); 
             display: flex; align-items: center; justify-content: center; font-weight: 800;
-            color: white; flex-shrink: 0;
+            color: white; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .p-body { flex: 1; }
-        .p-name { font-weight: 700; font-size: 15px; margin-right: 4px; }
-        .p-user { color: var(--t2); font-size: 14px; }
-        .p-text { font-size: 15px; line-height: 1.5; margin-top: 4px; color: var(--t1); }
+        .p-name { font-weight: 700; font-size: 16px; }
+        .p-user { color: var(--t2); font-size: 14px; margin-left: 4px; }
+        .p-text { font-size: 15px; line-height: 1.5; margin-top: 6px; color: var(--t1); }
 
-        .p-actions { display: flex; gap: 40px; margin-top: 15px; color: var(--t2); }
-        .btn-int { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
-        .btn-int svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.5; }
-
-        /* --- CONFIGURACIÓN MEJORADA --- */
-        .sett-group { margin: 20px; background: var(--s1); border-radius: 20px; overflow: hidden; }
-        .sett-item { 
-            padding: 18px 20px; display: flex; justify-content: space-between; 
-            align-items: center; cursor: pointer; transition: 0.2s;
-        }
-        .sett-item:active { background: rgba(124, 58, 237, 0.1); }
-        
-        .switch { 
-            width: 44px; height: 24px; background: #333; border-radius: 20px; 
-            position: relative; transition: 0.3s; 
-        }
-        .switch::after { 
-            content: ''; position: absolute; top: 2px; left: 2px; width: 20px; 
-            height: 20px; background: white; border-radius: 50%; transition: 0.3s; 
-        }
-        body.light-mode .switch { background: #ccc; }
-        .switch.on { background: var(--accent) !important; }
-        .switch.on::after { left: 22px; }
-
-        /* --- BOTONES --- */
+        /* --- HOME BAR (FIXED) --- */
         .nav-bottom { 
-            position: absolute; bottom: 0; width: 100%; height: 65px; 
-            background: var(--bg); display: flex; justify-content: space-around; align-items: center;
+            position: absolute; bottom: 0; width: 100%; 
+            height: 85px; /* Altura aumentada para mejor visibilidad */
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex; justify-content: space-around; align-items: flex-start; 
+            padding-top: 15px; z-index: 1000;
         }
-        .nav-tab { color: var(--t2); flex: 1; text-align: center; cursor: pointer; }
+        .nav-tab { 
+            display: flex; flex-direction: column; align-items: center; 
+            color: var(--t2); flex: 1; cursor: pointer; transition: 0.2s;
+        }
         .nav-tab.active { color: var(--accent); }
-        
-        .fab { 
-            position: absolute; bottom: 85px; right: 25px; width: 56px; height: 56px; 
-            background: var(--accent); border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3); z-index: 99;
+        .nav-tab svg { width: 26px; height: 26px; margin-bottom: 4px; }
+        .nav-tab span { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .btn-add { 
+            width: 50px; height: 50px; background: var(--accent); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            margin-top: -10px; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4);
         }
+
+        /* --- SETTINGS --- */
+        .sett-card { margin: 15px; background: var(--s1); border-radius: 20px; padding: 5px; }
+        .sett-item { padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        
+        .toggle { width: 46px; height: 26px; background: #333; border-radius: 13px; position: relative; }
+        .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 0.3s; }
+        .toggle.on { background: var(--accent); }
+        .toggle.on::after { left: 23px; }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div id="scr-auth" class="screen active" style="justify-content: center; align-items: center; padding: 40px;">
-        <h1 style="font-size: 48px; margin-bottom: 10px;">𝕏</h1>
-        <p style="color: var(--t2); margin-bottom: 40px;">Menos ruido, más ideas.</p>
-        <input id="login-input" style="width:100%; padding:20px; background:var(--s1); border:none; border-radius:16px; color:var(--t1); margin-bottom:16px;" placeholder="@usuario">
-        <button onclick="Core.Auth.login()" style="width:100%; padding:20px; background:var(--accent); border:none; border-radius:16px; color:white; font-weight:800; cursor:pointer;">Empezar</button>
+    <div id="scr-auth" class="screen active" style="justify-content: center; align-items: center; padding: 40px; text-align: center;">
+        <div style="font-size: 60px; font-weight: 900; margin-bottom: 10px;">𝕏</div>
+        <h2 style="margin-bottom: 30px;">Bienvenido a Instant</h2>
+        <input id="login-input" style="width:100%; padding:20px; background:var(--s1); border:none; border-radius:18px; color:var(--t1); margin-bottom:15px; font-size:16px;" placeholder="Ingresa tu @usuario">
+        <button onclick="Core.Auth.login()" style="width:100%; padding:20px; background:var(--accent); border:none; border-radius:18px; color:white; font-weight:800; font-size:16px; cursor:pointer;">Entrar</button>
     </div>
 
     <div id="scr-feed" class="screen">
-        <header class="header"><h1>INSTANT</h1><div onclick="Core.Router.go('settings')" style="font-size:20px; cursor:pointer">⚙️</div></header>
-        <div id="feed-wall" class="feed"></div>
-        <div class="fab" onclick="Core.Social.newPost()">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        </div>
-    </div>
-
-    <div id="scr-settings" class="screen">
-        <header class="header"><div onclick="Core.Router.back()" style="cursor:pointer">← Volver</div><h1>Ajustes</h1><div style="width:20px"></div></header>
-        
-        <div class="sett-group">
-            <div class="sett-item" onclick="Core.UI.toggleTheme()">
-                <span>Modo Oscuro</span>
-                <div id="theme-switch" class="switch on"></div>
+        <header class="header">
+            <h1>INSTANT</h1>
+            <div onclick="Core.Router.go('settings')" style="font-size: 20px; cursor:pointer;">⚙️</div>
+        </header>
+        <div id="feed-wall" class="feed">
             </div>
-        </div>
-
-        <div class="sett-group">
-            <div class="sett-item" onclick="Core.Social.editBio()">
-                <div>
-                    <span style="display:block">Editar Biografía</span>
-                    <small id="bio-preview" style="color:var(--t2)">Actualiza tu info...</small>
-                </div>
-                <span>✎</span>
-            </div>
-            <div class="sett-item" onclick="Core.Auth.clearCache()">
-                <span>Limpiar caché local</span>
-                <span style="color:var(--t2)">⚡</span>
-            </div>
-        </div>
-
-        <div class="sett-group">
-            <div class="sett-item" onclick="Core.Auth.logout()" style="color:#F91880">
-                <b>Cerrar sesión</b>
-            </div>
-        </div>
     </div>
 
     <div id="scr-profile" class="screen">
-        <header class="header"><div onclick="Core.Router.back()" style="cursor:pointer">←</div><h1 id="p-title">Perfil</h1><div style="width:20px"></div></header>
-        <div id="profile-head" style="padding:20px;"></div>
+        <header class="header">
+            <div onclick="Core.Router.back()" style="cursor:pointer; font-weight: 700;">←</div>
+            <h1 id="p-title">@Usuario</h1>
+            <div style="width:20px"></div>
+        </header>
+        <div id="profile-head" style="padding:25px 20px; text-align: center;"></div>
         <div id="profile-posts" class="feed"></div>
     </div>
 
+    <div id="scr-settings" class="screen">
+        <header class="header">
+            <div onclick="Core.Router.back()" style="cursor:pointer; font-weight: 700;">←</div>
+            <h1>Ajustes</h1>
+            <div style="width:20px"></div>
+        </header>
+        <div class="sett-card">
+            <div class="sett-item" onclick="Core.UI.toggleTheme()">
+                <span>Modo Oscuro</span>
+                <div id="theme-toggle" class="toggle on"></div>
+            </div>
+            <div class="sett-item" onclick="Core.Social.editBio()">
+                <span>Editar Biografía</span>
+                <span style="color:var(--t2)">✎</span>
+            </div>
+            <div class="sett-item" onclick="Core.Auth.logout()" style="color:#F91880">
+                <b>Cerrar Sesión</b>
+            </div>
+        </div>
+    </div>
+
     <nav id="nav-main" class="nav-bottom" style="display:none">
-        <div class="nav-tab active" onclick="Core.Router.go('feed')">🏠</div>
-        <div class="nav-tab" onclick="Core.Router.goProfile(Core.State.me)">👤</div>
+        <div class="nav-tab active" onclick="Core.Router.go('feed')">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 12h3v8h6v-6h2v6h6v-8h3L12 2z"/></svg>
+            <span>Inicio</span>
+        </div>
+        <div class="nav-tab" onclick="Core.Social.newPost()">
+            <div class="btn-add">
+                <svg viewBox="0 0 24 24" stroke="white" stroke-width="3" fill="none"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </div>
+        </div>
+        <div class="nav-tab" onclick="Core.Router.goProfile(Core.State.me)">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <span>Perfil</span>
+        </div>
     </nav>
 </div>
 
@@ -162,7 +173,7 @@
 
     const Core = {
         State: {
-            me: localStorage.getItem('_u_id'),
+            me: localStorage.getItem('_x_session'),
             history: ['feed'],
             dark: true
         },
@@ -171,7 +182,7 @@
             toggleTheme() {
                 Core.State.dark = !Core.State.dark;
                 document.body.classList.toggle('light-mode');
-                document.getElementById('theme-switch').classList.toggle('on');
+                document.getElementById('theme-toggle').classList.toggle('on');
             }
         },
 
@@ -179,7 +190,14 @@
             go(id) {
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
                 document.getElementById('scr-' + id).classList.add('active');
-                document.getElementById('nav-main').style.display = (id === 'auth') ? 'none' : 'flex';
+                
+                const showNav = id !== 'auth';
+                document.getElementById('nav-main').style.display = showNav ? 'flex' : 'none';
+                
+                document.querySelectorAll('.nav-tab').forEach((t, i) => {
+                    t.classList.toggle('active', (id === 'feed' && i === 0) || (id === 'profile' && i === 2));
+                });
+
                 if(id === 'feed') Core.Social.listenFeed();
                 if(id !== Core.State.history[Core.State.history.length-1]) Core.State.history.push(id);
             },
@@ -209,10 +227,6 @@
                             <div class="p-body">
                                 <span class="p-name">${p.user}</span><span class="p-user">@${p.user}</span>
                                 <div class="p-text">${p.text}</div>
-                                <div class="p-actions">
-                                    <div class="btn-int">❤️ ${p.likes || 0}</div>
-                                    <div class="btn-int">💬 0</div>
-                                </div>
                             </div>
                         `;
                         wall.appendChild(el);
@@ -222,40 +236,33 @@
             async loadProfile(u) {
                 const doc = await db.collection("users").doc(u).get();
                 const d = doc.data() || { followers: 0, following: 0, bio: "" };
+                document.getElementById('p-title').innerText = `@${u}`;
                 document.getElementById('profile-head').innerHTML = `
-                    <div class="avatar" style="width:80px; height:80px; font-size:32px">${u[0].toUpperCase()}</div>
-                    <h2 style="margin:10px 0 5px">@${u}</h2>
-                    <p style="color:var(--t2); margin-bottom:15px">${d.bio || 'Sin biografía'}</p>
-                    <div style="display:flex; gap:20px">
-                        <span><b>${d.following}</b> Siguiendo</span>
-                        <span><b>${d.followers}</b> Seguidores</span>
-                    </div>
+                    <div class="avatar" style="width:90px; height:90px; font-size:36px; margin: 0 auto;">${u[0].toUpperCase()}</div>
+                    <h2 style="margin:15px 0 5px">@${u}</h2>
+                    <p style="color:var(--t2); font-size:15px;">${d.bio || 'Sin biografía todavía.'}</p>
                 `;
             },
-            async editBio() {
-                const b = prompt("Escribe tu nueva biografía:");
-                if(b) {
-                    await db.collection("users").doc(Core.State.me).update({ bio: b });
-                    document.getElementById('bio-preview').innerText = b.substring(0, 20) + "...";
-                }
-            },
             newPost() {
-                const t = prompt("¿Qué quieres compartir?");
-                if(t) db.collection("posts").add({ user: Core.State.me, text: t, created: Date.now(), likes: 0 });
+                const t = prompt("¿Qué está pasando?");
+                if(t) db.collection("posts").add({ user: Core.State.me, text: t, created: Date.now() });
+            },
+            async editBio() {
+                const b = prompt("Tu nueva biografía:");
+                if(b) await db.collection("users").doc(Core.State.me).update({ bio: b });
             }
         },
 
         Auth: {
             login() {
                 const u = document.getElementById('login-input').value.trim().toLowerCase();
-                if(u.length < 3) return;
+                if(u.length < 3) return alert("Usuario demasiado corto");
                 Core.State.me = u;
-                localStorage.setItem('_u_id', u);
+                localStorage.setItem('_x_session', u);
                 db.collection("users").doc(u).set({ u }, { merge: true });
                 Core.Router.go('feed');
             },
-            logout() { localStorage.clear(); location.reload(); },
-            clearCache() { localStorage.removeItem('_u_id'); alert("Cache limpia. Reinicia para aplicar."); }
+            logout() { localStorage.clear(); location.reload(); }
         }
     };
 
