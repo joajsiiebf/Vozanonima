@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>INSTANT | Social Network</title>
+    <title>INSTANT | Social Engine</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -14,209 +14,111 @@
             --text: #FFFFFF;
             --border: rgba(255, 255, 255, 0.1);
             --muted: #8E8E93;
-            --glass: rgba(10, 10, 10, 0.8);
             --ios-blue: #0A84FF;
-            --error: #FF453A;
         }
 
         body.light-mode {
-            --bg: #F2F2F7;
-            --card: #FFFFFF;
-            --text: #000000;
-            --border: rgba(0, 0, 0, 0.08);
-            --muted: #636366;
-            --glass: rgba(255, 255, 255, 0.8);
+            --bg: #F2F2F7; --card: #FFFFFF; --text: #000000;
+            --border: rgba(0, 0, 0, 0.1); --muted: #636366;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, 'Inter', sans-serif; }
-        
-        body { margin: 0; background: #000; color: var(--text); height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background: #000; color: var(--text); font-family: -apple-system, system-ui, sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
 
-        /* VIEWPORT PRINCIPAL */
-        .app-container {
-            width: 100%;
-            max-width: 430px;
-            background: var(--bg);
-            height: 100%;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            transition: background 0.3s ease;
-        }
+        .app-viewport { width: 100%; max-width: 430px; background: var(--bg); height: 100%; position: relative; display: flex; flex-direction: column; }
 
-        /* SISTEMA DE PANTALLAS */
-        .screen {
-            position: absolute;
-            inset: 0;
-            display: none;
-            flex-direction: column;
-            padding-bottom: 100px;
-            overflow-y: auto;
-            z-index: 10;
-            background: var(--bg);
-        }
-        .screen.active { display: flex; animation: screenIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* SCREENS */
+        .screen { position: absolute; inset: 0; display: none; flex-direction: column; padding-bottom: 110px; overflow-y: auto; background: var(--bg); z-index: 10; }
+        .screen.active { display: flex; animation: iosSlide 0.3s cubic-bezier(0.15, 1, 0.3, 1); }
+        @keyframes iosSlide { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
-        @keyframes screenIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        /* HEADER */
+        .header { position: sticky; top: 0; padding: 18px 20px; background: rgba(10,10,10,0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--border); z-index: 100; }
+        .logo { font-weight: 800; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 26px; letter-spacing: -1.2px; }
 
-        /* CABECERAS GLASS */
-        .app-header {
-            position: sticky;
-            top: 0;
-            padding: 16px 20px;
-            background: var(--glass);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 0.5px solid var(--border);
-            z-index: 100;
-        }
-
-        .logo { font-weight: 800; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 24px; letter-spacing: -1px; }
-
-        /* POST CARDS */
-        .post { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; gap: 12px; }
-        .post-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; }
-        .post-body { flex: 1; }
-        .post-info { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
-        .post-user { font-weight: 700; font-size: 15px; }
-        .post-time { color: var(--muted); font-size: 12px; }
+        /* POSTS */
+        .post-card { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; gap: 14px; }
+        .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0; cursor: pointer; }
+        .post-main { flex: 1; }
+        .post-user { font-weight: 700; font-size: 15px; margin-bottom: 3px; cursor: pointer; }
         .post-content { font-size: 15px; line-height: 1.4; margin-bottom: 12px; }
-        
-        .post-actions { display: flex; gap: 24px; color: var(--muted); }
-        .action-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .action-btn.liked { color: #FF2D55; font-weight: 700; }
 
-        /* NAVEGACIÓN ESTILO ISLA */
-        .nav-island {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90%;
-            height: 66px;
-            background: var(--primary);
-            border-radius: 33px;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
-
-        .nav-link { color: white; opacity: 0.6; font-size: 10px; font-weight: 700; text-align: center; cursor: pointer; transition: 0.3s; }
-        .nav-link.active { opacity: 1; transform: translateY(-2px); }
-        .nav-link svg { display: block; margin: 0 auto 2px; width: 22px; height: 22px; }
-
-        .btn-plus {
-            width: 58px; height: 58px;
-            background: white; border-radius: 50%;
-            margin-top: -38px; border: 5px solid var(--bg);
-            display: flex; align-items: center; justify-content: center;
-            color: #7A2C76; font-size: 32px; font-weight: bold;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            cursor: pointer;
-        }
-
-        /* ELEMENTOS DE FORMULARIO iOS */
-        .ios-input { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 16px; margin-bottom: 12px; }
-        .ios-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; background: var(--primary); color: white; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
-        .ios-btn:active { transform: scale(0.97); opacity: 0.9; }
-
-        /* MODALES */
-        .full-modal { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: none; flex-direction: column; }
-        .modal-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--border); }
-
-        /* PERFIL */
-        .profile-header { padding: 30px 20px; text-align: center; }
-        .stat-box { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
+        /* PROFILE SPECIALS */
+        .profile-hero { padding: 30px 20px; text-align: center; border-bottom: 0.5px solid var(--border); }
+        .stat-grid { display: flex; justify-content: center; gap: 40px; margin: 20px 0; }
         .stat-item { text-align: center; }
-        .stat-num { display: block; font-size: 18px; font-weight: 800; }
-        .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; }
+        .stat-val { display: block; font-size: 20px; font-weight: 800; }
+        .stat-lab { font-size: 12px; color: var(--muted); text-transform: uppercase; }
+
+        .btn-follow { width: 100%; max-width: 200px; padding: 10px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; }
+        .btn-follow.active { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+        .btn-follow.not-active { background: var(--primary); color: white; }
+
+        /* NAVBAR */
+        .nav-bar { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); width: 90%; height: 68px; background: var(--primary); border-radius: 34px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000; }
+        .nav-item { color: white; opacity: 0.6; font-size: 10px; font-weight: 800; text-align: center; cursor: pointer; }
+        .nav-item.active { opacity: 1; }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 2px; }
+
+        /* AUTH */
+        .auth-box { height: 100%; display: flex; flex-direction: column; justify-content: center; padding: 40px; text-align: center; }
+        .ios-input { width: 100%; padding: 18px; border-radius: 14px; border: 1px solid var(--border); background: var(--card); color: white; margin-bottom: 15px; font-size: 16px; }
+        .ios-btn { width: 100%; padding: 18px; border-radius: 14px; border: none; background: var(--primary); color: white; font-weight: 800; cursor: pointer; }
 
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="app-viewport">
 
-    <div id="scr-auth" class="screen active" style="justify-content: center; padding: 40px;">
-        <div style="text-align: center;">
-            <div class="logo" style="font-size: 50px; margin-bottom: 40px;">INSTANT</div>
-            <input id="in-user" class="ios-input" type="text" placeholder="Elige un usuario único">
-            <button onclick="app.auth()" class="ios-btn">Entrar a la red</button>
-            <p style="color: var(--muted); font-size: 12px; margin-top: 20px;">Al entrar, aceptas los términos de Instant.</p>
+    <div id="scr-auth" class="screen active">
+        <div class="auth-box">
+            <div class="logo" style="font-size: 60px; margin-bottom: 40px;">INSTANT</div>
+            <input id="login-user" class="ios-input" type="text" placeholder="Usuario">
+            <button onclick="SocialApp.login()" class="ios-btn">Entrar</button>
         </div>
     </div>
 
     <div id="scr-feed" class="screen">
-        <header class="app-header">
+        <header class="header">
             <div class="logo">INSTANT</div>
-            <div onclick="app.navigate('settings')" style="font-size: 20px; cursor: pointer;">⚙️</div>
+            <div onclick="SocialApp.navigate('settings')" style="cursor:pointer">⚙️</div>
         </header>
-        <div id="feed-wall"></div>
+        <div id="feed-container"></div>
     </div>
 
     <div id="scr-profile" class="screen">
-        <header class="app-header">
-            <div onclick="app.navigate('feed')" style="color: var(--ios-blue); cursor: pointer;">← Inicio</div>
-            <div class="logo">PERFIL</div>
+        <header class="header">
+            <div onclick="SocialApp.navigate('feed')" style="color:var(--ios-blue); cursor:pointer">← Volver</div>
+            <div id="profile-title" class="logo" style="font-size:18px">PERFIL</div>
             <div style="width:40px"></div>
         </header>
-        <div class="profile-header">
-            <div class="post-avatar" style="width: 90px; height: 90px; margin: 0 auto 15px; font-size: 35px;"></div>
-            <h2 id="me-user" style="margin: 0; font-weight: 800;">@username</h2>
-            <div class="stat-box">
-                <div class="stat-item"><span class="stat-num">0</span><span class="stat-label">Posts</span></div>
-                <div class="stat-item"><span class="stat-num" id="me-followers">1.2K</span><span class="stat-label">Seguidores</span></div>
-                <div class="stat-item"><span class="stat-num" id="me-following">450</span><span class="stat-label">Seguidos</span></div>
-            </div>
-            <button class="ios-btn" style="background: var(--card); color: var(--text); height: 35px; padding: 0; font-size: 14px; border: 0.5px solid var(--border);">Editar Perfil</button>
-        </div>
-        <div id="me-posts"></div>
+        <div id="profile-ui"></div>
+        <div id="profile-posts"></div>
     </div>
 
     <div id="scr-settings" class="screen">
-        <header class="app-header">
-            <div onclick="app.navigate('feed')" style="color: var(--ios-blue); cursor: pointer;">← Cancelar</div>
+        <header class="header">
+            <div onclick="SocialApp.navigate('feed')" style="color:var(--ios-blue); cursor:pointer">← Atrás</div>
             <div class="logo">AJUSTES</div>
             <div style="width:40px"></div>
         </header>
         <div style="padding: 20px;">
-            <div style="background: var(--card); border-radius: 12px; overflow: hidden;">
-                <div class="post" onclick="app.toggleTheme()" style="justify-content: space-between; align-items: center; cursor: pointer;">
-                    <span>Modo Oscuro</span>
-                    <span id="theme-status">ON</span>
-                </div>
-                <div class="post" onclick="app.logout()" style="color: var(--error); font-weight: 700; cursor: pointer;">
-                    Cerrar Sesión
-                </div>
-            </div>
+            <button onclick="SocialApp.logout()" class="ios-btn" style="background:#FF3B30">Cerrar Sesión</button>
         </div>
     </div>
 
-    <nav class="nav-island" id="nav-main" style="display: none;">
-        <div class="nav-link active" onclick="app.navigate('feed')">
+    <nav id="main-nav" class="nav-bar" style="display:none">
+        <div class="nav-item active" onclick="SocialApp.navigate('feed')">
             <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            INICIO
+            FEED
         </div>
-        <div class="btn-plus" onclick="app.toggleModal(true)">+</div>
-        <div class="nav-link" onclick="app.navigate('profile')">
+        <div onclick="SocialApp.openComposer()" style="width:60px; height:60px; background:white; border-radius:50%; margin-top:-40px; display:flex; align-items:center; justify-content:center; color:#7A2C76; font-size:30px; border:6px solid var(--bg); cursor:pointer">+</div>
+        <div class="nav-item" onclick="SocialApp.viewProfile(SocialApp.me)">
             <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            PERFIL
+            YO
         </div>
     </nav>
-
-    <div class="full-modal" id="modal-post">
-        <div class="modal-header">
-            <span onclick="app.toggleModal(false)" style="color: var(--ios-blue); cursor: pointer;">Cerrar</span>
-            <b style="font-size: 17px;">Nuevo Post</b>
-            <button onclick="app.createPost()" style="background: var(--primary); border: none; padding: 6px 16px; border-radius: 18px; color: white; font-weight: 700;">Publicar</button>
-        </div>
-        <textarea id="post-input" style="flex: 1; padding: 20px; border: none; background: transparent; color: var(--text); font-size: 18px; resize: none;" placeholder="¿Qué quieres decir hoy?"></textarea>
-    </div>
 
 </div>
 
@@ -224,7 +126,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-    // 1. CONFIGURACIÓN FIREBASE
     firebase.initializeApp({
         apiKey:"AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
         authDomain:"vozanonimasm.firebaseapp.com",
@@ -232,161 +133,132 @@
     });
     const db = firebase.firestore();
 
-    // 2. NÚCLEO DE LA APP (CONTROLADOR)
-    const app = {
-        user: localStorage.getItem('inst_user') || null,
-        cid: localStorage.getItem('inst_cid') || null,
-        theme: localStorage.getItem('inst_theme') || 'dark',
-
+    const SocialApp = {
+        me: localStorage.getItem('inst_me'),
+        
         init() {
-            if (this.user && this.cid) {
-                this.navigate('feed');
-            }
-            if (this.theme === 'light') document.body.classList.add('light-mode');
-            this.syncThemeUI();
+            if(this.me) this.navigate('feed');
         },
 
-        // SISTEMA DE SESIÓN (CHECKLIST 1, 2, 10)
-        auth() {
-            const u = document.getElementById('in-user').value.trim().toLowerCase();
-            if (u.length < 3) return alert("Usuario demasiado corto");
-            
-            this.user = u;
-            this.cid = 'cid_' + Math.random().toString(36).substr(2, 9); // Simulación CID Seguridad
-            localStorage.setItem('inst_user', u);
-            localStorage.setItem('inst_cid', this.cid);
-            
-            // Registro en Firestore
-            db.collection("users").doc(u).set({
-                username: u,
-                cid: this.cid,
-                created: Date.now(),
-                followers: 0,
-                following: 0
-            }, { merge: true });
-
+        login() {
+            const u = document.getElementById('login-user').value.trim().toLowerCase();
+            if(u.length < 3) return;
+            this.me = u;
+            localStorage.setItem('inst_me', u);
+            db.collection("users").doc(u).set({ username: u }, { merge: true });
             this.navigate('feed');
         },
 
-        // NAVEGACIÓN (CHECKLIST 1, 8)
-        navigate(screenId) {
+        navigate(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById('scr-' + screenId).classList.add('active');
-            document.getElementById('nav-main').style.display = (screenId === 'auth') ? 'none' : 'flex';
-            
-            // Actualizar Nav UI
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            if(screenId === 'feed') {
-                document.querySelectorAll('.nav-link')[0].classList.add('active');
-                this.loadFeed();
-            }
-            if(screenId === 'profile') {
-                document.querySelectorAll('.nav-link')[1].classList.add('active');
-                this.loadProfile();
-            }
+            document.getElementById('scr-'+id).classList.add('active');
+            document.getElementById('main-nav').style.display = (id === 'auth') ? 'none' : 'flex';
+            if(id === 'feed') this.loadFeed();
         },
 
-        // POSTS & FEED (CHECKLIST 3, 4, 7)
+        // --- SISTEMA DE SEGUIDORES (REAL) ---
+        async followUser(targetUser) {
+            const followID = `${this.me}_${targetUser}`;
+            const ref = db.collection("follows").doc(followID);
+            const doc = await ref.get();
+
+            if (!doc.exists) {
+                // SEGUIR
+                await ref.set({ follower: this.me, following: targetUser });
+                this.updateCounter(this.me, 'following', 1);
+                this.updateCounter(targetUser, 'followers', 1);
+            } else {
+                // DEJAR DE SEGUIR
+                await ref.delete();
+                this.updateCounter(this.me, 'following', -1);
+                this.updateCounter(targetUser, 'followers', -1);
+            }
+            this.viewProfile(targetUser); // Refresh UI
+        },
+
+        updateCounter(user, field, inc) {
+            db.collection("users").doc(user).update({
+                [field]: firebase.firestore.FieldValue.increment(inc)
+            });
+        },
+
+        // --- CARGA DE PERFIL DINÁMICO ---
+        async viewProfile(username) {
+            this.navigate('profile');
+            const uDoc = await db.collection("users").doc(username).get();
+            const data = uDoc.data() || { followers: 0, following: 0 };
+            
+            // Chequear si yo lo sigo
+            const fDoc = await db.collection("follows").doc(`${this.me}_${username}`).get();
+            const isFollowing = fDoc.exists;
+
+            document.getElementById('profile-ui').innerHTML = `
+                <div class="profile-hero">
+                    <div class="avatar" style="width:80px; height:80px; margin:0 auto 15px; font-size:30px">
+                        ${username.charAt(0).toUpperCase()}
+                    </div>
+                    <h2 style="margin:0">@${username}</h2>
+                    <div class="stat-grid">
+                        <div class="stat-item"><span class="stat-val">${data.followers || 0}</span><span class="stat-lab">Seguidores</span></div>
+                        <div class="stat-item"><span class="stat-val">${data.following || 0}</span><span class="stat-lab">Seguidos</span></div>
+                    </div>
+                    ${username !== this.me ? `
+                        <button onclick="SocialApp.followUser('${username}')" class="btn-follow ${isFollowing ? 'active' : 'not-active'}">
+                            ${isFollowing ? 'Siguiendo' : 'Seguir'}
+                        </button>
+                    ` : ''}
+                </div>
+            `;
+            this.loadUserPosts(username);
+        },
+
+        // --- FEED & POSTS ---
         loadFeed() {
-            db.collection("posts").orderBy("created", "desc").limit(50).onSnapshot(snap => {
-                const wall = document.getElementById('feed-wall');
-                wall.innerHTML = "";
+            db.collection("posts").orderBy("created", "desc").limit(30).onSnapshot(snap => {
+                const container = document.getElementById('feed-container');
+                container.innerHTML = "";
                 snap.forEach(doc => {
-                    wall.appendChild(this.renderPost(doc.id, doc.data()));
+                    const p = doc.data();
+                    const el = document.createElement('div');
+                    el.className = 'post-card';
+                    el.innerHTML = `
+                        <div class="avatar" onclick="SocialApp.viewProfile('${p.user}')">${p.user.charAt(0).toUpperCase()}</div>
+                        <div class="post-main">
+                            <div class="post-user" onclick="SocialApp.viewProfile('${p.user}')">@${p.user}</div>
+                            <div class="post-content">${p.text}</div>
+                        </div>
+                    `;
+                    container.appendChild(el);
                 });
             });
         },
 
-        renderPost(id, data) {
-            const div = document.createElement('div');
-            div.className = 'post';
-            const time = new Date(data.created).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            div.innerHTML = `
-                <div class="post-avatar">${data.user.charAt(0).toUpperCase()}</div>
-                <div class="post-body">
-                    <div class="post-info">
-                        <span class="post-user">@${data.user}</span>
-                        <span class="post-time">• ${time}</span>
-                    </div>
-                    <div class="post-content">${data.text.replace(/#(\w+)/g, '<span style="color:#C04FBA">#$1</span>')}</div>
-                    <div class="post-actions">
-                        <div class="action-btn" onclick="app.like('${id}', ${data.likes || 0})">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 000-7.78z"></path></svg>
-                            <b>${data.likes || 0}</b>
-                        </div>
-                        <div class="action-btn">💬 0</div>
-                    </div>
-                </div>
-            `;
-            return div;
-        },
-
-        createPost() {
-            const txt = document.getElementById('post-input').value.trim();
-            if (!txt) return;
-
-            db.collection("posts").add({
-                user: this.user,
-                text: txt,
-                likes: 0,
-                created: Date.now(),
-                cid: this.cid
-            }).then(() => {
-                this.toggleModal(false);
-                document.getElementById('post-input').value = "";
+        loadUserPosts(u) {
+            db.collection("posts").where("user", "==", u).get().then(snap => {
+                const container = document.getElementById('profile-posts');
+                container.innerHTML = `<p style="text-align:center; color:var(--muted); font-size:12px; margin-top:20px">POSTS DEL USUARIO</p>`;
+                snap.forEach(doc => {
+                    const p = doc.data();
+                    container.innerHTML += `<div class="post-card"><div class="post-main"><div class="post-content">${p.text}</div></div></div>`;
+                });
             });
         },
 
-        // INTERACCIONES (CHECKLIST 5, 13)
-        like(postId, currentLikes) {
-            const likeId = `${this.user}_${postId}`;
-            const ref = db.collection("likes").doc(likeId);
-
-            ref.get().then(doc => {
-                if (!doc.exists) {
-                    ref.set({ user: this.user, postId: postId });
-                    db.collection("posts").doc(postId).update({
-                        likes: currentLikes + 1
-                    });
-                }
-            });
+        openComposer() {
+            const txt = prompt("¿Qué estás pensando?");
+            if(txt) {
+                db.collection("posts").add({
+                    user: this.me,
+                    text: txt,
+                    created: Date.now()
+                });
+            }
         },
 
-        // PERFIL (CHECKLIST 8)
-        loadProfile() {
-            document.getElementById('me-user').innerText = '@' + this.user;
-            db.collection("posts").where("user", "==", this.user).orderBy("created", "desc").get().then(snap => {
-                const container = document.getElementById('me-posts');
-                container.innerHTML = "";
-                snap.forEach(doc => container.appendChild(this.renderPost(doc.id, doc.data())));
-            });
-        },
-
-        // UI & UX (CHECKLIST 11, 12, 14)
-        toggleModal(show) {
-            document.getElementById('modal-post').style.display = show ? 'flex' : 'none';
-        },
-
-        toggleTheme() {
-            this.theme = (this.theme === 'dark') ? 'light' : 'dark';
-            document.body.classList.toggle('light-mode');
-            localStorage.setItem('inst_theme', this.theme);
-            this.syncThemeUI();
-        },
-
-        syncThemeUI() {
-            document.getElementById('theme-status').innerText = this.theme.toUpperCase();
-        },
-
-        logout() {
-            localStorage.clear();
-            location.reload();
-        }
+        logout() { localStorage.clear(); location.reload(); }
     };
 
-    // Lanzar App
-    app.init();
-
+    SocialApp.init();
 </script>
 </body>
 </html>
