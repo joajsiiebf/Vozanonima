@@ -2,46 +2,38 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>INSTANT - Real Time App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>INSTANT | Social Network</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --primary-metallic: linear-gradient(135deg, #C04FBA 0%, #7A2C76 100%);
+            --primary: linear-gradient(135deg, #C04FBA 0%, #7A2C76 100%);
             --bg: #000000;
             --card: #1C1C1E;
             --text: #FFFFFF;
-            --border: rgba(255, 255, 255, 0.12);
+            --border: rgba(255, 255, 255, 0.1);
             --muted: #8E8E93;
-            --glass: rgba(15, 15, 15, 0.85);
+            --glass: rgba(10, 10, 10, 0.8);
             --ios-blue: #0A84FF;
+            --error: #FF453A;
         }
 
         body.light-mode {
             --bg: #F2F2F7;
             --card: #FFFFFF;
             --text: #000000;
-            --border: rgba(0, 0, 0, 0.1);
+            --border: rgba(0, 0, 0, 0.08);
             --muted: #636366;
-            --glass: rgba(255, 255, 255, 0.85);
+            --glass: rgba(255, 255, 255, 0.8);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, 'Inter', sans-serif; }
+        
+        body { margin: 0; background: #000; color: var(--text); height: 100vh; overflow: hidden; display: flex; justify-content: center; }
 
-        body {
-            margin: 0;
-            font-family: -apple-system, system-ui, 'Inter', sans-serif;
-            background-color: #000;
-            color: var(--text);
-            display: flex;
-            justify-content: center;
-            height: 100vh;
-            overflow: hidden;
-            transition: background 0.3s ease;
-        }
-
-        .app-viewport {
+        /* VIEWPORT PRINCIPAL */
+        .app-container {
             width: 100%;
             max-width: 430px;
             background: var(--bg);
@@ -49,14 +41,32 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            transition: background 0.3s ease;
         }
 
-        /* ================= HEADERS ================= */
-        .header {
-            padding: 20px;
+        /* SISTEMA DE PANTALLAS */
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            padding-bottom: 100px;
+            overflow-y: auto;
+            z-index: 10;
+            background: var(--bg);
+        }
+        .screen.active { display: flex; animation: screenIn 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        @keyframes screenIn { from { transform: translateX(20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* CABECERAS GLASS */
+        .app-header {
+            position: sticky;
+            top: 0;
+            padding: 16px 20px;
             background: var(--glass);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -64,204 +74,148 @@
             z-index: 100;
         }
 
-        .logo-text {
-            font-weight: 800;
-            background: var(--primary-metallic);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 24px;
-            letter-spacing: -1px;
-        }
+        .logo { font-weight: 800; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 24px; letter-spacing: -1px; }
 
-        /* ================= SCREENS ================= */
-        .screen {
-            position: absolute;
-            inset: 0;
-            display: none;
-            flex-direction: column;
-            padding-bottom: 110px;
-            overflow-y: auto;
-            background: var(--bg);
-        }
+        /* POST CARDS */
+        .post { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; gap: 12px; }
+        .post-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white; flex-shrink: 0; }
+        .post-body { flex: 1; }
+        .post-info { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+        .post-user { font-weight: 700; font-size: 15px; }
+        .post-time { color: var(--muted); font-size: 12px; }
+        .post-content { font-size: 15px; line-height: 1.4; margin-bottom: 12px; }
+        
+        .post-actions { display: flex; gap: 24px; color: var(--muted); }
+        .action-btn { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .action-btn.liked { color: #FF2D55; font-weight: 700; }
 
-        .screen.active { display: flex; animation: fadeIn 0.2s ease-out; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-
-        /* ================= FEED SYSTEM ================= */
-        .post-card {
-            padding: 16px;
-            border-bottom: 0.5px solid var(--border);
-            display: flex;
-            gap: 12px;
-            animation: slideUp 0.4s ease-out;
-        }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .avatar {
-            width: 45px; height: 45px;
-            border-radius: 50%;
-            background: var(--primary-metallic);
-            flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold;
-        }
-
-        .post-content { flex: 1; }
-        .post-header { font-weight: 700; font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
-        .post-text { font-size: 15px; line-height: 1.5; color: var(--text); margin-bottom: 12px; white-space: pre-wrap; }
-        .hashtag { color: #C04FBA; font-weight: 600; }
-
-        .post-actions { display: flex; gap: 25px; }
-        .action-item { 
-            display: flex; align-items: center; gap: 6px; 
-            color: var(--muted); font-size: 13px; cursor: pointer; 
-            transition: 0.2s;
-        }
-        .action-item:active { transform: scale(1.2); }
-        .action-item svg { width: 18px; height: 18px; }
-
-        /* ================= NAVIGATION ================= */
+        /* NAVEGACIÓN ESTILO ISLA */
         .nav-island {
             position: absolute;
             bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
-            height: 68px;
-            background: var(--primary-metallic);
-            border-radius: 34px;
+            height: 66px;
+            background: var(--primary);
+            border-radius: 33px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             z-index: 1000;
         }
 
-        .nav-link { color: white; opacity: 0.7; font-size: 10px; font-weight: 700; text-align: center; cursor: pointer; }
-        .nav-link.active { opacity: 1; }
-        .nav-link svg { display: block; margin: 0 auto 3px; width: 24px; height: 24px; }
+        .nav-link { color: white; opacity: 0.6; font-size: 10px; font-weight: 700; text-align: center; cursor: pointer; transition: 0.3s; }
+        .nav-link.active { opacity: 1; transform: translateY(-2px); }
+        .nav-link svg { display: block; margin: 0 auto 2px; width: 22px; height: 22px; }
 
-        .add-btn {
-            width: 60px; height: 60px;
+        .btn-plus {
+            width: 58px; height: 58px;
             background: white; border-radius: 50%;
-            margin-top: -40px; border: 5px solid var(--bg);
+            margin-top: -38px; border: 5px solid var(--bg);
             display: flex; align-items: center; justify-content: center;
-            color: #7A2C76; font-size: 30px; font-weight: bold;
-            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            color: #7A2C76; font-size: 32px; font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             cursor: pointer;
         }
 
-        /* ================= MODALS ================= */
-        .composer-modal {
-            position: fixed; inset: 0; background: var(--bg);
-            z-index: 2000; display: none; flex-direction: column;
-        }
+        /* ELEMENTOS DE FORMULARIO iOS */
+        .ios-input { width: 100%; padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: var(--card); color: var(--text); font-size: 16px; margin-bottom: 12px; }
+        .ios-btn { width: 100%; padding: 16px; border-radius: 12px; border: none; background: var(--primary); color: white; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
+        .ios-btn:active { transform: scale(0.97); opacity: 0.9; }
 
-        .composer-header {
-            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 0.5px solid var(--border);
-        }
+        /* MODALES */
+        .full-modal { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: none; flex-direction: column; }
+        .modal-header { padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--border); }
 
-        .composer-input {
-            flex: 1; padding: 20px; border: none; background: transparent;
-            color: var(--text); font-size: 18px; resize: none;
-        }
-
-        /* ================= SETTINGS ================= */
-        .settings-row {
-            padding: 16px 20px; background: var(--card);
-            border-bottom: 0.5px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: pointer;
-        }
-
-        .toggle-ios {
-            width: 50px; height: 30px; background: #39393D;
-            border-radius: 15px; position: relative; transition: 0.3s;
-        }
-        .toggle-ios.on { background: #34C759; }
-        .toggle-ios::after {
-            content: ''; position: absolute; width: 26px; height: 26px;
-            background: white; border-radius: 50%; top: 2px; left: 2px;
-            transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-        .toggle-ios.on::after { left: 22px; }
+        /* PERFIL */
+        .profile-header { padding: 30px 20px; text-align: center; }
+        .stat-box { display: flex; justify-content: center; gap: 30px; margin: 20px 0; }
+        .stat-item { text-align: center; }
+        .stat-num { display: block; font-size: 18px; font-weight: 800; }
+        .stat-label { font-size: 12px; color: var(--muted); text-transform: uppercase; }
 
     </style>
 </head>
 <body>
 
-<div class="app-viewport">
+<div class="app-container">
 
-    <div id="scr-login" class="screen active" style="justify-content: center;">
-        <div style="padding: 40px; text-align: center;">
-            <div class="logo-text" style="font-size: 50px; margin-bottom: 10px;">INSTANT</div>
-            <input id="auth-user" type="text" placeholder="Usuario" style="width: 100%; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--card); color: white; margin-bottom: 15px;">
-            <button onclick="login()" style="width:100%; padding: 16px; border-radius: 14px; border:none; background: var(--primary-metallic); color: white; font-weight: 700; cursor: pointer;">Entrar</button>
+    <div id="scr-auth" class="screen active" style="justify-content: center; padding: 40px;">
+        <div style="text-align: center;">
+            <div class="logo" style="font-size: 50px; margin-bottom: 40px;">INSTANT</div>
+            <input id="in-user" class="ios-input" type="text" placeholder="Elige un usuario único">
+            <button onclick="app.auth()" class="ios-btn">Entrar a la red</button>
+            <p style="color: var(--muted); font-size: 12px; margin-top: 20px;">Al entrar, aceptas los términos de Instant.</p>
         </div>
     </div>
 
     <div id="scr-feed" class="screen">
-        <header class="header">
-            <div class="logo-text">INSTANT</div>
-            <div onclick="navigate('profile')" style="cursor: pointer; font-size: 20px;">👤</div>
+        <header class="app-header">
+            <div class="logo">INSTANT</div>
+            <div onclick="app.navigate('settings')" style="font-size: 20px; cursor: pointer;">⚙️</div>
         </header>
-        <div id="feed-container"></div>
+        <div id="feed-wall"></div>
     </div>
 
     <div id="scr-profile" class="screen">
-        <header class="header">
-            <div onclick="navigate('feed')" style="color: var(--ios-blue); cursor: pointer;">← Inicio</div>
-            <div class="logo-text">PERFIL</div>
-            <div onclick="navigate('settings')" style="cursor: pointer;">⚙️</div>
+        <header class="app-header">
+            <div onclick="app.navigate('feed')" style="color: var(--ios-blue); cursor: pointer;">← Inicio</div>
+            <div class="logo">PERFIL</div>
+            <div style="width:40px"></div>
         </header>
-        <div style="text-align: center; padding: 40px 20px;">
-            <div class="avatar" style="width: 100px; height: 100px; margin: 0 auto 20px; font-size: 32px;"></div>
-            <h2 id="prof-user" style="margin: 0;">@username</h2>
-            <div style="display: flex; justify-content: center; gap: 40px; margin-top: 30px;">
-                <div><b>110K</b><br><small class="muted">Seguidores</small></div>
-                <div><b>0</b><br><small class="muted">Posts</small></div>
+        <div class="profile-header">
+            <div class="post-avatar" style="width: 90px; height: 90px; margin: 0 auto 15px; font-size: 35px;"></div>
+            <h2 id="me-user" style="margin: 0; font-weight: 800;">@username</h2>
+            <div class="stat-box">
+                <div class="stat-item"><span class="stat-num">0</span><span class="stat-label">Posts</span></div>
+                <div class="stat-item"><span class="stat-num" id="me-followers">1.2K</span><span class="stat-label">Seguidores</span></div>
+                <div class="stat-item"><span class="stat-num" id="me-following">450</span><span class="stat-label">Seguidos</span></div>
             </div>
+            <button class="ios-btn" style="background: var(--card); color: var(--text); height: 35px; padding: 0; font-size: 14px; border: 0.5px solid var(--border);">Editar Perfil</button>
         </div>
+        <div id="me-posts"></div>
     </div>
 
     <div id="scr-settings" class="screen">
-        <header class="header">
-            <div onclick="navigate('profile')" style="color: var(--ios-blue); cursor: pointer;">← Atrás</div>
-            <div class="logo-text">AJUSTES</div>
+        <header class="app-header">
+            <div onclick="app.navigate('feed')" style="color: var(--ios-blue); cursor: pointer;">← Cancelar</div>
+            <div class="logo">AJUSTES</div>
             <div style="width:40px"></div>
         </header>
-        <div style="margin-top: 20px;">
-            <div class="settings-row" onclick="toggleTheme()">
-                <span>Modo Oscuro</span>
-                <div id="theme-toggle" class="toggle-ios on"></div>
-            </div>
-            <div class="settings-row" onclick="logout()" style="color: #FF3B30; font-weight: 600; margin-top: 30px;">
-                <span>Cerrar Sesión</span>
+        <div style="padding: 20px;">
+            <div style="background: var(--card); border-radius: 12px; overflow: hidden;">
+                <div class="post" onclick="app.toggleTheme()" style="justify-content: space-between; align-items: center; cursor: pointer;">
+                    <span>Modo Oscuro</span>
+                    <span id="theme-status">ON</span>
+                </div>
+                <div class="post" onclick="app.logout()" style="color: var(--error); font-weight: 700; cursor: pointer;">
+                    Cerrar Sesión
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="nav-island" id="main-nav" style="display: none;">
-        <div class="nav-link active" onclick="navigate('feed')">
+    <nav class="nav-island" id="nav-main" style="display: none;">
+        <div class="nav-link active" onclick="app.navigate('feed')">
             <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
             INICIO
         </div>
-        <div class="add-btn" onclick="openComposer()">+</div>
-        <div class="nav-link" onclick="navigate('profile')">
+        <div class="btn-plus" onclick="app.toggleModal(true)">+</div>
+        <div class="nav-link" onclick="app.navigate('profile')">
             <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             PERFIL
         </div>
-    </div>
+    </nav>
 
-    <div class="composer-modal" id="composer">
-        <div class="composer-header">
-            <span onclick="closeComposer()" style="color: var(--ios-blue); cursor: pointer;">Cancelar</span>
-            <button onclick="publishPost()" style="background: var(--primary-metallic); border: none; padding: 8px 20px; border-radius: 20px; color: white; font-weight: 700;">Publicar</button>
+    <div class="full-modal" id="modal-post">
+        <div class="modal-header">
+            <span onclick="app.toggleModal(false)" style="color: var(--ios-blue); cursor: pointer;">Cerrar</span>
+            <b style="font-size: 17px;">Nuevo Post</b>
+            <button onclick="app.createPost()" style="background: var(--primary); border: none; padding: 6px 16px; border-radius: 18px; color: white; font-weight: 700;">Publicar</button>
         </div>
-        <textarea id="post-text" class="composer-input" placeholder="¿Qué está pasando?"></textarea>
+        <textarea id="post-input" style="flex: 1; padding: 20px; border: none; background: transparent; color: var(--text); font-size: 18px; resize: none;" placeholder="¿Qué quieres decir hoy?"></textarea>
     </div>
 
 </div>
@@ -270,100 +224,168 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
+    // 1. CONFIGURACIÓN FIREBASE
     firebase.initializeApp({
         apiKey:"AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
         authDomain:"vozanonimasm.firebaseapp.com",
         projectId:"vozanonimasm"
     });
     const db = firebase.firestore();
-    let me = localStorage.getItem("user");
 
-    function navigate(id) {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('scr-' + id).classList.add('active');
-        document.getElementById('main-nav').style.display = (id === 'login') ? 'none' : 'flex';
-        
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        if(id === 'feed') document.querySelectorAll('.nav-link')[0].classList.add('active');
-        if(id === 'profile') document.querySelectorAll('.nav-link')[1].classList.add('active');
+    // 2. NÚCLEO DE LA APP (CONTROLADOR)
+    const app = {
+        user: localStorage.getItem('inst_user') || null,
+        cid: localStorage.getItem('inst_cid') || null,
+        theme: localStorage.getItem('inst_theme') || 'dark',
 
-        if(id === 'feed') syncFeed();
-        if(id === 'profile') document.getElementById('prof-user').innerText = '@' + me;
-    }
+        init() {
+            if (this.user && this.cid) {
+                this.navigate('feed');
+            }
+            if (this.theme === 'light') document.body.classList.add('light-mode');
+            this.syncThemeUI();
+        },
 
-    function syncFeed() {
-        db.collection("posts").orderBy("created", "desc").onSnapshot(snapshot => {
-            const container = document.getElementById('feed-container');
-            container.innerHTML = "";
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                const id = doc.id;
-                const likes = data.likes || 0;
-                
-                const card = document.createElement('div');
-                card.className = 'post-card';
-                card.innerHTML = `
-                    <div class="avatar">${data.username.charAt(0).toUpperCase()}</div>
-                    <div class="post-content">
-                        <div class="post-header">@${data.username} <span style="color:#0A84FF; font-size:12px;">●</span></div>
-                        <div class="post-text">${format(data.text)}</div>
-                        <div class="post-actions">
-                            <div class="action-item" onclick="handleLike('${id}', ${likes})">
-                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                                <b>${likes}</b>
-                            </div>
-                            <div class="action-item">💬 0</div>
-                        </div>
-                    </div>
-                `;
-                container.appendChild(card);
+        // SISTEMA DE SESIÓN (CHECKLIST 1, 2, 10)
+        auth() {
+            const u = document.getElementById('in-user').value.trim().toLowerCase();
+            if (u.length < 3) return alert("Usuario demasiado corto");
+            
+            this.user = u;
+            this.cid = 'cid_' + Math.random().toString(36).substr(2, 9); // Simulación CID Seguridad
+            localStorage.setItem('inst_user', u);
+            localStorage.setItem('inst_cid', this.cid);
+            
+            // Registro en Firestore
+            db.collection("users").doc(u).set({
+                username: u,
+                cid: this.cid,
+                created: Date.now(),
+                followers: 0,
+                following: 0
+            }, { merge: true });
+
+            this.navigate('feed');
+        },
+
+        // NAVEGACIÓN (CHECKLIST 1, 8)
+        navigate(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('scr-' + screenId).classList.add('active');
+            document.getElementById('nav-main').style.display = (screenId === 'auth') ? 'none' : 'flex';
+            
+            // Actualizar Nav UI
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if(screenId === 'feed') {
+                document.querySelectorAll('.nav-link')[0].classList.add('active');
+                this.loadFeed();
+            }
+            if(screenId === 'profile') {
+                document.querySelectorAll('.nav-link')[1].classList.add('active');
+                this.loadProfile();
+            }
+        },
+
+        // POSTS & FEED (CHECKLIST 3, 4, 7)
+        loadFeed() {
+            db.collection("posts").orderBy("created", "desc").limit(50).onSnapshot(snap => {
+                const wall = document.getElementById('feed-wall');
+                wall.innerHTML = "";
+                snap.forEach(doc => {
+                    wall.appendChild(this.renderPost(doc.id, doc.data()));
+                });
             });
-        });
-    }
+        },
 
-    function format(t) { return t.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'); }
+        renderPost(id, data) {
+            const div = document.createElement('div');
+            div.className = 'post';
+            const time = new Date(data.created).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            div.innerHTML = `
+                <div class="post-avatar">${data.user.charAt(0).toUpperCase()}</div>
+                <div class="post-body">
+                    <div class="post-info">
+                        <span class="post-user">@${data.user}</span>
+                        <span class="post-time">• ${time}</span>
+                    </div>
+                    <div class="post-content">${data.text.replace(/#(\w+)/g, '<span style="color:#C04FBA">#$1</span>')}</div>
+                    <div class="post-actions">
+                        <div class="action-btn" onclick="app.like('${id}', ${data.likes || 0})">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l8.84-8.84 1.06-1.06a5.5 5.5 0 000-7.78z"></path></svg>
+                            <b>${data.likes || 0}</b>
+                        </div>
+                        <div class="action-btn">💬 0</div>
+                    </div>
+                </div>
+            `;
+            return div;
+        },
 
-    function handleLike(postId, current) {
-        db.collection("posts").doc(postId).update({ likes: current + 1 });
-    }
+        createPost() {
+            const txt = document.getElementById('post-input').value.trim();
+            if (!txt) return;
 
-    function openComposer() { document.getElementById('composer').style.display = 'flex'; document.getElementById('post-text').focus(); }
-    function closeComposer() { document.getElementById('composer').style.display = 'none'; }
+            db.collection("posts").add({
+                user: this.user,
+                text: txt,
+                likes: 0,
+                created: Date.now(),
+                cid: this.cid
+            }).then(() => {
+                this.toggleModal(false);
+                document.getElementById('post-input').value = "";
+            });
+        },
 
-    function publishPost() {
-        const txt = document.getElementById('post-text').value;
-        if(!txt) return;
-        db.collection("posts").add({
-            username: me,
-            text: txt,
-            likes: 0,
-            created: Date.now()
-        }).then(() => {
-            document.getElementById('post-text').value = "";
-            closeComposer();
-        });
-    }
+        // INTERACCIONES (CHECKLIST 5, 13)
+        like(postId, currentLikes) {
+            const likeId = `${this.user}_${postId}`;
+            const ref = db.collection("likes").doc(likeId);
 
-    function toggleTheme() {
-        const body = document.body;
-        const toggle = document.getElementById('theme-toggle');
-        body.classList.toggle('light-mode');
-        toggle.classList.toggle('on');
-        localStorage.setItem("theme", body.classList.contains('light-mode') ? 'light' : 'dark');
-    }
+            ref.get().then(doc => {
+                if (!doc.exists) {
+                    ref.set({ user: this.user, postId: postId });
+                    db.collection("posts").doc(postId).update({
+                        likes: currentLikes + 1
+                    });
+                }
+            });
+        },
 
-    function login() {
-        const u = document.getElementById('auth-user').value;
-        if(!u) return;
-        me = u;
-        localStorage.setItem("user", u);
-        navigate('feed');
-    }
+        // PERFIL (CHECKLIST 8)
+        loadProfile() {
+            document.getElementById('me-user').innerText = '@' + this.user;
+            db.collection("posts").where("user", "==", this.user).orderBy("created", "desc").get().then(snap => {
+                const container = document.getElementById('me-posts');
+                container.innerHTML = "";
+                snap.forEach(doc => container.appendChild(this.renderPost(doc.id, doc.data())));
+            });
+        },
 
-    function logout() { localStorage.clear(); location.reload(); }
+        // UI & UX (CHECKLIST 11, 12, 14)
+        toggleModal(show) {
+            document.getElementById('modal-post').style.display = show ? 'flex' : 'none';
+        },
 
-    if(localStorage.getItem("theme") === 'light') toggleTheme();
-    if(me) navigate('feed'); else navigate('login');
+        toggleTheme() {
+            this.theme = (this.theme === 'dark') ? 'light' : 'dark';
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('inst_theme', this.theme);
+            this.syncThemeUI();
+        },
+
+        syncThemeUI() {
+            document.getElementById('theme-status').innerText = this.theme.toUpperCase();
+        },
+
+        logout() {
+            localStorage.clear();
+            location.reload();
+        }
+    };
+
+    // Lanzar App
+    app.init();
 
 </script>
 </body>
