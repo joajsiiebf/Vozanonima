@@ -3,26 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>INSTANT - Final Version</title>
+    <title>INSTANT - iOS Premium Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --primary-metallic: linear-gradient(135deg, #C04FBA 0%, #7A2C76 100%);
-            --dark-bg: #1A1A1A;
-            --field-bg: #121212;
-            --text-main: #FFFFFF;
-            --text-muted: #9CA3AF;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            /* Dark Mode Specs */
+            --bg: #000000;
+            --card: #121212;
+            --text: #FFFFFF;
+            --border: rgba(255,255,255,0.1);
+            --muted: #8E8E93;
+            --glass: rgba(28, 28, 30, 0.7);
+        }
+
+        body.light-mode {
+            --bg: #F2F2F7;
+            --card: #FFFFFF;
+            --text: #000000;
+            --border: rgba(0,0,0,0.1);
+            --muted: #3A3A3C;
+            --glass: rgba(255, 255, 255, 0.7);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0;
-            font-family: 'Inter', sans-serif;
+            font-family: -apple-system, 'Inter', sans-serif;
             background-color: #000;
-            color: var(--text-main);
+            color: var(--text);
             display: flex;
             justify-content: center;
             height: 100vh;
@@ -32,11 +43,12 @@
         .app-viewport {
             width: 100%;
             max-width: 430px;
-            background: var(--dark-bg);
+            background: var(--bg);
             height: 100%;
             position: relative;
             display: flex;
             flex-direction: column;
+            transition: background 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         /* ================= SCREENS ================= */
@@ -45,73 +57,84 @@
             inset: 0;
             display: none;
             flex-direction: column;
-            padding-bottom: 100px;
+            padding-bottom: 110px;
             overflow-y: auto;
-            background: var(--dark-bg);
+            background: var(--bg);
             z-index: 10;
         }
 
-        .screen.active { display: flex; animation: fadeIn 0.3s ease; }
+        .screen.active { display: flex; animation: iosSlide 0.3s ease-out; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes iosSlide {
+            from { opacity: 0; transform: scale(0.98) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
 
-        /* ================= UI ELEMENTS ================= */
-        .logo-header {
+        /* ================= HEADERS ================= */
+        .header-main {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 0.5px solid var(--border);
+        }
+
+        .logo-text {
             font-weight: 800;
             background: var(--primary-metallic);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-align: center;
-            padding: 20px;
             font-size: 22px;
-            text-transform: uppercase;
+            letter-spacing: -0.5px;
         }
 
-        .btn-metallic {
-            background: var(--primary-metallic);
-            border: none;
-            border-radius: 50px;
-            padding: 16px;
-            color: white;
-            font-weight: 700;
-            width: 100%;
+        .config-btn {
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
             transition: 0.2s;
         }
 
-        .btn-metallic:active { transform: scale(0.96); }
+        body.light-mode .config-btn { background: rgba(0,0,0,0.05); }
 
-        .input-main {
-            width: 100%;
-            background: var(--field-bg);
-            border: 1px solid #333;
-            border-radius: 12px;
-            padding: 16px;
-            color: white;
-            margin-bottom: 15px;
-        }
-
-        /* ================= THREADS ================= */
+        /* ================= THREADS iOS STYLE ================= */
         .thread-item {
             padding: 16px;
-            border-bottom: 1px solid #2A2A2A;
+            border-bottom: 0.5px solid var(--border);
             display: flex;
             gap: 12px;
         }
 
         .avatar {
-            width: 42px; height: 42px;
+            width: 44px; height: 44px;
             border-radius: 50%;
             background: var(--primary-metallic);
             flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
+        .thread-user { font-weight: 700; font-size: 15px; margin-bottom: 2px; }
+        .thread-text { font-size: 15px; line-height: 1.4; color: var(--text); opacity: 0.9; }
         .hashtag { color: #C04FBA; font-weight: 600; }
 
-        /* ================= NAV BAR CURVA ================= */
+        .actions { display: flex; gap: 28px; margin-top: 14px; color: var(--muted); }
+        .action-btn { cursor: pointer; display: flex; align-items: center; gap: 6px; font-size: 13px; }
+
+        /* ================= NAV BAR (FIDELIDAD IMAGEN) ================= */
         .nav-container {
             position: absolute;
-            bottom: 25px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             width: 90%;
@@ -120,12 +143,12 @@
 
         .nav-body {
             background: var(--primary-metallic);
-            height: 65px;
-            border-radius: 35px;
+            height: 68px;
+            border-radius: 34px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
 
         .nav-item {
@@ -133,109 +156,130 @@
             text-align: center;
             font-size: 10px;
             font-weight: 700;
-            opacity: 0.7;
+            opacity: 0.8;
             cursor: pointer;
         }
 
-        .nav-item.active { opacity: 1; }
-
-        .nav-item svg { width: 22px; height: 22px; display: block; margin: 0 auto 2px; }
-
         .nav-plus {
-            width: 55px; height: 55px;
+            width: 58px; height: 58px;
             background: white;
             border-radius: 50%;
-            margin-top: -35px;
+            margin-top: -40px;
             display: flex;
             align-items: center; justify-content: center;
             color: #7A2C76;
-            font-size: 28px;
-            border: 4px solid var(--dark-bg);
+            font-size: 32px;
+            border: 5px solid var(--bg);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
         }
 
-        /* ================= MODAL ================= */
-        .modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            padding: 20px;
+        /* ================= iOS SETTINGS ================= */
+        .settings-group {
+            background: var(--card);
+            margin: 20px 16px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 0.5px solid var(--border);
         }
 
-        .modal-content {
-            background: var(--dark-bg);
-            width: 100%;
-            max-width: 350px;
-            padding: 20px;
-            border-radius: 20px;
-            border: 1px solid #333;
-        }
-
-        /* ================= SETTINGS ================= */
         .settings-item {
-            padding: 18px 20px;
-            border-bottom: 1px solid #222;
+            padding: 14px 16px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 0.5px solid var(--border);
             cursor: pointer;
         }
 
+        .settings-item:last-child { border: none; }
+
         .toggle {
-            width: 44px; height: 22px;
-            background: #333;
-            border-radius: 20px;
+            width: 51px; height: 31px;
+            background: #39393D;
+            border-radius: 16px;
             position: relative;
             transition: 0.3s;
         }
-        .toggle.active { background: #C04FBA; }
+        .toggle.active { background: #34C759; } /* iOS Green */
         .toggle::after {
             content: ''; position: absolute;
-            width: 18px; height: 18px;
+            width: 27px; height: 27px;
             background: white; border-radius: 50%;
             top: 2px; left: 2px; transition: 0.3s;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.15);
         }
-        .toggle.active::after { left: 24px; }
+        .toggle.active::after { left: 22px; }
+
+        /* ================= INPUTS ================= */
+        .btn-ios {
+            background: var(--primary-metallic);
+            border: none;
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            font-weight: 700;
+            width: 100%;
+            font-size: 17px;
+        }
 
     </style>
 </head>
-<body>
+<body class="dark-mode">
 
 <div class="app-viewport">
 
     <div id="screen-login" class="screen active">
-        <div style="margin: auto 0; padding: 30px;">
-            <div class="logo-header" style="font-size: 45px; margin-bottom: 30px;">INSTANT</div>
-            <input type="text" id="login-user" class="input-main" placeholder="Usuario">
-            <button class="btn-metallic" onclick="auth()">Entrar</button>
+        <div style="margin: auto 0; padding: 40px; text-align: center;">
+            <h1 class="logo-text" style="font-size: 48px; margin-bottom: 10px;">INSTANT</h1>
+            <p style="color: var(--muted); margin-bottom: 40px;">Visual Identity & Dev</p>
+            <input type="text" id="login-user" style="background: var(--card); border: 1px solid var(--border); padding: 16px; width: 100%; border-radius: 12px; color: white; margin-bottom: 15px;" placeholder="Username">
+            <button class="btn-ios" onclick="auth()">Sign In</button>
         </div>
     </div>
 
     <div id="screen-feed" class="screen">
-        <div class="logo-header">INSTANT</div>
+        <header class="header-main">
+            <div class="logo-text">INSTANT</div>
+            <div class="config-btn" onclick="navigate('settings')">⚙</div>
+        </header>
         <div id="feed-box"></div>
     </div>
 
-    <div id="screen-profile" class="screen">
-        <div class="logo-header">MI PERFIL</div>
-        <div style="text-align:center; padding:30px;">
-            <div class="avatar" style="width:80px; height:80px; margin:0 auto 15px;"></div>
-            <h2 id="prof-name">@Username</h2>
-            <p class="text-muted">110K Seguidores</p>
+    <div id="screen-settings" class="screen">
+        <header class="header-main">
+            <div style="cursor:pointer" onclick="navigate('feed')">← Back</div>
+            <div class="logo-text">SETTINGS</div>
+            <div style="width:40px"></div>
+        </header>
+        
+        <div class="settings-group">
+            <div class="settings-item">
+                <span>Account Settings</span>
+                <span style="color:var(--muted)">👤 &rsaquo;</span>
+            </div>
+            <div class="settings-item" onclick="toggleAppearance()">
+                <span>Dark Mode</span>
+                <div class="toggle active" id="darkToggle"></div>
+            </div>
+        </div>
+
+        <div class="settings-group">
+            <div class="settings-item" onclick="logout()" style="color:#FF3B30; justify-content: center; font-weight: 600;">
+                Log Out
+            </div>
         </div>
     </div>
 
-    <div id="screen-settings" class="screen">
-        <div class="logo-header">CONFIGURACIÓN</div>
-        <div class="settings-item"><span>Cuenta</span> <span>&rsaquo;</span></div>
-        <div class="settings-item" onclick="this.querySelector('.toggle').classList.toggle('active')">
-            <span>Modo Oscuro</span> <div class="toggle active"></div>
-        </div>
-        <div class="settings-item" onclick="logout()" style="color:#ff4d4d; margin-top:20px;">
-            <span>Cerrar Sesión</span>
+    <div id="screen-profile" class="screen">
+        <header class="header-main">
+            <div style="width:40px"></div>
+            <div class="logo-text">MY PROFILE</div>
+            <div class="config-btn" onclick="navigate('settings')">⚙</div>
+        </header>
+        <div style="text-align:center; padding:40px 20px;">
+            <div class="avatar" style="width:100px; height:100px; margin:0 auto 20px;"></div>
+            <h2 id="prof-name" style="margin:0">@Username</h2>
+            <p style="color:var(--muted)">iOS Developer & Designer</p>
         </div>
     </div>
 
@@ -245,29 +289,14 @@
                 <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
                 HOME
             </div>
-            <div class="nav-plus" onclick="openModal()">+</div>
+            <div class="nav-plus" onclick="createPost()">+</div>
             <div class="nav-item" onclick="navigate('profile')">
                 <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                PERFIL
-            </div>
-            <div class="nav-item" onclick="navigate('settings')">
-                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-                AJUSTES
+                PROFILE
             </div>
         </div>
     </div>
 
-</div>
-
-<div class="modal" id="postModal">
-    <div class="modal-content">
-        <h3 style="margin-top:0">Nuevo Post</h3>
-        <textarea id="postText" class="input-main" rows="4" placeholder="¿Qué está pasando?" style="resize:none"></textarea>
-        <div style="display:flex; gap:10px">
-            <button class="btn-metallic" onclick="sendPost()">Publicar</button>
-            <button class="btn-metallic" style="background:#333" onclick="closeModal()">Cancelar</button>
-        </div>
-    </div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -285,16 +314,22 @@
     function navigate(screenId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById('screen-' + screenId).classList.add('active');
-        
         document.getElementById('main-nav').style.display = (screenId === 'login') ? 'none' : 'block';
-        
         if(screenId === 'feed') loadFeed();
         if(screenId === 'profile') document.getElementById('prof-name').innerText = '@' + me;
     }
 
+    function toggleAppearance() {
+        const body = document.body;
+        const toggle = document.getElementById('darkToggle');
+        body.classList.toggle('light-mode');
+        toggle.classList.toggle('active');
+        localStorage.setItem("theme", body.classList.contains('light-mode') ? "light" : "dark");
+    }
+
     function auth() {
         const u = document.getElementById('login-user').value;
-        if(!u) return alert("Escribe un usuario");
+        if(!u) return;
         me = u;
         localStorage.setItem("user", u);
         navigate('feed');
@@ -305,12 +340,17 @@
             let html = "";
             snap.forEach(doc => {
                 const p = doc.data();
+                const id = doc.id;
                 html += `
                     <div class="thread-item">
                         <div class="avatar"></div>
                         <div style="flex:1">
-                            <div style="font-weight:700; font-size:14px; margin-bottom:4px">@${p.username}</div>
-                            <div style="font-size:14px; line-height:1.4">${formatText(p.text)}</div>
+                            <div class="thread-user">@${p.username}</div>
+                            <div class="thread-text">${formatText(p.text)}</div>
+                            <div class="actions">
+                                <div class="action-btn" onclick="likePost('${id}', ${p.likes || 0})">♥ ${p.likes || 0}</div>
+                                <div class="action-btn">💬 0</div>
+                            </div>
                         </div>
                     </div>`;
             });
@@ -318,35 +358,26 @@
         });
     }
 
-    function formatText(t) {
-        return t.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>');
+    function likePost(id, current) {
+        db.collection("posts").doc(id).update({ likes: current + 1 });
     }
 
-    // MODAL LOGIC
-    function openModal() { document.getElementById('postModal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('postModal').style.display = 'none'; }
+    function formatText(t) { return t.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'); }
 
-    function sendPost() {
-        const text = document.getElementById('postText').value;
-        if(!text) return;
-        db.collection("posts").add({
-            username: me,
-            text: text,
-            created: Date.now()
-        }).then(() => {
-            document.getElementById('postText').value = "";
-            closeModal();
-        });
+    function createPost() {
+        const t = prompt("What's on your mind?");
+        if(!t) return;
+        db.collection("posts").add({ username: me, text: t, likes: 0, created: Date.now() });
     }
 
     function logout() {
-        localStorage.removeItem("user");
+        localStorage.clear();
         location.reload();
     }
 
-    // Start
-    if(me) navigate('feed');
-    else navigate('login');
+    // Init logic
+    if(localStorage.getItem("theme") === "light") toggleAppearance();
+    if(me) navigate('feed'); else navigate('login');
 
 </script>
 
