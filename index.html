@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Social App</title>
+<title>InstaLite Pro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -17,7 +17,7 @@
 <div id="loginView" class="view">
   <div class="card">
 
-    <h2>Login</h2>
+    <h2>InstaLite</h2>
 
     <input id="loginPhone" placeholder="Teléfono o admin">
     <input id="loginPass" type="password" placeholder="Contraseña">
@@ -26,13 +26,13 @@
 
     <hr>
 
-    <h3>Registro</h3>
+    <h3>Crear cuenta</h3>
 
     <input id="regUser" placeholder="Username">
     <input id="regPhone" placeholder="Teléfono">
     <input id="regPass" type="password" placeholder="Contraseña">
 
-    <button onclick="register()">Crear cuenta</button>
+    <button onclick="register()">Registrar</button>
 
   </div>
 </div>
@@ -40,35 +40,41 @@
 <!-- APP -->
 <div id="appView" class="view hidden">
 
+  <!-- HEADER -->
   <header class="topbar">
-    <span id="title">Inicio</span>
+    <span>InstaLite</span>
     <span id="roleBadge"></span>
   </header>
 
+  <!-- STORIES -->
+  <div class="stories">
+    <div class="story">+</div>
+  </div>
+
   <!-- COMPOSER -->
   <div class="composer">
-    <input id="postText" placeholder="¿Qué estás pensando?">
+    <input id="postText" placeholder="Escribe algo...">
     <button onclick="createPost()">Publicar</button>
   </div>
 
-  <!-- VIEWS -->
-  <section id="feedView" class="screen active"></section>
-  <section id="searchView" class="screen hidden"></section>
+  <!-- FEED -->
+  <section id="feedView" class="feed"></section>
+
+  <!-- PROFILE -->
   <section id="profileView" class="screen hidden"></section>
 
+  <!-- SETTINGS -->
   <section id="settingsView" class="screen hidden">
-    <button onclick="toggleTheme()">Modo oscuro / claro</button>
-    <button onclick="logout()">Cerrar sesión</button>
+    <button onclick="toggleTheme()">Modo oscuro</button>
+    <button onclick="logout()">Salir</button>
   </section>
 
-  <!-- NAV iOS -->
+  <!-- NAV -->
   <nav class="nav">
 
-    <button onclick="go('feedView','Inicio')">🏠</button>
-    <button onclick="go('searchView','Buscar')">🔍</button>
-    <button onclick="focusPost()">➕</button>
-    <button onclick="go('profileView','Perfil'); loadProfile()">👤</button>
-    <button onclick="go('settingsView','Ajustes')">⚙️</button>
+    <button onclick="go('feedView')">🏠</button>
+    <button onclick="go('profileView'); loadProfile()">👤</button>
+    <button onclick="go('settingsView')">⚙️</button>
 
   </nav>
 
