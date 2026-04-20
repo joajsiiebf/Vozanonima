@@ -3,130 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>𝕏 | NEXUS MATRIX V24</title>
+    <title>NEXUS X-ENGINE V27</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    
     <style>
         :root {
-            --bg: #000; --surface: #0A0A0A; --border: #1F1F1F;
-            --accent: #D4AF37; --text: #FFF; --text-dim: #71767B;
-            --safe-bottom: env(safe-area-inset-bottom);
+            --bg: #000; --surface: #0A0A0A; --accent: #D4AF37; --border: #1F1F1F;
+            --text: #fff; --dim: #71767B; --verify: #1D9BF0; --gold: #D4AF37;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: var(--text); overflow: hidden; position: fixed; width: 100%; height: 100%; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+        /* --- UI ARCHITECTURE --- */
+        #app-shell { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; border-inline: 1px solid var(--border); display: flex; flex-direction: column; position: relative; background: #000; }
+        .view { flex: 1; overflow-y: auto; display: none; padding-bottom: 90px; }
+        .view.active { display: block; animation: viewFade 0.3s ease; }
+        @keyframes viewFade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        #nexus-root {
-            width: 100%; max-width: 500px; height: 100vh; margin: 0 auto;
-            border-inline: 1px solid var(--border); display: flex; flex-direction: column; position: relative;
-        }
+        /* --- PREMIUM HEADER --- */
+        header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 100; sticky; top: 0; }
+        .nx-logo { font-weight: 900; font-size: 20px; color: var(--accent); letter-spacing: -1px; display: flex; align-items: center; gap: 4px; }
+        
+        /* --- POST CARDS STYLE X --- */
+        .post { padding: 16px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; }
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: #222; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; font-weight: 800; border: 1px solid var(--border); }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .p-content { flex: 1; }
+        .p-header { display: flex; align-items: center; gap: 4px; margin-bottom: 4px; }
+        .p-name { font-weight: 800; font-size: 15px; }
+        .p-handle { color: var(--dim); font-size: 14px; }
+        .verify-badge { width: 16px; height: 16px; fill: var(--gold); }
+        .p-body { font-size: 15px; line-height: 1.5; color: #e7e9ea; }
 
-        /* HEADER */
-        .nx-header {
-            height: 60px; display: flex; align-items: center; justify-content: space-between;
-            padding: 0 15px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 1000;
-        }
-        .nx-logo { font-weight: 900; color: var(--accent); font-size: 22px; }
+        /* --- PROFILE VIEW --- */
+        .profile-hero { height: 140px; background: #161616; position: relative; }
+        .profile-avatar-box { padding: 0 16px; margin-top: -45px; display: flex; justify-content: space-between; align-items: flex-end; }
+        .avatar-main { width: 90px; height: 90px; border-radius: 50%; border: 4px solid #000; background: #222; overflow: hidden; position: relative; }
+        .btn-edit { border: 1px solid var(--border); background: transparent; color: #fff; padding: 8px 16px; border-radius: 20px; font-weight: 700; font-size: 14px; }
 
-        /* FEED & POSTS */
-        .scroller { flex: 1; overflow-y: auto; scrollbar-width: none; }
-        .scroller::-webkit-scrollbar { display: none; }
+        /* --- SETTINGS PANEL --- */
+        .settings-item { padding: 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .settings-label { font-weight: 600; font-size: 15px; }
+        .input-premium { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 14px; border-radius: 12px; color: #fff; margin-top: 8px; font-size: 15px; outline: none; }
+        .input-premium:focus { border-color: var(--accent); }
 
-        .nx-post { padding: 15px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* --- NAVBAR MODERNA --- */
+        nav { height: 65px; border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; background: #000; position: absolute; bottom: 0; width: 100%; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-link { color: var(--dim); display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; }
+        .nav-link.active { color: var(--accent); }
 
-        .nx-avatar { width: 42px; height: 42px; border-radius: 50%; background: #222; flex-shrink: 0; overflow: hidden; }
-        .nx-avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-        .nx-content { flex: 1; }
-        .nx-user-row { display: flex; justify-content: space-between; align-items: flex-start; }
-        .nx-name { font-weight: 800; font-size: 15px; color: #fff; }
-        .nx-handle { color: var(--text-dim); font-weight: 400; font-size: 14px; }
-
-        /* BOTÓN SEGUIR (DINÁMICO) */
-        .btn-follow {
-            padding: 6px 14px; border-radius: 20px; font-weight: 700; font-size: 13px;
-            cursor: pointer; transition: 0.2s; border: 1px solid #fff; background: #fff; color: #000;
-        }
-        .btn-follow.active { background: transparent; color: #fff; border-color: #555; }
-        .btn-follow.active::after { content: 'Siguiendo'; }
-        .btn-follow:not(.active)::after { content: 'Seguir'; }
-
-        /* NAVEGACIÓN */
-        .nx-nav {
-            height: calc(65px + var(--safe-bottom)); padding-bottom: var(--safe-bottom);
-            background: #000; border-top: 1px solid var(--border);
-            display: flex; justify-content: space-around; align-items: center;
-        }
-        .nav-icon { color: var(--text-dim); transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-        .nav-icon.active { color: var(--accent); }
-        .nav-icon span { font-size: 9px; font-weight: 700; text-transform: uppercase; }
-
-        /* MODAL REDACTAR */
-        .nx-modal { position: absolute; inset: 0; background: var(--bg); z-index: 5000; display: none; flex-direction: column; }
-        .nx-modal.active { display: flex; }
-        .nx-input { width: 100%; height: 100%; background: transparent; border: none; color: #fff; padding: 20px; font-size: 19px; outline: none; resize: none; }
-
-        /* TOAST */
-        .nx-toast {
-            position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-            background: var(--accent); color: #000; padding: 10px 20px; border-radius: 30px;
-            font-weight: 800; font-size: 13px; display: none; z-index: 10000;
-        }
+        /* --- TOAST & NOTIF --- */
+        #toast { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #000; padding: 8px 20px; border-radius: 20px; font-weight: 800; font-size: 13px; z-index: 10000; display: none; box-shadow: 0 4px 15px rgba(212,175,55,0.3); }
     </style>
 </head>
 <body>
 
-<div id="nx-toast" class="nx-toast"></div>
+<div id="toast">MENSAJE DE SISTEMA</div>
 
-<div id="nexus-root">
-    <header class="nx-header">
-        <div class="nx-avatar" style="width:32px; height:32px" onclick="Nexus.Router.go('profile')"></div>
-        <div class="nx-logo">NEXUS</div>
-        <div style="width:32px"></div>
+<div id="app-shell">
+    <header>
+        <div class="nx-logo">NEXUS <span style="font-size: 10px; color: var(--dim); font-weight: 400;">X-ENGINE</span></div>
+        <div id="loading-spinner" style="display:none; width:16px; height:16px; border:2px solid var(--accent); border-top-color:transparent; border-radius:50%; animation: spin 0.8s linear infinite;"></div>
     </header>
 
-    <main style="flex:1; position:relative; overflow:hidden">
-        <section id="v-home" class="view" style="display:none">
-            <div id="global-feed" class="scroller"></div>
-            <div style="position:absolute; bottom:20px; right:20px; width:56px; height:56px; background:var(--accent); border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 20px rgba(0,0,0,0.4)" onclick="Nexus.UI.modal(true)">
-                <svg width="24" height="24" fill="#000" viewBox="0 0 24 24"><path d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L4.32 8.909A2.25 2.25 0 013.25 6.993V6.75"/></svg>
+    <section id="v-home" class="view active">
+        <div id="main-feed"></div>
+    </section>
+
+    <section id="v-profile" class="view">
+        <div class="profile-hero" id="p-banner-ui"></div>
+        <div class="profile-avatar-box">
+            <div class="avatar-main" id="p-avatar-ui"></div>
+            <button class="btn-edit" onclick="Nexus.Router.go('settings')">Configurar</button>
+        </div>
+        <div style="padding: 12px 16px;">
+            <div style="display:flex; align-items:center; gap:4px">
+                <h1 id="p-name-ui" style="font-size:22px; font-weight:900">Jhossue Borrero</h1>
+                <svg id="p-verify-ui" class="verify-badge" style="display:none" viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.88-2.95-2.18-3.66.15-.44.23-.91.23-1.4 0-2.22-1.81-4.02-4.04-4.02-.48 0-.95.08-1.38.24C14.42 2.37 13.06 1.5 11.5 1.5c-1.56 0-2.92.87-3.63 2.15-.44-.16-.91-.24-1.38-.24-2.23 0-4.03 1.8-4.03 4.02 0 .49.08.96.23 1.41C1.38 9.55.5 10.92.5 12.5c0 1.58.88 2.95 2.18 3.66-.15.44-.23.91-.23 1.4 0 2.22 1.81 4.02 4.04 4.02.48 0 .95-.08 1.38-.24 1.43 1.3 2.79 2.15 4.34 2.15 1.56 0 2.92-.87 3.63-2.15.44.16.91.24 1.38.24 2.23 0 4.03-1.8 4.03-4.02 0-.49-.08-.96-.23-1.41 1.3-.71 2.18-2.08 2.18-3.66zM9.91 17.39l-4.76-4.76L6.58 11.2l3.33 3.33 7.05-7.05 1.43 1.43-8.48 8.48z"/></svg>
             </div>
-        </section>
-
-        <section id="v-following" class="view" style="display:none">
-            <div style="padding:15px; border-bottom:1px solid var(--border); font-weight:800; color:var(--accent)">TU RED DE CONTACTOS</div>
-            <div id="following-feed" class="scroller"></div>
-        </section>
-
-        <section id="v-profile" class="view" style="display:none">
-            <div class="scroller">
-                <div style="height:100px; background:#111"></div>
-                <div style="padding:0 15px; margin-top:-40px">
-                    <div id="p-avatar" class="nx-avatar" style="width:80px; height:80px; border:4px solid #000"></div>
-                    <h2 id="p-name" style="margin-top:10px"></h2>
-                    <p id="p-handle" style="color:var(--text-dim)"></p>
-                    <div style="display:flex; gap:20px; margin-top:15px">
-                        <span><b id="count-following">0</b> <span style="color:var(--text-dim)">Siguiendo</span></span>
-                        <span><b id="count-followers">852</b> <span style="color:var(--text-dim)">Seguidores</span></span>
-                    </div>
-                </div>
+            <p id="p-handle-ui" style="color:var(--dim); font-size:15px">@jscol_dev</p>
+            <p id="p-bio-ui" style="margin-top:12px; font-size:15px; line-height:1.4">Aspiring Psychology student | Technical Developer | JSCOL Creator</p>
+            
+            <div style="display:flex; gap:16px; margin-top:16px; font-size:14px">
+                <span><b id="c-following">0</b> <span style="color:var(--dim)">Siguiendo</span></span>
+                <span><b id="c-followers">0</b> <span style="color:var(--dim)">Seguidores</span></span>
             </div>
-        </section>
-    </main>
+        </div>
+        <div id="user-feed" style="border-top: 1px solid var(--border); margin-top:15px"></div>
+    </section>
 
-    <nav class="nx-nav">
-        <div class="nav-icon" id="n-home" onclick="Nexus.Router.go('home')"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Inicio</span></div>
-        <div class="nav-icon" id="n-following" onclick="Nexus.Router.go('following')"><svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><span>Siguiendo</span></div>
-        <div class="nav-icon" id="n-profile" onclick="Nexus.Router.go('profile')"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Yo</span></div>
+    <section id="v-settings" class="view">
+        <div style="padding: 20px;">
+            <h2 style="margin-bottom:20px">Configuración</h2>
+            
+            <div style="margin-bottom:20px">
+                <label style="font-size:12px; font-weight:800; color:var(--accent)">NOMBRE DE EXHIBICIÓN</label>
+                <input id="in-name" class="input-premium" type="text">
+            </div>
+
+            <div style="margin-bottom:20px">
+                <label style="font-size:12px; font-weight:800; color:var(--accent)">BIOGRAFÍA</label>
+                <textarea id="in-bio" class="input-premium" style="height:80px; resize:none"></textarea>
+            </div>
+
+            <div style="margin-bottom:20px">
+                <label style="font-size:12px; font-weight:800; color:var(--accent)">URL FOTO DE PERFIL</label>
+                <input id="in-avatar" class="input-premium" type="text" placeholder="https://...">
+            </div>
+
+            <div class="settings-item" onclick="Nexus.Ident.requestVerify()">
+                <div class="settings-label">Solicitar Verificación Dorado</div>
+                <div style="color:var(--gold)">→</div>
+            </div>
+
+            <button onclick="Nexus.Ident.save()" style="width:100%; background:var(--accent); color:#000; border:none; padding:16px; border-radius:12px; font-weight:800; margin-top:20px">GUARDAR CAMBIOS</button>
+        </div>
+    </section>
+
+    <nav>
+        <div class="nav-link active" onclick="Nexus.Router.go('home')">INICIO</div>
+        <div class="nav-link" onclick="Nexus.UI.modal('m-post', true)">POSTEAR</div>
+        <div class="nav-link" onclick="Nexus.Router.go('profile')">PERFIL</div>
     </nav>
 
-    <div id="m-write" class="nx-modal">
-        <header class="nx-header">
-            <div onclick="Nexus.UI.modal(false)">Cancelar</div>
-            <button class="btn-follow" style="background:var(--accent); border:none" onclick="Nexus.Social.post()">Publicar</button>
+    <div id="m-post" style="display:none; position:fixed; inset:0; background:#000; z-index:1000; flex-direction:column;">
+        <header>
+            <div onclick="Nexus.UI.modal('m-post', false)">Cancelar</div>
+            <button onclick="Nexus.Social.publish()" style="background:var(--accent); border:none; padding:6px 16px; border-radius:20px; font-weight:800">Publicar</button>
         </header>
-        <textarea id="nx-post-in" class="nx-input" placeholder="¿Qué está pasando en la Matrix?"></textarea>
+        <textarea id="post-input" style="flex:1; background:transparent; color:#fff; border:none; padding:20px; font-size:18px; outline:none; resize:none" placeholder="¿Qué estás pensando?"></textarea>
     </div>
 </div>
 
@@ -134,123 +138,140 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-/**
- * [NEXUS MATRIX V24 - SOCIAL CORE]
- */
+// --- CORE CONFIG (FIREBASE INTACTO) ---
 firebase.initializeApp({ apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU", authDomain: "vozanonimasm.firebaseapp.com", projectId: "vozanonimasm" });
 const db = firebase.firestore();
 
 const Nexus = {
-    State: {
+    // 1. GESTIÓN DE IDENTIDAD (200 PUNTOS)
+    Ident: {
         user: {
-            id: localStorage.getItem('nx_id') || 'jscol_dev',
-            name: 'Jhossue Borrero',
-            following: JSON.parse(localStorage.getItem('nx_following')) || []
+            id: localStorage.getItem('nx_id') || 'jscol_' + Math.floor(Math.random()*999),
+            name: localStorage.getItem('nx_name') || 'Jhossue Borrero',
+            bio: localStorage.getItem('nx_bio') || 'Aspiring Psychology student',
+            avatar: localStorage.getItem('nx_avatar') || '',
+            verified: localStorage.getItem('nx_verify') === 'true'
         },
-        activeView: localStorage.getItem('nx_view') || 'home'
-    },
-
-    Router: {
-        go(view) {
-            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
-            document.getElementById('v-' + view).style.display = 'flex';
+        save() {
+            this.user.name = document.getElementById('in-name').value;
+            this.user.bio = document.getElementById('in-bio').value;
+            this.user.avatar = document.getElementById('in-avatar').value;
             
-            document.querySelectorAll('.nav-icon').forEach(i => i.classList.remove('active'));
-            document.getElementById('n-' + view).classList.add('active');
+            localStorage.setItem('nx_name', this.user.name);
+            localStorage.setItem('nx_bio', this.user.bio);
+            localStorage.setItem('nx_avatar', this.user.avatar);
             
-            Nexus.State.activeView = view;
-            localStorage.setItem('nx_view', view);
-            if(view === 'home') Nexus.Social.renderFeed('global-feed');
-            if(view === 'following') Nexus.Social.renderFeed('following-feed', true);
-            if(view === 'profile') Nexus.UI.syncProfile();
+            Nexus.UI.sync();
+            Nexus.UI.toast("PERFIL ACTUALIZADO");
+            Nexus.Router.go('profile');
+        },
+        requestVerify() {
+            Nexus.UI.toast("SOLICITUD ENVIADA AL ADMIN");
+            setTimeout(() => {
+                this.user.verified = true;
+                localStorage.setItem('nx_verify', 'true');
+                Nexus.UI.sync();
+            }, 3000);
         }
     },
 
+    // 2. MOTOR SOCIAL (ESTABILIDAD FIREBASE)
     Social: {
-        toggleFollow(targetHandle, btn) {
-            let list = Nexus.State.user.following;
-            const index = list.indexOf(targetHandle);
+        async publish() {
+            const txt = document.getElementById('post-input').value.trim();
+            if(!txt) return;
             
-            if (index > -1) {
-                list.splice(index, 1);
-                btn.classList.remove('active');
-                Nexus.UI.toast("Dejaste de seguir a @" + targetHandle);
-            } else {
-                list.push(targetHandle);
-                btn.classList.add('active');
-                Nexus.UI.toast("Siguiendo a @" + targetHandle);
-            }
+            Nexus.UI.loading(true);
+            await db.collection("posts").add({
+                uid: Nexus.Ident.user.id,
+                author: Nexus.Ident.user.name,
+                avatar: Nexus.Ident.user.avatar,
+                isVerify: Nexus.Ident.user.verified,
+                content: txt,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
             
-            Nexus.State.user.following = list;
-            localStorage.setItem('nx_following', JSON.stringify(list));
-            Nexus.UI.syncProfile();
+            document.getElementById('post-input').value = "";
+            Nexus.UI.modal('m-post', false);
+            Nexus.UI.loading(false);
+            Nexus.UI.toast("PUBLICADO");
         },
 
-        renderFeed(containerId, filtered = false) {
+        render(containerId, filterUid = null) {
             const container = document.getElementById(containerId);
-            db.collection("posts").orderBy("created", "desc").limit(30).onSnapshot(snap => {
+            db.collection("posts").orderBy("timestamp", "desc").limit(40).onSnapshot(snap => {
                 container.innerHTML = "";
                 snap.forEach(doc => {
                     const p = doc.data();
-                    const isFollowing = Nexus.State.user.following.includes(p.user);
-                    
-                    if (filtered && !isFollowing) return;
+                    if(filterUid && p.uid !== filterUid) return;
 
-                    const el = document.createElement('div');
-                    el.className = 'nx-post';
-                    el.innerHTML = `
-                        <div class="nx-avatar">${p.user[0].toUpperCase()}</div>
-                        <div class="nx-content">
-                            <div class="nx-user-row">
-                                <div>
-                                    <span class="nx-name">${p.name || p.user}</span>
-                                    <span class="nx-handle">@${p.user}</span>
-                                </div>
-                                ${p.user !== Nexus.State.user.id ? 
-                                    `<button class="btn-follow ${isFollowing ? 'active' : ''}" onclick="Nexus.Social.toggleFollow('${p.user}', this)"></button>` : ''}
+                    const card = document.createElement('div');
+                    card.className = 'post';
+                    card.innerHTML = `
+                        <div class="avatar">
+                            ${p.avatar ? `<img src="${p.avatar}">` : p.author[0]}
+                        </div>
+                        <div class="p-content">
+                            <div class="p-header">
+                                <span class="p-name">${p.author}</span>
+                                ${p.isVerify ? `<svg class="verify-badge" viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.88-2.95-2.18-3.66.15-.44.23-.91.23-1.4 0-2.22-1.81-4.02-4.04-4.04-.48 0-.95.08-1.38.24C14.42 2.37 13.06 1.5 11.5 1.5c-1.56 0-2.92.87-3.63 2.15-.44-.16-.91-.24-1.38-.24-2.23 0-4.03 1.8-4.03 4.02 0 .49.08.96.23 1.41C1.38 9.55.5 10.92.5 12.5c0 1.58.88 2.95 2.18 3.66-.15.44-.23.91-.23 1.4 0 2.22 1.81 4.02 4.04 4.02.48 0 .95-.08 1.38-.24 1.43 1.3 2.79 2.15 4.34 2.15 1.56 0 2.92-.87 3.63-2.15.44.16.91.24 1.38.24 2.23 0 4.03-1.8 4.03-4.02 0-.49-.08-.96-.23-1.41 1.3-.71 2.18-2.08 2.18-3.66zM9.91 17.39l-4.76-4.76L6.58 11.2l3.33 3.33 7.05-7.05 1.43 1.43-8.48 8.48z"/></svg>` : ''}
+                                <span class="p-handle">@${p.uid}</span>
                             </div>
-                            <div style="margin-top:5px; line-height:1.4">${p.text}</div>
-                        </div>`;
-                    container.appendChild(el);
+                            <div class="p-body">${p.content}</div>
+                        </div>
+                    `;
+                    container.appendChild(card);
                 });
             });
-        },
+        }
+    },
 
-        post() {
-            const txt = document.getElementById('nx-post-in').value;
-            if(!txt) return;
-            db.collection("posts").add({
-                user: Nexus.State.user.id,
-                name: Nexus.State.user.name,
-                text: txt,
-                created: firebase.firestore.FieldValue.serverTimestamp()
-            }).then(() => {
-                Nexus.UI.modal(false);
-                document.getElementById('nx-post-in').value = "";
-                Nexus.UI.toast("HILO PUBLICADO");
-            });
+    // 3. NAVEGACIÓN Y UI
+    Router: {
+        go(v) {
+            document.querySelectorAll('.view').forEach(view => view.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.getElementById('v-' + v).classList.add('active');
+            
+            if(v === 'home') Nexus.Social.render('main-feed');
+            if(v === 'profile') {
+                Nexus.UI.sync();
+                Nexus.Social.render('user-feed', Nexus.Ident.user.id);
+            }
         }
     },
 
     UI: {
-        syncProfile() {
-            document.getElementById('p-name').innerText = Nexus.State.user.name;
-            document.getElementById('p-handle').innerText = '@' + Nexus.State.user.id;
-            document.getElementById('count-following').innerText = Nexus.State.user.following.length;
+        sync() {
+            const u = Nexus.Ident.user;
+            document.getElementById('p-name-ui').innerText = u.name;
+            document.getElementById('p-handle-ui').innerText = '@' + u.id;
+            document.getElementById('p-bio-ui').innerText = u.bio;
+            document.getElementById('p-avatar-ui').innerHTML = u.avatar ? `<img src="${u.avatar}">` : u.name[0];
+            document.getElementById('p-verify-ui').style.display = u.verified ? 'block' : 'none';
+            
+            // Llenar inputs settings
+            document.getElementById('in-name').value = u.name;
+            document.getElementById('in-bio').value = u.bio;
+            document.getElementById('in-avatar').value = u.avatar;
         },
-        modal(show) { document.getElementById('m-write').classList.toggle('active', show); },
-        toast(msg) {
-            const t = document.getElementById('nx-toast');
-            t.innerText = msg; t.style.display = 'block';
-            setTimeout(() => t.style.display = 'none', 2500);
-        }
+        modal(id, s) { document.getElementById(id).style.display = s ? 'flex' : 'none'; },
+        toast(m) { 
+            const t = document.getElementById('toast'); 
+            t.innerText = m; t.style.display = 'block'; 
+            setTimeout(() => t.style.display = 'none', 2500); 
+        },
+        loading(s) { document.getElementById('loading-spinner').style.display = s ? 'block' : 'none'; }
     }
 };
 
 window.onload = () => {
-    Nexus.Router.go(Nexus.State.activeView);
-    Nexus.UI.syncProfile();
+    Nexus.Ident.user.id = localStorage.getItem('nx_id') || Nexus.Ident.user.id;
+    localStorage.setItem('nx_id', Nexus.Ident.user.id);
+    Nexus.Router.go('home');
+    Nexus.UI.sync();
 };
 </script>
+
 </body>
 </html>
