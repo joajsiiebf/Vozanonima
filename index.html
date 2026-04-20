@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Instant</title>
+<title>Instant Admin</title>
 
 <style>
 
@@ -32,7 +32,7 @@ body{
   opacity:0;
   transform:scale(1.02);
   pointer-events:none;
-  transition:.35s ease;
+  transition:.3s ease;
 }
 
 .screen.active{
@@ -41,7 +41,7 @@ body{
   pointer-events:auto;
 }
 
-/* ================= TOPBAR ================= */
+/* ================= TOP ================= */
 .topbar{
   display:flex;
   justify-content:space-between;
@@ -56,12 +56,6 @@ body{
   background:var(--card);
   border-radius:18px;
   border:1px solid var(--stroke);
-  animation:fade .2s ease;
-}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(6px)}
-  to{opacity:1;transform:translateY(0)}
 }
 
 .header{
@@ -79,7 +73,7 @@ body{
 
 /* ================= BUTTON ================= */
 .btn{
-  padding:8px 12px;
+  padding:10px 14px;
   border:none;
   border-radius:12px;
   background:var(--accent);
@@ -123,17 +117,16 @@ body{
 }
 
 .userRow{
-  display:flex;
-  justify-content:space-between;
   padding:10px;
   border-bottom:1px solid var(--stroke);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-/* ================= ONLINE ================= */
-.online{
-  padding:0 16px;
-  font-size:12px;
-  color:var(--muted);
+/* ================= TAP ================= */
+.tap:active{
+  transform:scale(.95);
 }
 
 </style>
@@ -146,20 +139,19 @@ body{
 
   <div class="topbar">
     <div>Instant</div>
-    <div onclick="toggleAdmin()" class="btn">⚙</div>
+    <div onclick="openAdmin()" class="tap">⚙</div>
   </div>
-
-  <div class="online" id="onlineCount">Usuarios en línea: 0</div>
 
   <div id="feed"></div>
 
 </div>
 
-<!-- ADMIN -->
+<!-- ADMIN PANEL -->
 <div id="adminPanel">
 
   <h3>Panel Admin</h3>
-  <div id="usersBox"></div>
+
+  <div id="onlineBox"></div>
 
 </div>
 
@@ -169,24 +161,19 @@ body{
 
 <script>
 
-/* ================= FIREBASE CONFIG ================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
-  authDomain: "vozanonimasm.firebaseapp.com",
-  projectId: "vozanonimasm",
-  storageBucket: "vozanonimasm.firebasestorage.app",
-  messagingSenderId: "533740152067",
-  appId: "1:533740152067:web:1ec05c7842f09a9e32f536",
-  measurementId: "G-S53MVLKF66"
+const firebaseConfig={
+  apiKey:"AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+  authDomain:"vozanonimasm.firebaseapp.com",
+  projectId:"vozanonimasm"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db=firebase.firestore();
 
 /* ================= USER ================= */
-let me = {
-  username: "Jscol_Owner",
-  role: "admin"
+let me={
+  username:"Jscol_Owner",
+  role:"admin"
 };
 
 /* ================= NAV ================= */
@@ -204,11 +191,11 @@ function loadFeed(){
 
     let html="";
 
-    s.forEach(doc=>{
+    s.forEach(d=>{
 
-      let p = doc.data();
+      let p=d.data();
 
-      html += `
+      html+=`
       <div class="post">
 
         <div class="header">
@@ -219,7 +206,7 @@ function loadFeed(){
         <p>${p.text}</p>
 
         ${me.role==="admin" ? `
-          <button class="btn" onclick="deletePost('${doc.id}')">
+          <button class="btn" onclick="deletePost('${d.id}')">
             borrar
           </button>
         ` : ""}
@@ -227,31 +214,33 @@ function loadFeed(){
       </div>`;
     });
 
-    feed.innerHTML = html;
+    feed.innerHTML=html;
 
   });
 
 }
 
-/* ================= DELETE ================= */
+/* ================= DELETE POST ================= */
 function deletePost(id){
-  if(me.role!=="admin") return;
+
+  if(me.role!=="admin")return;
+
   db.collection("posts").doc(id).delete();
+
 }
 
-/* ================= ADMIN ================= */
-function toggleAdmin(){
+/* ================= ADMIN PANEL ================= */
+function openAdmin(){
 
   if(me.role!=="admin"){
     alert("No eres admin");
     return;
   }
 
-  let panel = document.getElementById("adminPanel");
+  let panel=document.getElementById("adminPanel");
   panel.classList.toggle("active");
 
   loadUsers();
-
 }
 
 /* ================= USERS ONLINE ================= */
@@ -262,41 +251,34 @@ function loadUsers(){
 
     let html="<h4>Usuarios</h4>";
 
-    let now = Date.now();
-    let online = 0;
+    s.forEach(d=>{
 
-    s.forEach(doc=>{
+      let u=d.data();
 
-      let u = doc.data();
-
-      let isOnline = now - u.lastSeen < 10000;
-
-      if(isOnline) online++;
-
-      html += `
+      html+=`
       <div class="userRow">
         <span>@${u.username}</span>
-        <small>${isOnline ? "online" : "offline"}</small>
+        <small>${Date.now()-u.lastSeen < 10000 ? "online" : "offline"}</small>
       </div>`;
     });
 
-    usersBox.innerHTML = html;
-
-    document.getElementById("onlineCount").innerText =
-      "Usuarios en línea: " + online;
+    onlineBox.innerHTML=html;
 
   });
 
 }
 
-/* ================= PRESENCE SYSTEM ================= */
-function setPresence(){
+/* ================= POSTS INIT ================= */
+loadFeed();
+
+/* ================= PRESENCE ================= */
+function setOnline(){
 
   db.collection("presence")
   .doc(me.username)
   .set({
-    username: me.username,
-    lastSeen: Date.now()
+    username:me.username,
+    lastSeen:Date.now()
   });
 
 }
@@ -306,15 +288,13 @@ setInterval(()=>{
   db.collection("presence")
   .doc(me.username)
   .set({
-    username: me.username,
-    lastSeen: Date.now()
+    username:me.username,
+    lastSeen:Date.now()
   });
 
 },5000);
 
-/* ================= INIT ================= */
-loadFeed();
-setPresence();
+setOnline();
 
 </script>
 
