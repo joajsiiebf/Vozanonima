@@ -15,16 +15,6 @@ body.light{
   color:#111;
 }
 
-/* VIEWS */
-.view{
-  display:none;
-  height:100vh;
-}
-
-.view:not(.hidden){
-  display:block;
-}
-
 /* LOGIN */
 .card{
   width:92%;
@@ -64,10 +54,10 @@ button{
   justify-content:space-between;
 }
 
-/* FEED */
+/* SCREEN */
 .screen{
   padding:10px;
-  height:calc(100vh - 160px);
+  height:calc(100vh - 170px);
   overflow:auto;
 }
 
@@ -83,12 +73,12 @@ button{
 .reactions button{
   width:auto;
   padding:6px 8px;
-  margin:4px 2px;
+  margin:4px;
   font-size:12px;
 }
 
-/* COMPOSER TOP */
-.composer.top{
+/* COMPOSER */
+.composer{
   position:sticky;
   top:0;
   z-index:10;
@@ -110,5 +100,9 @@ button{
 .nav button{
   flex:1;
   background:transparent;
-  font-size:16px;
+  font-size:18px;
+}
+
+.nav button.activeTab{
+  color:#4c7dff;
 }
