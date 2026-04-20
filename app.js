@@ -17,7 +17,6 @@ window.onload = () => {
   currentUser ? showApp() : showLogin();
 };
 
-// ================= VIEW =================
 function showLogin(){
   loginView.style.display="block";
   appView.style.display="none";
@@ -27,41 +26,23 @@ function showApp(){
   loginView.style.display="none";
   appView.style.display="block";
 
-  go("feedView","Inicio");
   listenFeed();
   updateRoleUI();
 }
 
 // ================= NAV =================
-function go(view,title){
-
+function go(view){
   document.querySelectorAll(".screen")
-    .forEach(v=>v.style.display="none");
+    .forEach(s=>s.classList.add("hidden"));
 
-  document.getElementById(view).style.display="block";
-  document.getElementById("title").innerText=title;
-
-  document.querySelectorAll(".nav button")
-    .forEach(b=>b.classList.remove("activeTab"));
-
-  const map={
-    feedView:0,
-    searchView:1,
-    profileView:3,
-    settingsView:4
-  };
-
-  const btn=document.querySelectorAll(".nav button")[map[view]];
-  if(btn) btn.classList.add("activeTab");
+  const el=document.getElementById(view);
+  if(el) el.classList.remove("hidden");
 }
 
 // ================= LOGIN =================
 async function login(){
 
-  const phone=loginPhone.value;
-  const pass=loginPass.value;
-
-  if(phone==="admin" && pass==="admin"){
+  if(loginPhone.value==="admin" && loginPass.value==="admin"){
     currentUser={id:"admin",username:"admin",role:"admin"};
     localStorage.setItem("user",JSON.stringify(currentUser));
     showApp();
@@ -69,11 +50,11 @@ async function login(){
   }
 
   const snap=await db.collection("users")
-    .where("phone","==",phone)
-    .where("password","==",pass)
+    .where("phone","==",loginPhone.value)
+    .where("password","==",loginPass.value)
     .get();
 
-  if(snap.empty) return alert("Error login");
+  if(snap.empty) return alert("Error");
 
   const u=snap.docs[0].data();
 
@@ -113,8 +94,7 @@ function createPost(){
   db.collection("posts").add({
     text:postText.value,
     username:currentUser.username,
-    created:Date.now(),
-    r:{like:0,love:0,wow:0,haha:0,angry:0}
+    created:Date.now()
   });
 
   postText.value="";
@@ -125,6 +105,7 @@ function listenFeed(){
 
   db.collection("posts")
     .orderBy("created","desc")
+    .limit(30)
     .onSnapshot(snap=>{
 
       const feed=document.getElementById("feedView");
@@ -133,50 +114,17 @@ function listenFeed(){
       snap.forEach(doc=>{
 
         const p=doc.data();
-        const r=p.r||{};
 
         html+=`
-        <div class="post">
-
-          <b>@${p.username}</b>
-          <p>${p.text}</p>
-
-          <div class="reactions">
-            <button onclick="react('${doc.id}','like')">👍 ${r.like||0}</button>
-            <button onclick="react('${doc.id}','love')">❤️ ${r.love||0}</button>
-            <button onclick="react('${doc.id}','wow')">😮 ${r.wow||0}</button>
-            <button onclick="react('${doc.id}','haha')">😂 ${r.haha||0}</button>
-            <button onclick="react('${doc.id}','angry')">😡 ${r.angry||0}</button>
+          <div class="post">
+            <b>@${p.username}</b>
+            <p>${p.text}</p>
           </div>
-
-          ${currentUser.role==="admin"
-            ? `<button onclick="del('${doc.id}')">Eliminar</button>`
-            : ""}
-
-        </div>
         `;
       });
 
       feed.innerHTML=html;
     });
-}
-
-// ================= REACTIONS =================
-async function react(id,type){
-
-  const ref=db.collection("posts").doc(id);
-  const doc=await ref.get();
-
-  let r=doc.data().r||{};
-  r[type]=(r[type]||0)+1;
-
-  await ref.update({r});
-}
-
-// ================= DELETE =================
-async function del(id){
-  if(currentUser.role!=="admin")return;
-  await db.collection("posts").doc(id).delete();
 }
 
 // ================= PROFILE =================
@@ -195,10 +143,6 @@ async function loadProfile(){
 }
 
 // ================= UX =================
-function focusPost(){
-  postText.focus();
-}
-
 function logout(){
   localStorage.clear();
   location.reload();
