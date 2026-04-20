@@ -1,365 +1,408 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>INSTANT</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>INSTANT - Visual Identity Guide</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Colores extraídos exactamente de la guía */
+            --primary-metallic: linear-gradient(135deg, #C04FBA 0%, #7A2C76 100%);
+            --dark-bg: #1A1A1A;
+            --field-bg: #121212;
+            --text-main: #FFFFFF;
+            --text-muted: #9CA3AF;
+            --secondary-elements: #333333;
+            --font-main: 'Inter', sans-serif;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-<style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-/* ================= THEME ================= */
-:root{
-  --bg:#0b0b10;
-  --card:#15151c;
-  --text:#ffffff;
-  --muted:#9ca3af;
-  --accent:#7c3aed;
-}
+        body {
+            margin: 0;
+            font-family: var(--font-main);
+            background-color: #000; /* Fondo exterior para simular el viewport */
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-*{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
-}
+        /* Viewport tipo iPhone */
+        .app-viewport {
+            width: 100%;
+            max-width: 430px;
+            background: var(--dark-bg);
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
 
-body{
-  margin:0;
-  font-family:Inter,system-ui;
-  background:var(--bg);
-  color:var(--text);
-  overflow:hidden;
-}
+        /* ================= SCREENS & ANIMATIONS ================= */
+        .screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: none;
+            flex-direction: column;
+            padding-bottom: 100px; /* Espacio para la nav bar curva */
+            overflow-y: auto;
+            background: var(--dark-bg);
+        }
 
-/* ================= SCREEN SYSTEM ================= */
-.screen{
-  display:none;
-  height:100vh;
-  overflow:auto;
-  animation:fade .25s ease;
-}
+        .screen.active {
+            display: flex;
+            animation: screenIn 0.4s ease forwards;
+        }
 
-.screen.active{
-  display:block;
-}
+        @keyframes screenIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-@keyframes fade{
-  from{opacity:0;transform:translateY(10px)}
-  to{opacity:1;transform:translateY(0)}
-}
+        /* ================= COMPONENTES VISUALES ================= */
+        .logo-text {
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: var(--primary-metallic);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 24px;
+        }
 
-/* ================= HEADER GLASS ================= */
-.header{
-  padding:16px;
-  font-weight:800;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  background:rgba(255,255,255,0.03);
-  backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(255,255,255,0.05);
-}
+        /* Inputs según la guía (Field Background #121212) */
+        .input-group { padding: 0 25px; margin-bottom: 16px; }
+        
+        .input-main {
+            width: 100%;
+            background: var(--field-bg);
+            border: 1px solid #2A2A2A;
+            border-radius: 12px;
+            padding: 16px;
+            color: white;
+            font-size: 15px;
+            transition: var(--transition);
+        }
 
-/* ================= BUTTONS ================= */
-.btn{
-  background:var(--accent);
-  color:white;
-  border:none;
-  padding:10px 14px;
-  border-radius:12px;
-  font-weight:600;
-  transition:.2s;
-}
+        .input-main:focus {
+            border-color: #C04FBA;
+            outline: none;
+            box-shadow: 0 0 15px rgba(192, 79, 186, 0.2);
+        }
 
-.btn:active{
-  transform:scale(0.96);
-  opacity:0.8;
-}
+        /* Botones Metálicos */
+        .btn-metallic {
+            background: var(--primary-metallic);
+            border: none;
+            border-radius: 50px;
+            padding: 16px;
+            color: white;
+            font-weight: 700;
+            width: 100%;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 15px rgba(122, 44, 118, 0.3);
+        }
 
-.btn-outline{
-  background:transparent;
-  border:1px solid rgba(255,255,255,0.2);
-  color:white;
-  padding:10px 14px;
-  border-radius:12px;
-}
+        .btn-metallic:active { transform: scale(0.96); opacity: 0.9; }
 
-/* ================= INPUT ================= */
-.input{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border-radius:12px;
-  background:#15151c;
-  border:1px solid rgba(255,255,255,0.08);
-  color:white;
-}
+        /* ================= THREAD COMPONENT SPECS ================= */
+        .thread-item {
+            padding: 16px;
+            border-bottom: 1px solid #2A2A2A;
+            display: flex;
+            gap: 12px;
+            transition: background 0.2s;
+        }
 
-.input:focus{
-  border-color:var(--accent);
-  outline:none;
-  box-shadow:0 0 10px rgba(124,58,237,0.25);
-}
+        .thread-item:active { background: rgba(255,255,255,0.02); }
 
-/* ================= POSTS ================= */
-.post{
-  margin:10px;
-  padding:14px;
-  background:var(--card);
-  border-radius:16px;
-  transition:.2s;
-}
+        .avatar-frame {
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: var(--primary-metallic);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center; justify-content: center;
+            font-weight: bold; font-size: 12px;
+        }
 
-.post:active{
-  transform:scale(0.98);
-  opacity:0.8;
-}
+        .thread-content { flex: 1; }
+        
+        .thread-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
 
-/* ================= NAV ================= */
-.nav{
-  position:fixed;
-  bottom:14px;
-  left:50%;
-  transform:translateX(-50%);
-  width:92%;
-  height:64px;
-  background:rgba(20,20,25,0.7);
-  backdrop-filter:blur(25px);
-  border-radius:30px;
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
-  border:1px solid rgba(255,255,255,0.08);
-}
+        .thread-username { font-weight: 700; font-size: 14px; }
+        .thread-time { color: var(--text-muted); font-size: 12px; }
 
-.nav div{
-  font-size:12px;
-  font-weight:600;
-  opacity:.8;
-  transition:.2s;
-}
+        .thread-text { font-size: 14px; line-height: 1.5; color: #E5E5E5; }
+        .hashtag { color: #C04FBA; font-weight: 600; }
 
-.nav div:active{
-  transform:scale(0.9);
-  opacity:1;
-}
+        .thread-actions {
+            display: flex; gap: 25px; margin-top: 12px;
+            color: var(--text-muted); font-size: 14px;
+        }
 
-/* ================= PROFILE ================= */
-.profile{
-  padding:16px;
-}
+        /* ================= NAV BAR ANATOMY & INTERACTION ================= */
+        .nav-container {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            z-index: 1000;
+        }
 
-.big{
-  font-size:22px;
-  font-weight:800;
-}
+        /* El cuerpo curvo metálico de la nav */
+        .nav-body {
+            background: var(--primary-metallic);
+            height: 64px;
+            border-radius: 32px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
 
-.muted{
-  color:var(--muted);
-}
+        .nav-item {
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            font-weight: 700;
+            opacity: 0.8;
+            cursor: pointer;
+            transition: 0.2s;
+        }
 
-/* ================= WELCOME ================= */
-.welcome{
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  padding:20px;
-}
+        .nav-item:active { transform: scale(0.9); opacity: 1; }
 
-.logo{
-  font-size:42px;
-  font-weight:800;
-  text-align:center;
-  margin-bottom:40px;
-  color:var(--accent);
-  text-shadow:0 0 25px rgba(124,58,237,0.4);
-}
+        .nav-item svg { width: 22px; height: 22px; margin-bottom: 2px; }
 
-</style>
+        /* Botón Plus Central (como en la imagen) */
+        .nav-plus {
+            width: 54px; height: 54px;
+            background: white;
+            border-radius: 50%;
+            margin-top: -35px;
+            display: flex;
+            align-items: center; justify-content: center;
+            color: #7A2C76;
+            font-size: 30px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border: 4px solid var(--dark-bg);
+        }
+
+        /* ================= CONFIGURATION PANEL ================= */
+        .settings-row {
+            padding: 18px 25px;
+            border-bottom: 1px solid #252525;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .toggle-switch {
+            width: 48px; height: 24px;
+            background: #333;
+            border-radius: 20px;
+            position: relative;
+            transition: .3s;
+        }
+
+        .toggle-switch.active { background: #C04FBA; }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px; height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px; left: 2px;
+            transition: .3s;
+        }
+        .toggle-switch.active::after { left: 26px; }
+
+    </style>
 </head>
-
 <body>
 
-<!-- ================= WELCOME ================= -->
-<div id="welcome" class="screen active">
-  <div class="welcome">
-    <div class="logo">INSTANT</div>
+<div class="app-viewport">
 
-    <button class="btn" onclick="go('login')">Crear cuenta</button>
-    <button class="btn-outline" onclick="go('login')" style="margin-top:10px">Iniciar sesión</button>
-  </div>
+    <div id="welcome" class="screen active" style="justify-content: center;">
+        <div class="logo-text" style="font-size: 52px; margin-bottom: 40px;">INSTANT</div>
+        <div class="input-group">
+            <input type="text" id="user-input" class="input-main" placeholder="Username/Email">
+        </div>
+        <div class="input-group">
+            <button class="btn-metallic" onclick="login()">Log In</button>
+            <p style="text-align:center; font-size:13px; color:var(--text-muted); margin-top:20px;">Forgot Password?</p>
+        </div>
+    </div>
+
+    <div id="feed" class="screen">
+        <div class="logo-text">INSTANT</div>
+        <div id="thread-list">
+            </div>
+    </div>
+
+    <div id="settings" class="screen">
+        <div class="logo-text">CONFIGURACIÓN</div>
+        <div class="settings-row">
+            <span>👤 Account</span>
+            <span style="color:var(--text-muted)">@username &rsaquo;</span>
+        </div>
+        <div class="settings-row">
+            <span>🌓 Appearance (Dark)</span>
+            <div class="toggle-switch active"></div>
+        </div>
+        <div class="settings-row">
+            <span>🔔 Notifications</span>
+            <div class="toggle-switch"></div>
+        </div>
+        <div class="settings-row" onclick="logout()" style="color:#ff4444; margin-top:30px; border:none;">
+            <span>Cerrar Sesión</span>
+        </div>
+    </div>
+
+    <div id="profile" class="screen">
+        <div class="logo-text">PROFILE</div>
+        <div style="padding:40px 0; text-align:center;">
+            <div class="avatar-frame" style="width:100px; height:100px; margin:0 auto; font-size:30px;">U</div>
+            <h2 id="display-name" style="margin:15px 0 5px 0;">Username</h2>
+            <p class="thread-time">Developer Account</p>
+        </div>
+        <div class="input-group">
+             <div style="display:flex; justify-content:space-around; background:#222; padding:20px; border-radius:15px;">
+                <div><b>110K</b><br><small class="thread-time">Followers</small></div>
+                <div><b>482</b><br><small class="thread-time">Posts</small></div>
+             </div>
+        </div>
+    </div>
+
+    <div class="nav-container" id="nav-bar" style="display:none;">
+        <div class="nav-body">
+            <div class="nav-item" onclick="go('feed')">
+                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                HOME
+            </div>
+            
+            <div class="nav-plus" onclick="createPost()">+</div>
+            
+            <div class="nav-item" onclick="go('profile')">
+                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                PROFILE
+            </div>
+
+            <div class="nav-item" onclick="go('settings')">
+                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                SETTINGS
+            </div>
+        </div>
+    </div>
+
 </div>
 
-<!-- ================= LOGIN ================= -->
-<div id="login" class="screen">
-
-  <div class="header">
-    <div onclick="go('welcome')">←</div>
-    LOGIN
-  </div>
-
-  <div style="padding:16px">
-
-    <input id="user" class="input" placeholder="Usuario">
-
-    <button class="btn" onclick="login()">Entrar</button>
-
-  </div>
-
-</div>
-
-<!-- ================= FEED ================= -->
-<div id="feed" class="screen">
-
-  <div class="header">
-    <div>INSTANT</div>
-    <button class="btn" onclick="go('settings')">⚙</button>
-  </div>
-
-  <div id="feedBox"></div>
-
-</div>
-
-<!-- ================= PROFILE ================= -->
-<div id="profile" class="screen">
-
-  <div class="header">
-    <div onclick="go('feed')">←</div>
-    PERFIL
-  </div>
-
-  <div class="profile">
-    <div class="big" id="username"></div>
-    <div class="muted">Seguidores: 110000</div>
-    <div class="muted">Siguiendo: 0</div>
-  </div>
-
-</div>
-
-<!-- ================= SETTINGS ================= -->
-<div id="settings" class="screen">
-
-  <div class="header">
-    <div onclick="go('feed')">←</div>
-    SETTINGS
-  </div>
-
-  <div style="padding:16px">
-    <button class="btn" onclick="logout()">Cerrar sesión</button>
-  </div>
-
-</div>
-
-<!-- ================= NAV ================= -->
-<div class="nav">
-  <div onclick="go('feed')">Home</div>
-  <div onclick="go('profile')">Perfil</div>
-  <div onclick="createPost()">+</div>
-</div>
-
-<!-- ================= FIREBASE ================= -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-
 firebase.initializeApp({
   apiKey:"AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain:"vozanonimasm.firebaseapp.com",
   projectId:"vozanonimasm"
 });
+const db = firebase.firestore();
 
-const db=firebase.firestore();
-
-/* ================= STATE ================= */
 let me = localStorage.getItem("user");
 
-/* ================= ROUTER ================= */
-function go(id){
+function go(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
 
-  document.querySelectorAll(".screen")
-  .forEach(s=>s.classList.remove("active"));
+    const nav = document.getElementById('nav-bar');
+    nav.style.display = (id === 'welcome') ? 'none' : 'block';
 
-  document.getElementById(id).classList.add("active");
-
-  if(id==="feed") loadFeed();
-  if(id==="profile") loadProfile();
-
+    if(id === 'feed') loadFeed();
+    if(id === 'profile') document.getElementById('display-name').innerText = "@" + me;
 }
 
-/* ================= LOGIN ================= */
-function login(){
-
-  let u=user.value;
-  if(!u) return;
-
-  me=u;
-  localStorage.setItem("user",u);
-
-  go("feed");
-
+function login() {
+    let u = document.getElementById('user-input').value;
+    if(!u) return;
+    me = u;
+    localStorage.setItem("user", u);
+    go('feed');
 }
 
-/* ================= FEED ================= */
-function loadFeed(){
-
-  db.collection("posts")
-  .orderBy("created","desc")
-  .onSnapshot(s=>{
-
-    let html="";
-
-    s.forEach(d=>{
-      let p=d.data();
-
-      html+=`
-      <div class="post">
-        <b>@${p.username}</b>
-        <div>${p.text}</div>
-      </div>`;
+function loadFeed() {
+    db.collection("posts").orderBy("created", "desc").onSnapshot(snapshot => {
+        let html = "";
+        snapshot.forEach(doc => {
+            let p = doc.data();
+            html += `
+            <div class="thread-item">
+                <div class="avatar-frame">${p.username.charAt(0).toUpperCase()}</div>
+                <div class="thread-content">
+                    <div class="thread-header">
+                        <span class="thread-username">@${p.username}</span>
+                        <span class="thread-time">3h ···</span>
+                    </div>
+                    <div class="thread-text">${formatText(p.text)}</div>
+                    <div class="thread-actions">
+                        <span>♡</span> <span>⇆</span> <span>☍</span>
+                    </div>
+                </div>
+            </div>`;
+        });
+        document.getElementById('thread-list').innerHTML = html;
     });
-
-    feedBox.innerHTML=html;
-
-  });
-
 }
 
-/* ================= POST ================= */
-function createPost(){
-
-  let t=prompt("Post");
-  if(!t) return;
-
-  db.collection("posts").add({
-    username:me||"guest",
-    text:t,
-    created:Date.now()
-  });
-
+function formatText(text) {
+    // Resalta hashtags con el color metálico
+    return text.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>');
 }
 
-/* ================= PROFILE ================= */
-function loadProfile(){
-  username.innerText = me || "guest";
+function createPost() {
+    let t = prompt("What's on your mind?");
+    if(!t) return;
+    db.collection("posts").add({
+        username: me || "guest",
+        text: t,
+        created: Date.now()
+    });
 }
 
-/* ================= LOGOUT ================= */
-function logout(){
-  localStorage.removeItem("user");
-  location.reload();
+function logout() {
+    localStorage.removeItem("user");
+    location.reload();
 }
 
-/* ================= INIT ================= */
-if(me){
-  go("feed");
-}else{
-  go("welcome");
+// Init logic
+if(me) {
+    go('feed');
+} else {
+    go('welcome');
 }
-
-loadFeed();
-
 </script>
 
 </body>
