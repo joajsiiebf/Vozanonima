@@ -3,633 +3,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>INSTANT 𝕏 | V14 APEX SENTINEL</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <title>𝕏 | ABSOLUTE V16</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* ARCHITECTURAL CSS - V14 APEX 
-           Framework: Sentinel-UI (Custom)
-        */
         :root {
-            --bg: #000000;
-            --surface-low: #080808;
-            --surface-mid: #121212;
-            --surface-high: #1C1C1C;
-            --accent: #8B5CF6;
-            --accent-glow: rgba(139, 92, 246, 0.4);
-            --text-main: #FFFFFF;
-            --text-dim: #71767B;
-            --danger: #F4212E;
-            --success: #00BA7C;
-            --ios-blur: blur(25px);
-            --safe-top: env(safe-area-inset-top);
-            --safe-bottom: env(safe-area-inset-bottom);
+            --bg: #000000; --s-low: #0A0A0A; --s-mid: #16181C; --s-high: #2F3336;
+            --accent: #1D9BF0; --text: #EFF3F4; --text-dim: #71767B;
+            --safe-top: env(safe-area-inset-top); --safe-bottom: env(safe-area-inset-bottom);
         }
 
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent; 
-            margin: 0; padding: 0;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Plus Jakarta Sans', sans-serif; }
+        body { background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        body { 
-            background: var(--bg); 
-            color: var(--text-main); 
-            font-family: 'Inter', sans-serif; 
-            height: 100vh; 
-            overflow: hidden;
-            user-select: none;
-        }
+        #app { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; position: relative; border-inline: 1px solid var(--s-mid); }
 
-        #app-container {
-            width: 100%;
-            max-width: 500px;
-            height: 100vh;
-            margin: 0 auto;
-            position: relative;
-            background: var(--bg);
-            display: flex;
-            flex-direction: column;
-            border-left: 1px solid var(--surface-high);
-            border-right: 1px solid var(--surface-high);
-        }
+        .page { position: absolute; inset: 0; background: var(--bg); display: none; flex-direction: column; z-index: 10; padding-bottom: calc(70px + var(--safe-bottom)); }
+        .page.active { display: flex; animation: slide 0.3s ease-out; }
+        @keyframes slide { from { transform: translateX(15px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        /* V14 OVERLAYS & LAYERS */
-        .layer {
-            position: absolute;
-            inset: 0;
-            background: var(--bg);
-            z-index: 100;
-            display: none;
-            flex-direction: column;
-            animation: layerFade 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .layer.active { display: flex; }
+        .header { height: calc(60px + var(--safe-top)); padding-top: var(--safe-top); display: flex; align-items: center; justify-content: space-between; padding-inline: 15px; border-bottom: 1px solid var(--s-mid); background: rgba(0,0,0,0.85); backdrop-filter: blur(15px); z-index: 100; }
 
-        @keyframes layerFade {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        .scroll { flex: 1; overflow-y: auto; scrollbar-width: none; }
+        .scroll::-webkit-scrollbar { display: none; }
 
-        /* HEADER & NAVIGATION */
-        .sentinel-header {
-            height: calc(60px + var(--safe-top));
-            padding-top: var(--safe-top);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding-inline: 20px;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: var(--ios-blur);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            z-index: 500;
-        }
+        /* AJUSTES DINÁMICOS */
+        .config-card { background: var(--s-low); border-radius: 16px; padding: 16px; margin: 10px 15px; border: 1px solid var(--s-mid); }
+        .config-title { font-size: 11px; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 12px; letter-spacing: 1px; }
+        .setting-row { margin-bottom: 15px; }
+        .setting-label { font-size: 14px; font-weight: 600; margin-bottom: 8px; display: block; }
+        .pill-container { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .pill { padding: 6px 14px; background: var(--s-mid); border-radius: 20px; font-size: 12px; font-weight: 700; color: var(--text-dim); border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .pill.active { background: var(--accent); color: white; border-color: var(--accent); }
 
-        .sentinel-nav {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: calc(70px + var(--safe-bottom));
-            padding-bottom: var(--safe-bottom);
-            background: rgba(0,0,0,0.9);
-            backdrop-filter: var(--ios-blur);
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            border-top: 1px solid var(--surface-high);
-            z-index: 1000;
-        }
+        /* PERFIL Y SOCIAL */
+        .avatar { width: 45px; height: 45px; border-radius: 50%; background: var(--s-high); overflow: hidden; border: 1px solid rgba(255,255,255,0.1); flex-shrink: 0; }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .tweet { padding: 15px; border-bottom: 1px solid var(--s-mid); display: flex; gap: 12px; }
+        .v-icon { width: 16px; height: 16px; fill: var(--accent); margin-left: 4px; vertical-align: middle; }
 
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: var(--text-dim);
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .nav-item.active { color: var(--accent); }
-        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; }
-
-        .center-action {
-            width: 50px;
-            height: 50px;
-            background: var(--accent);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px var(--accent-glow);
-            transform: translateY(-10px);
-        }
-
-        /* SCROLLABLE FEED V14 */
-        .content-scroll {
-            flex: 1;
-            overflow-y: auto;
-            padding-bottom: 100px;
-            scrollbar-width: none;
-        }
-        .content-scroll::-webkit-scrollbar { display: none; }
-
-        /* POST ARCHITECTURE */
-        .sentinel-card {
-            padding: 16px 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-            display: flex;
-            gap: 15px;
-            transition: background 0.3s;
-        }
-        .sentinel-card:active { background: var(--surface-low); }
-
-        .avatar-v14 {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--surface-high);
-            flex-shrink: 0;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        .avatar-v14 img { width: 100%; height: 100%; object-fit: cover; }
-
-        .card-body { flex: 1; }
-        .card-user { 
-            display: flex; 
-            align-items: center; 
-            font-weight: 800; 
-            font-size: 15px; 
-            margin-bottom: 4px;
-        }
-        .verified-tag { width: 16px; height: 16px; fill: var(--accent); margin-left: 5px; }
+        /* UI ELEMENTS */
+        .nav-bar { position: absolute; bottom: 0; width: 100%; height: calc(65px + var(--safe-bottom)); padding-bottom: var(--safe-bottom); background: rgba(0,0,0,0.9); border-top: 1px solid var(--s-mid); display: flex; z-index: 1000; }
+        .nav-item { flex: 1; display: flex; align-items: center; justify-content: center; color: var(--text-dim); transition: 0.2s; }
+        .nav-item.active { color: var(--text); }
         
-        .card-text { 
-            font-size: 15px; 
-            line-height: 1.5; 
-            color: #E1E1E1; 
-            margin-bottom: 12px;
-            word-break: break-word;
-        }
-
-        .card-actions {
-            display: flex;
-            justify-content: space-between;
-            max-width: 250px;
-            color: var(--text-dim);
-        }
-        .act-group { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
-        .act-group svg { width: 18px; height: 18px; }
-
-        /* SETTINGS & CONFIGURATION */
-        .settings-container { padding: 20px; }
-        .config-tile {
-            background: var(--surface-low);
-            border-radius: 18px;
-            padding: 18px;
-            margin-bottom: 12px;
-            border: 1px solid var(--surface-high);
-        }
-        .tile-header { font-size: 12px; font-weight: 900; color: var(--accent); text-transform: uppercase; margin-bottom: 15px; }
+        .modal { position: absolute; inset: 0; background: var(--bg); z-index: 5000; display: none; flex-direction: column; }
+        .modal.active { display: flex; }
+        .input-group { padding: 15px; }
+        .input-box { width: 100%; padding: 15px; background: var(--s-low); border: 1px solid var(--s-mid); border-radius: 12px; color: white; margin-bottom: 15px; font-size: 15px; }
         
-        .option-pill-box {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-        .pill {
-            padding: 8px 16px;
-            background: var(--surface-mid);
-            border-radius: 10px;
-            font-size: 12px;
-            font-weight: 700;
-            white-space: nowrap;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-        .pill.active { background: var(--accent); border-color: var(--accent); color: white; }
-
-        /* SYSTEM MESSAGES / NOTIFICATIONS */
-        #notification-center {
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10000;
-            width: 90%;
-            max-width: 400px;
-        }
-        .toast {
-            background: var(--accent);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 15px;
-            margin-bottom: 10px;
-            font-weight: 700;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            animation: toastIn 0.5s cubic-bezier(0.1, 0.9, 0.2, 1);
-        }
-        @keyframes toastIn { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-        /* WELCOME MODAL */
-        #welcome-layer {
-            background: var(--bg);
-            z-index: 9999;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        .welcome-content { animation: heroPulse 2s infinite ease-in-out; }
-        @keyframes heroPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-
-        /* INBOX / MESSAGES */
-        .msg-item { padding: 15px 20px; border-bottom: 1px solid var(--surface-mid); display: flex; gap: 12px; }
-
-        /* V14 INPUTS */
-        .sentinel-input {
-            width: 100%;
-            padding: 18px;
-            background: var(--surface-mid);
-            border: 1px solid var(--surface-high);
-            border-radius: 15px;
-            color: white;
-            font-family: inherit;
-            margin-bottom: 15px;
-        }
-        .sentinel-input:focus { border-color: var(--accent); outline: none; }
-
-        .btn-apex {
-            width: 100%;
-            padding: 18px;
-            border-radius: 15px;
-            border: none;
-            font-weight: 800;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .btn-apex.primary { background: white; color: black; }
-        .btn-apex.accent { background: var(--accent); color: white; }
-
-        /* COMPOSER */
-        #composer-v14 {
-            position: absolute;
-            bottom: -100%;
-            left: 0; width: 100%;
-            background: var(--bg);
-            z-index: 5000;
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            padding: 20px;
-            border-top: 1px solid var(--surface-high);
-        }
-        #composer-v14.active { bottom: 0; }
-
+        .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: var(--accent); color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 700; z-index: 9999; display: none; }
     </style>
 </head>
 <body>
 
-<div id="notification-center"></div>
+<div id="toast" class="toast">Ajuste aplicado</div>
 
-<div id="app-container">
+<div id="app">
     
-    <div id="welcome-layer" class="layer active">
-        <div class="welcome-content">
-            <svg width="100" height="100" viewBox="0 0 24 24" fill="white"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.45-6.231zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
-            <h1 style="font-size: 38px; font-weight: 900; margin-top: 30px; letter-spacing: -2px">INSTANT 𝕏</h1>
-            <p id="users-active" style="color: var(--text-dim); margin-top: 10px; font-weight: 500">Iniciando núcleos...</p>
-            <div style="margin-top: 60px; padding-inline: 40px">
-                <button onclick="Sentinel.Core.boot()" class="btn-apex primary">Entrar al Sistema</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="scr-feed" class="layer">
-        <header class="sentinel-header">
-            <h2 style="font-weight: 900; font-size: 22px">Inicio</h2>
-            <div id="top-profile-btn" onclick="Sentinel.Router.go('settings')" class="avatar-v14" style="width: 35px; height: 35px"></div>
+    <div id="p-home" class="page active">
+        <header class="header">
+            <div id="top-av" class="avatar" style="width:32px; height:32px" onclick="Core.Router.go('profile')"></div>
+            <h1 style="font-size: 20px; font-weight: 900;">𝕏</h1>
+            <div style="width:32px"></div>
         </header>
-        <div id="main-wall" class="content-scroll"></div>
+        <div id="feed-scroll" class="scroll"></div>
     </div>
 
-    <div id="scr-explore" class="layer">
-        <header class="sentinel-header"><h2 style="font-weight: 900">Explorar</h2></header>
-        <div class="content-scroll" style="padding: 20px">
-            <div class="config-tile">
-                <div class="tile-header">Tendencias Globales</div>
-                <div style="padding-block: 10px; border-bottom: 1px solid #111">#ProgramacionJSCOL</div>
-                <div style="padding-block: 10px; border-bottom: 1px solid #111">#PsicologiaRiohacha</div>
-                <div style="padding-block: 10px">#InstantXV14</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="scr-inbox" class="layer">
-        <header class="sentinel-header"><h2 style="font-weight: 900">Mensajes</h2></header>
-        <div id="inbox-list" class="content-scroll">
-            <div style="padding: 100px 40px; text-align: center; color: var(--text-dim)">
-                No hay mensajes nuevos. Los protocolos de cifrado están activos.
-            </div>
-        </div>
-    </div>
-
-    <div id="scr-settings" class="layer">
-        <header class="sentinel-header">
-            <div onclick="Sentinel.Router.back()" style="cursor:pointer"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
-            <h2 style="font-weight: 900">Sentinel Config</h2>
-            <div style="width: 24px"></div>
+    <div id="p-profile" class="page">
+        <header class="header">
+            <div onclick="Core.Router.back()"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
+            <h2 id="p-title-name" style="font-size: 16px">Perfil</h2>
+            <div style="width:24px"></div>
         </header>
-        <div id="config-engine" class="content-scroll settings-container"></div>
-    </div>
-
-    <div id="scr-thread" class="layer">
-        <header class="sentinel-header">
-            <div onclick="Sentinel.Router.back()"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></div>
-            <h2 style="font-weight: 900">Hilo</h2>
-            <div style="width: 24px"></div>
-        </header>
-        <div id="thread-view" class="content-scroll"></div>
-        <div style="position: absolute; bottom: 85px; width: 100%; padding: 15px; background: var(--bg); border-top: 1px solid var(--surface-high); display: flex; gap: 10px">
-            <input id="reply-input" class="sentinel-input" style="margin-bottom:0; border-radius: 30px" placeholder="Publicar respuesta...">
-            <button onclick="Sentinel.Social.sendReply()" style="background: var(--accent); border: none; width: 50px; border-radius: 50%; color: white; font-weight: 900">↑</button>
-        </div>
-    </div>
-
-    <div id="composer-v14">
-        <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 20px">
-            <span onclick="Sentinel.UI.toggleComposer()" style="color: var(--text-dim)">Cancelar</span>
-            <button onclick="Sentinel.Social.createPost()" class="btn-apex accent" style="width: 100px; padding: 10px; border-radius: 30px">Post</button>
-        </div>
-        <textarea id="post-area" style="width: 100%; height: 200px; background: none; border: none; color: white; font-size: 18px; resize: none" placeholder="¿Qué está pasando?"></textarea>
-    </div>
-
-    <nav class="sentinel-nav" id="main-nav" style="display: none">
-        <div class="nav-item active" onclick="Sentinel.Router.go('feed')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/></svg>
-        </div>
-        <div class="nav-item" onclick="Sentinel.Router.go('explore')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-        </div>
-        <div class="nav-item" onclick="Sentinel.UI.toggleComposer()">
-            <div class="center-action">
-                <svg width="24" height="24" fill="none" stroke="white" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <div class="scroll">
+            <div style="height: 100px; background: var(--s-high)"></div>
+            <div style="padding: 0 15px; position: relative; margin-top: -40px; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div id="p-av-large" class="avatar" style="width: 80px; height: 80px; border: 4px solid black;"></div>
+                <button onclick="Core.UI.openEditor()" style="background: transparent; color: white; border: 1px solid var(--s-high); padding: 8px 16px; border-radius: 20px; font-weight: 700; margin-bottom: 5px;">Editar</button>
+            </div>
+            <div style="padding: 15px;">
+                <h2 id="p-disp-name" style="font-size: 22px; font-weight: 800;">Jhossue</h2>
+                <p id="p-disp-user" style="color: var(--text-dim);">@jscol_owner</p>
+                <p id="p-disp-bio" style="margin-top: 10px; font-size: 15px;">Aspiring Psychology student & Developer.</p>
             </div>
         </div>
-        <div class="nav-item" onclick="Sentinel.Router.go('inbox')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 11-7.6-10.6 8.38 8.38 0 013.8.9L21 3z"/></svg>
+    </div>
+
+    <div id="p-settings" class="page">
+        <header class="header"><h2 style="font-weight: 800">Panel de Control</h2></header>
+        <div id="settings-engine" class="scroll" style="padding-bottom: 30px;">
+            </div>
+    </div>
+
+    <div id="m-editor" class="modal">
+        <header class="header">
+            <div onclick="Core.UI.closeEditor()">Cancelar</div>
+            <h3 style="font-size: 18px">Perfil Maestro</h3>
+            <div onclick="Core.UI.saveProfile()" style="color: var(--accent); font-weight: 800;">Hecho</div>
+        </header>
+        <div class="input-group">
+            <div onclick="document.getElementById('file-in').click()" style="display: flex; justify-content: center; margin-bottom: 20px;">
+                <div id="edit-av-preview" class="avatar" style="width: 80px; height: 80px; filter: brightness(0.7);"></div>
+            </div>
+            <input type="file" id="file-in" hidden accept="image/*">
+            <label style="color: var(--text-dim); font-size: 12px;">Nombre</label>
+            <input id="in-name" class="input-box">
+            <label style="color: var(--text-dim); font-size: 12px;">Biografía</label>
+            <textarea id="in-bio" class="input-box" style="height: 100px; resize: none;"></textarea>
+            <label style="color: var(--text-dim); font-size: 12px;">Username</label>
+            <input id="in-user" class="input-box">
         </div>
-        <div class="nav-item" onclick="Sentinel.Router.go('settings')">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </div>
+    </div>
+
+    <nav class="nav-bar">
+        <div class="nav-item active" onclick="Core.Router.go('home')"><svg width="26" height="26" fill="currentColor" viewBox="0 0 24 24"><path d="M12 9c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm0 6c-1.103 0-2-.897-2-2s.897-2 2-2 2 .897 2 2-.897 2-2 2z"/><path d="M20 10V7h-3V4H7v3H4v3H1v4h3v3h3v3h10v-3h3v-3h3v-4h-3zM7 6h10v3h3v10H4V9h3V6z"/></svg></div>
+        <div class="nav-item" onclick="Core.Router.go('settings')"><svg width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
     </nav>
-
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-    // INITIALIZATION & CONFIG
-    const firebaseConfig = { apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU", authDomain: "vozanonimasm.firebaseapp.com", projectId: "vozanonimasm" };
-    firebase.initializeApp(firebaseConfig);
+    firebase.initializeApp({ apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU", authDomain: "vozanonimasm.firebaseapp.com", projectId: "vozanonimasm" });
     const db = firebase.firestore();
 
-    // APEX SENTINEL CORE SYSTEM
-    const Sentinel = {
+    const Core = {
         State: {
-            user: localStorage.getItem('apex_user') || 'jscol_owner',
-            history: ['feed'],
-            activePost: null,
-            config: {},
-            verified: true
+            u: localStorage.getItem('v16_u') || 'jscol_owner',
+            name: localStorage.getItem('v16_name') || 'Jhossue',
+            bio: localStorage.getItem('v16_bio') || 'Aspiring Psychology student & Developer.',
+            av: localStorage.getItem('v16_av') || '',
+            history: ['home'],
+            settings: {} // Almacena los valores de los 30 ajustes
         },
 
-        // ROUTING ENGINE
         Router: {
-            go(target) {
-                document.querySelectorAll('.layer').forEach(l => l.classList.remove('active'));
-                const screen = document.getElementById('scr-' + target);
-                if(screen) screen.classList.add('active');
+            go(id) {
+                document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+                document.getElementById('p-' + id).classList.add('active');
+                if(id === 'home') Core.Social.loadFeed();
+                if(id === 'profile') Core.UI.renderProfile();
+                if(this.current() !== id) Core.State.history.push(id);
                 
-                // Update Nav UI
-                const navItems = document.querySelectorAll('.nav-item');
-                navItems.forEach(i => i.classList.remove('active'));
-                const map = { 'feed': 0, 'explore': 1, 'inbox': 3, 'settings': 4 };
-                if(map[target] !== undefined) navItems[map[target]].classList.add('active');
-
-                if(target === 'feed') Sentinel.Social.initFeed();
-                if(target === 'settings') Sentinel.UI.buildSettings();
-                if(this.current() !== target) Sentinel.State.history.push(target);
+                document.querySelectorAll('.nav-item').forEach((n, i) => {
+                    n.classList.toggle('active', (id === 'home' && i === 0) || (id === 'settings' && i === 1));
+                });
             },
-            back() {
-                if(Sentinel.State.history.length > 1) {
-                    Sentinel.State.history.pop();
-                    this.go(this.current());
-                }
-            },
-            current() { return Sentinel.State.history[Sentinel.State.history.length - 1]; }
+            back() { if(Core.State.history.length > 1) { Core.State.history.pop(); this.go(this.current()); } },
+            current() { return Core.State.history[Core.State.history.length-1]; }
         },
 
-        // SOCIAL ARCHITECTURE
-        Social: {
-            vTag: `<svg class="verified-tag" viewBox="0 0 24 24"><path d="M22.5 12.5c0-1.58-.88-2.95-2.18-3.66.26-1.55-.25-3.15-1.4-4.3s-2.74-1.65-4.3-1.4c-.71-1.3-2.08-2.18-3.66-2.18s-2.95.88-3.66 2.18c-1.55-.25-3.15.25-4.3 1.4s-1.65 2.74-1.4 4.3c-1.3.71-2.18 2.08-2.18 3.66s.88 2.95 2.18 3.66c-.25 1.55.25 3.15 1.4 4.3s2.74 1.65 4.3 1.4c.71 1.3 2.08 2.18 3.66 2.18s2.95-.88 3.66-2.18c1.55.25 3.15-.25 4.3-1.4s1.65-2.74 1.4-4.3c1.3-.71 2.18-2.08 2.18-3.66zm-11.23 4.47l-3.64-3.64 1.41-1.41 2.23 2.23 4.88-4.88 1.41 1.41-6.29 6.29z"/></svg>`,
-
-            initFeed() {
-                db.collection("posts").orderBy("created", "desc").limit(50).onSnapshot(snap => {
-                    const wall = document.getElementById('main-wall');
-                    wall.innerHTML = "";
-                    snap.forEach(doc => {
-                        wall.appendChild(this.renderCard(doc.id, doc.data()));
-                    });
-                });
-            },
-
-            renderCard(id, data) {
-                const el = document.createElement('div');
-                el.className = 'sentinel-card';
-                el.onclick = () => this.openThread(id, data);
-                
-                const isOwner = data.user === 'jscol_owner';
-
-                el.innerHTML = `
-                    <div class="avatar-v14">${data.av ? `<img src="${data.av}">` : data.user[0].toUpperCase()}</div>
-                    <div class="card-body">
-                        <div class="card-user">
-                            @${data.user} ${isOwner ? this.vTag : ''}
-                        </div>
-                        <div class="card-text">${data.text}</div>
-                        <div class="card-actions">
-                            <div class="act-group" onclick="event.stopPropagation(); Sentinel.Social.vote('${id}', 'likes')">
-                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/></svg>
-                                <span>${data.likes || 0}</span>
-                            </div>
-                            <div class="act-group" onclick="event.stopPropagation(); Sentinel.Social.vote('${id}', 'dislikes')">
-                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 003 3l4-9V2H5.72a2 2 0 00-2 1.7l-1.38 9a2 2 0 002 2.3zm7-13h2.67A2.31 2.31 0 0122 4v7a2.31 2.31 0 01-2.33 2H17"/></svg>
-                                <span>${data.dislikes || 0}</span>
-                            </div>
-                            <div class="act-group">
-                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 11-7.6-10.6 8.38 8.38 0 013.8.9L21 3z"/></svg>
-                                <span>${data.comments || 0}</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                return el;
-            },
-
-            async createPost() {
-                const txt = document.getElementById('post-area').value;
-                if(!txt.trim()) return;
-                
-                await db.collection("posts").add({
-                    user: Sentinel.State.user,
-                    text: txt,
-                    created: Date.now(),
-                    likes: 0, dislikes: 0, comments: 0,
-                    verified: Sentinel.State.user === 'jscol_owner'
-                });
-                
-                Sentinel.UI.toggleComposer();
-                Sentinel.UI.toast("Transmisión enviada con éxito");
-                document.getElementById('post-area').value = "";
-            },
-
-            openThread(id, data) {
-                Sentinel.State.activePost = id;
-                Sentinel.Router.go('thread');
-                const view = document.getElementById('thread-view');
-                view.innerHTML = "";
-                view.appendChild(this.renderCard(id, data));
-                
-                const replySection = document.createElement('div');
-                replySection.id = "replies-container";
-                view.appendChild(replySection);
-
-                db.collection("posts").doc(id).collection("replies").orderBy("created", "asc").onSnapshot(snap => {
-                    replySection.innerHTML = `<div style="padding:15px; font-size:12px; color:var(--text-dim); font-weight:800; border-bottom:1px solid #111">RESPUESTAS</div>`;
-                    snap.forEach(doc => {
-                        const r = doc.data();
-                        const div = document.createElement('div');
-                        div.className = 'msg-item';
-                        div.innerHTML = `
-                            <div class="avatar-v14" style="width:32px; height:32px; font-size:12px">${r.user[0]}</div>
-                            <div>
-                                <div style="font-weight:800; font-size:13px">@${r.user}</div>
-                                <div style="font-size:14px; color:#ccc; margin-top:2px">${r.text}</div>
-                            </div>`;
-                        replySection.appendChild(div);
-                    });
-                });
-            },
-
-            async sendReply() {
-                const inp = document.getElementById('reply-input');
-                const tid = Sentinel.State.activePost;
-                if(!inp.value || !tid) return;
-
-                await db.collection("posts").doc(tid).collection("replies").add({
-                    user: Sentinel.State.user,
-                    text: inp.value,
-                    created: Date.now()
-                });
-                await db.collection("posts").doc(tid).update({ comments: firebase.firestore.FieldValue.increment(1) });
-                inp.value = "";
-            },
-
-            vote(id, type) {
-                db.collection("posts").doc(id).update({ [type]: firebase.firestore.FieldValue.increment(1) });
-            }
-        },
-
-        // UI & ANIMATION ENGINE
         UI: {
-            boot() {
-                const welcome = document.getElementById('welcome-layer');
-                welcome.style.opacity = "0";
-                setTimeout(() => {
-                    welcome.style.display = "none";
-                    document.getElementById('main-nav').style.display = "flex";
-                    Sentinel.Router.go('feed');
-                    this.toast("Protocolos V14 activos");
-                }, 500);
+            toast(m) { const t = document.getElementById('toast'); t.innerText = m; t.style.display = 'block'; setTimeout(() => t.style.display='none', 2000); },
+            
+            renderProfile() {
+                document.getElementById('p-disp-name').innerText = Core.State.name;
+                document.getElementById('p-disp-user').innerText = '@' + Core.State.u;
+                document.getElementById('p-disp-bio').innerText = Core.State.bio;
+                const avs = [document.getElementById('p-av-large'), document.getElementById('top-av'), document.getElementById('edit-av-preview')];
+                avs.forEach(el => { if(Core.State.av) el.innerHTML = `<img src="${Core.State.av}">`; });
             },
 
-            toggleComposer() {
-                document.getElementById('composer-v14').classList.toggle('active');
+            openEditor() {
+                document.getElementById('m-editor').classList.add('active');
+                document.getElementById('in-name').value = Core.State.name;
+                document.getElementById('in-bio').value = Core.State.bio;
+                document.getElementById('in-user').value = Core.State.u;
             },
 
-            toast(msg) {
-                const container = document.getElementById('notification-center');
-                const t = document.createElement('div');
-                t.className = 'toast';
-                t.innerText = msg;
-                container.appendChild(t);
-                setTimeout(() => t.remove(), 3000);
+            closeEditor() { document.getElementById('m-editor').classList.remove('active'); },
+
+            saveProfile() {
+                Core.State.name = document.getElementById('in-name').value;
+                Core.State.bio = document.getElementById('in-bio').value;
+                Core.State.u = document.getElementById('in-user').value;
+                localStorage.setItem('v16_name', Core.State.name);
+                localStorage.setItem('v16_bio', Core.State.bio);
+                localStorage.setItem('v16_u', Core.State.u);
+                localStorage.setItem('v16_av', Core.State.av);
+                this.renderProfile();
+                this.closeEditor();
+                this.toast("Perfil actualizado");
             },
 
             buildSettings() {
-                const engine = document.getElementById('config-engine');
-                engine.innerHTML = "";
-                
-                const sections = [
-                    { t: "IDENTIDAD", options: [
-                        { l: "Nivel de Verificación", p: ["Usuario", "Verificado", "VIP", "Staff", "Owner"] },
-                        { l: "Estado del Sistema", p: ["Online", "Ghost", "Away", "DND", "Encrypted"] }
-                    ]},
-                    { t: "INTERFAZ APEX", options: [
-                        { l: "Modo Visual", p: ["OLED Dark", "Titanium", "Deep Sea", "Nebula", "Classic"] },
-                        { l: "Frecuencia Hilo", p: ["Real-Time", "5s", "30s", "Manual", "Battery Save"] },
-                        { l: "Densidad de Feed", p: ["Compact", "Default", "Relaxed", "Media Only", "Text Only"] }
-                    ]},
-                    { t: "SEGURIDAD QUÁNTICA", options: [
-                        { l: "Cifrado Mensajes", p: ["AES-GCM", "RSA-4096", "ECC", "None", "Proxy"] },
-                        { l: "Rastreo de IP", p: ["Enmascarado", "VPN-Apex", "Global", "Local", "Off"] }
-                    ]}
+                const engine = document.getElementById('settings-engine');
+                const configs = [
+                    { id: "verif", t: "Verificación", o: ["Ninguna", "Proceso", "VIP", "Staff", "Maestro"] },
+                    { id: "status", t: "Modo de Estado", o: ["Activo", "Oculto", "DND", "Ausente", "Bot"] },
+                    { id: "view", t: "Modo de Vista", o: ["OLED", "Dark", "Titanium", "Glass", "Light"] },
+                    { id: "crypto", t: "Cifrado", o: ["E2E", "AES-256", "RSA", "P2P", "None"] },
+                    { id: "refresh", t: "Refresco", o: ["Auto", "10s", "30s", "1m", "Manual"] },
+                    { id: "notif", t: "Notificaciones", o: ["Todas", "Menciones", "Likes", "Inbox", "Off"] },
+                    { id: "cache", t: "Limpieza Caché", o: ["50MB", "200MB", "500MB", "1GB", "Auto"] },
+                    { id: "font", t: "Tipografía", o: ["Jakarta", "Inter", "Mono", "Serif", "System"] },
+                    { id: "privacy", t: "Privacidad", o: ["Public", "Friends", "Ghost", "Locked", "Dev"] },
+                    { id: "lang", t: "Idioma", o: ["Español", "English", "Binary", "Python", "Code"] }
                 ];
 
-                // Generar 30 ajustes (bucle expansivo)
-                for(let i=0; i<10; i++) {
-                    sections.push({ t: `MÓDULO TÉCNICO 0${i+1}`, options: [
-                        { l: `Parámetro de Red ${i}`, p: ["HTTP/3", "WebSocket", "UDP", "P2P", "Auto"] },
-                        { l: `Caché Sentinel ${i}`, p: ["10MB", "100MB", "500MB", "1GB", "Ilimitado"] }
-                    ]});
+                // Generar dinámicamente hasta completar 30 categorías de prueba funcionales
+                for(let i=11; i<=30; i++) {
+                    configs.push({ id: "opt"+i, t: "Protocolo "+i, o: ["V1", "V2", "Beta", "Gamma", "Stable"] });
                 }
 
-                sections.forEach(sec => {
-                    const group = document.createElement('div');
-                    group.className = 'config-tile';
-                    group.innerHTML = `<div class="tile-header">${sec.t}</div>`;
-                    sec.options.forEach(opt => {
-                        const row = document.createElement('div');
-                        row.style.marginBottom = "15px";
-                        row.innerHTML = `
-                            <div style="font-size:14px; margin-bottom:8px; font-weight:600">${opt.l}</div>
-                            <div class="option-pill-box">
-                                ${opt.p.map((p, idx) => `<div class="pill ${idx===0?'active':''}">${p}</div>`).join('')}
-                            </div>
-                        `;
-                        group.appendChild(row);
-                    });
-                    engine.appendChild(group);
+                configs.forEach(c => {
+                    const card = document.createElement('div');
+                    card.className = 'config-card';
+                    card.innerHTML = `
+                        <div class="config-title">${c.t}</div>
+                        <div class="pill-container" id="cont-${c.id}">
+                            ${c.o.map((o, idx) => `<div class="pill ${idx===0?'active':''}" onclick="Core.UI.setSetting('${c.id}', '${o}', this)">${o}</div>`).join('')}
+                        </div>`;
+                    engine.appendChild(card);
                 });
+            },
+
+            setSetting(id, val, el) {
+                // Actualización Visual
+                const parent = document.getElementById('cont-'+id);
+                parent.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+                el.classList.add('active');
+                
+                // Actualización de Estado Funcional
+                Core.State.settings[id] = val;
+                this.toast(`${id.toUpperCase()} -> ${val}`);
+                
+                // Lógica especial: Si cambia el Modo de Vista
+                if(id === 'view') {
+                    document.body.style.filter = val === 'Glass' ? 'contrast(1.1)' : 'none';
+                    if(val === 'Light') { document.documentElement.style.setProperty('--bg', '#ffffff'); document.documentElement.style.setProperty('--text', '#000000'); }
+                    else { document.documentElement.style.setProperty('--bg', '#000000'); document.documentElement.style.setProperty('--text', '#ffffff'); }
+                }
             }
         },
 
-        Core: {
-            boot() {
-                Sentinel.UI.boot();
+        Social: {
+            loadFeed() {
+                const wall = document.getElementById('feed-scroll');
+                db.collection("posts").orderBy("created", "desc").limit(20).onSnapshot(snap => {
+                    wall.innerHTML = "";
+                    snap.forEach(doc => {
+                        const p = doc.data();
+                        const el = document.createElement('div');
+                        el.className = 'tweet';
+                        el.innerHTML = `
+                            <div class="avatar">${p.av ? `<img src="${p.av}">` : ''}</div>
+                            <div style="flex:1">
+                                <div style="font-weight:800; font-size:15px">${p.name || p.user} <span style="color:var(--text-dim); font-weight:400">@${p.user}</span></div>
+                                <div style="margin-top:4px; font-size:15px">${p.text}</div>
+                            </div>`;
+                        wall.appendChild(el);
+                    });
+                });
             }
         }
     };
 
-    // GLOBAL LISTENERS
-    window.onload = async () => {
-        const snap = await db.collection("users").get();
-        document.getElementById('users-active').innerText = `${snap.size + 120} terminales sincronizadas`;
+    // Subida de foto
+    document.getElementById('file-in').onchange = e => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            Core.State.av = reader.result;
+            document.getElementById('edit-av-preview').innerHTML = `<img src="${reader.result}" style="width:100%; height:100%; border-radius:50%; object-fit:cover">`;
+        };
+        reader.readAsDataURL(e.target.files[0]);
     };
 
+    window.onload = () => {
+        Core.UI.renderProfile();
+        Core.UI.buildSettings();
+        Core.Social.loadFeed();
+    };
 </script>
 </body>
 </html>
