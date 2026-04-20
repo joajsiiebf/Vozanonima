@@ -7,23 +7,28 @@
 
 <style>
 :root{
-  --bg:#000;
-  --card:#111;
-  --text:#fff;
-  --glass:rgba(20,20,20,0.55);
+  --bg:#0b0b0f;
+  --card:#141419;
+  --text:#f5f5f7;
+  --muted:#8e8e93;
   --accent:#3897f0;
+
+  --glass:rgba(20,20,24,0.55);
+  --stroke:rgba(255,255,255,0.08);
 }
 
 .light{
-  --bg:#f5f5f5;
-  --card:#fff;
-  --text:#000;
-  --glass:rgba(255,255,255,0.6);
+  --bg:#f5f5f7;
+  --card:#ffffff;
+  --text:#0b0b0f;
+  --muted:#6b6b70;
+  --glass:rgba(255,255,255,0.65);
+  --stroke:rgba(0,0,0,0.08);
 }
 
 body{
   margin:0;
-  font-family:-apple-system;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
   background:var(--bg);
   color:var(--text);
   overflow:hidden;
@@ -31,15 +36,14 @@ body{
 
 /* ================= WELCOME ================= */
 #welcome{
-  position:absolute;
-  width:100%;
-  height:100%;
+  height:100vh;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
+  text-align:center;
   gap:10px;
-  animation:fadeIn 1s ease;
+  animation:fadeIn .8s ease;
 }
 
 @keyframes fadeIn{
@@ -47,82 +51,178 @@ body{
   to{opacity:1}
 }
 
-#welcome button{
-  padding:12px 20px;
-  border:none;
-  border-radius:12px;
-  background:var(--accent);
-  color:#fff;
+.logo{
+  font-size:38px;
+  font-weight:700;
+  letter-spacing:-1px;
 }
 
-/* ================= LOGIN ================= */
+.sub{
+  color:var(--muted);
+  font-size:14px;
+}
+
+.btn{
+  margin-top:20px;
+  padding:12px 18px;
+  border:none;
+  border-radius:14px;
+  background:var(--accent);
+  color:#fff;
+  font-weight:600;
+}
+
+/* ================= SCREENS STACK ================= */
 .screen{
   position:absolute;
   width:100%;
   height:100%;
   top:0;
   left:100%;
-  transition:.35s ease;
+  background:var(--bg);
+  transition:.38s cubic-bezier(.2,.8,.2,1);
   overflow:auto;
 }
 
-.screen.active{left:0}
+.screen.active{
+  left:0;
+}
 
+/* ================= TOPBAR ================= */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:14px 16px;
+  border-bottom:1px solid var(--stroke);
+  backdrop-filter:blur(14px);
+}
+
+.title{
+  font-weight:700;
+  letter-spacing:-0.3px;
+}
+
+/* ================= LOGIN ================= */
 .login{
-  height:100%;
   display:flex;
   flex-direction:column;
   justify-content:center;
-  padding:20px;
+  height:100%;
+  padding:24px;
   gap:10px;
 }
 
-/* ================= TOP ================= */
-.top{
-  display:flex;
-  justify-content:space-between;
-  padding:14px;
-  border-bottom:1px solid rgba(255,255,255,0.1);
+input{
+  padding:13px;
+  border-radius:14px;
+  border:1px solid var(--stroke);
+  background:var(--card);
+  color:var(--text);
+  outline:none;
 }
 
 /* ================= FEED ================= */
+.feed{
+  padding-bottom:100px;
+}
+
 .post{
-  padding:12px;
-  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:14px;
+  border-bottom:1px solid var(--stroke);
   animation:pop .25s ease;
 }
 
 @keyframes pop{
-  from{transform:translateY(10px);opacity:0}
+  from{transform:translateY(6px);opacity:0}
   to{transform:translateY(0);opacity:1}
 }
 
-.img{
-  width:100%;
-  height:260px;
-  background:#222;
-  border-radius:12px;
-  margin-top:10px;
+.postHeader{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:10px;
 }
 
-/* ================= NAV BAR (LIQUID GLASS) ================= */
+.avatar{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#2c2c2e,#3a3a3c);
+}
+
+.username{
+  font-weight:600;
+  font-size:14px;
+}
+
+.image{
+  width:100%;
+  height:280px;
+  background:var(--card);
+  border-radius:16px;
+}
+
+/* ================= ACTIONS ================= */
+.actions{
+  display:flex;
+  gap:14px;
+  margin-top:10px;
+  font-size:13px;
+  color:var(--muted);
+}
+
+/* ================= NAV iOS GLASS ================= */
 .nav{
   position:fixed;
   bottom:14px;
   left:50%;
   transform:translateX(-50%);
   width:92%;
-  height:60px;
-  background:var(--glass);
-  backdrop-filter:blur(20px);
-  border-radius:20px;
+  height:64px;
+
   display:flex;
   justify-content:space-around;
   align-items:center;
-  border:1px solid rgba(255,255,255,0.1);
+
+  background:var(--glass);
+  backdrop-filter:blur(28px) saturate(1.8);
+  -webkit-backdrop-filter:blur(28px);
+
+  border:1px solid var(--stroke);
+  border-radius:22px;
+
+  box-shadow:0 10px 35px rgba(0,0,0,0.35);
+}
+
+/* ICONS */
+.icon{
+  width:22px;
+  height:22px;
+  fill:var(--text);
+  opacity:0.85;
 }
 
 /* ================= PROFILE ================= */
+.profile{
+  padding:16px;
+}
+
+.headerProfile{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:20px;
+}
+
+.bigAvatar{
+  width:66px;
+  height:66px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#2c2c2e,#3a3a3c);
+}
+
 .grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -130,19 +230,8 @@ body{
 }
 
 .grid div{
-  height:110px;
-  background:#222;
-}
-
-/* ================= NOTIFY ================= */
-.notify{
-  position:fixed;
-  top:60px;
-  right:10px;
+  height:120px;
   background:var(--card);
-  padding:10px;
-  border-radius:12px;
-  font-size:12px;
 }
 
 .hidden{display:none}
@@ -151,11 +240,11 @@ body{
 
 <body>
 
-<!-- WELCOME SCREEN -->
+<!-- WELCOME -->
 <div id="welcome">
-  <h1>Instant</h1>
-  <p>Tu red social privada</p>
-  <button onclick="goLogin()">Continuar</button>
+  <div class="logo">Instant</div>
+  <div class="sub">Share moments, not noise</div>
+  <button class="btn" onclick="goLogin()">Continuar</button>
 </div>
 
 <!-- LOGIN -->
@@ -164,37 +253,48 @@ body{
     <h2>Bienvenido</h2>
     <input id="user" placeholder="usuario">
     <input id="pass" type="password" placeholder="contraseña">
-    <button onclick="login()">Entrar</button>
-    <button onclick="register()">Crear cuenta</button>
+    <button class="btn" onclick="login()">Entrar</button>
+    <button class="btn" onclick="register()">Crear cuenta</button>
   </div>
 </div>
 
 <!-- APP -->
 <div id="app" class="screen">
 
-  <div class="top">
-    <div>Instant</div>
+  <div class="topbar">
+    <div class="title">Instant</div>
     <div onclick="toggleTheme()">◐</div>
   </div>
 
-  <div id="feed"></div>
+  <div id="feed" class="feed"></div>
 
   <div class="nav">
-    <span onclick="loadFeed()">⌂</span>
-    <span onclick="createPost()">＋</span>
-    <span onclick="openProfile()">👤</span>
-    <span onclick="notify('acción')">🔔</span>
-  </div>
 
+    <svg class="icon" onclick="loadFeed()" viewBox="0 0 24 24">
+      <path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2h-5v-6H10v6H5a2 2 0 0 1-2-2z"/>
+    </svg>
+
+    <svg class="icon" onclick="createPost()" viewBox="0 0 24 24">
+      <path d="M12 5v14M5 12h14"/>
+    </svg>
+
+    <svg class="icon" onclick="openProfile()" viewBox="0 0 24 24">
+      <path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z"/>
+    </svg>
+
+  </div>
 </div>
 
 <!-- PROFILE -->
 <div id="profile" class="screen">
-  <div class="top">
+
+  <div class="topbar">
     <div onclick="back()">←</div>
-    <div>Perfil</div>
+    <div class="title">Perfil</div>
   </div>
-  <div id="profileBox"></div>
+
+  <div id="profileBox" class="profile"></div>
+
 </div>
 
 <!-- FIREBASE -->
@@ -218,7 +318,7 @@ if(currentUser){
   showApp();
 }
 
-/* ================= NAV ================= */
+/* NAV */
 function goLogin(){
   welcome.style.display="none";
   login.classList.add("active");
@@ -230,7 +330,7 @@ function showApp(){
   loadFeed();
 }
 
-/* ================= AUTH ================= */
+/* AUTH */
 async function login(){
   const snap=await db.collection("users")
   .where("username","==",user.value)
@@ -252,7 +352,7 @@ async function register(){
   });
 }
 
-/* ================= FEED ================= */
+/* FEED */
 function loadFeed(){
   db.collection("posts")
   .orderBy("created","desc")
@@ -264,9 +364,21 @@ function loadFeed(){
 
       html+=`
       <div class="post">
-        <b>@${p.username}</b>
-        <div class="img"></div>
-        <p>${p.text}</p>
+
+        <div class="postHeader">
+          <div class="avatar"></div>
+          <div class="username">@${p.username}</div>
+        </div>
+
+        <div class="image"></div>
+
+        <div class="actions">
+          <div>like</div>
+          <div>comment</div>
+        </div>
+
+        <div>${p.text}</div>
+
       </div>`;
     });
 
@@ -274,7 +386,7 @@ function loadFeed(){
   });
 }
 
-/* ================= POST ================= */
+/* POST */
 function createPost(){
   let t=prompt("texto");
 
@@ -285,7 +397,7 @@ function createPost(){
   });
 }
 
-/* ================= PROFILE ================= */
+/* PROFILE */
 function openProfile(){
   app.classList.remove("active");
   profile.classList.add("active");
@@ -294,7 +406,12 @@ function openProfile(){
   .where("username","==",currentUser.username)
   .get()
   .then(s=>{
-    let html=`<h3>@${currentUser.username}</h3><div class="grid">`;
+    let html=`
+    <div class="headerProfile">
+      <div class="bigAvatar"></div>
+      <div>@${currentUser.username}</div>
+    </div>
+    <div class="grid">`;
 
     s.forEach(()=>html+=`<div></div>`);
 
@@ -303,20 +420,13 @@ function openProfile(){
   });
 }
 
-/* ================= BACK ================= */
 function back(){
   profile.classList.remove("active");
   app.classList.add("active");
 }
 
-/* ================= THEME ================= */
 function toggleTheme(){
   document.body.classList.toggle("light");
-}
-
-/* ================= NOTIFY ================= */
-function notify(msg){
-  alert(msg);
 }
 </script>
 
