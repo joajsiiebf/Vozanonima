@@ -17,7 +17,7 @@ window.onload = () => {
   currentUser ? showApp() : showLogin();
 };
 
-// ================= VIEW CONTROL =================
+// ================= VIEW =================
 function showLogin(){
   loginView.style.display="block";
   appView.style.display="none";
@@ -41,19 +41,25 @@ function go(view,title){
   document.getElementById(view).style.display="block";
   document.getElementById("title").innerText=title;
 
-  updateNav(view);
-}
-
-function updateNav(view){
   document.querySelectorAll(".nav button")
     .forEach(b=>b.classList.remove("activeTab"));
+
+  const map={
+    feedView:0,
+    searchView:1,
+    profileView:3,
+    settingsView:4
+  };
+
+  const btn=document.querySelectorAll(".nav button")[map[view]];
+  if(btn) btn.classList.add("activeTab");
 }
 
 // ================= LOGIN =================
 async function login(){
 
-  const phone = loginPhone.value;
-  const pass = loginPass.value;
+  const phone=loginPhone.value;
+  const pass=loginPass.value;
 
   if(phone==="admin" && pass==="admin"){
     currentUser={id:"admin",username:"admin",role:"admin"};
@@ -62,14 +68,14 @@ async function login(){
     return;
   }
 
-  const snap = await db.collection("users")
+  const snap=await db.collection("users")
     .where("phone","==",phone)
     .where("password","==",pass)
     .get();
 
-  if(snap.empty) return alert("Error");
+  if(snap.empty) return alert("Error login");
 
-  const u = snap.docs[0].data();
+  const u=snap.docs[0].data();
 
   currentUser={
     id:snap.docs[0].id,
@@ -84,17 +90,20 @@ async function login(){
 // ================= REGISTER =================
 async function register(){
 
-  const username = regUser.value;
-  const phone = regPhone.value;
-  const pass = regPass.value;
-
-  const doc = await db.collection("users").add({
-    username,phone,password:pass,role:"user"
+  const doc=await db.collection("users").add({
+    username:regUser.value,
+    phone:regPhone.value,
+    password:regPass.value,
+    role:"user"
   });
 
-  currentUser={id:doc.id,username,role:"user"};
-  localStorage.setItem("user",JSON.stringify(currentUser));
+  currentUser={
+    id:doc.id,
+    username:regUser.value,
+    role:"user"
+  };
 
+  localStorage.setItem("user",JSON.stringify(currentUser));
   showApp();
 }
 
@@ -111,7 +120,7 @@ function createPost(){
   postText.value="";
 }
 
-// ================= FEED REALTIME =================
+// ================= FEED =================
 function listenFeed(){
 
   db.collection("posts")
@@ -128,6 +137,7 @@ function listenFeed(){
 
         html+=`
         <div class="post">
+
           <b>@${p.username}</b>
           <p>${p.text}</p>
 
@@ -142,6 +152,7 @@ function listenFeed(){
           ${currentUser.role==="admin"
             ? `<button onclick="del('${doc.id}')">Eliminar</button>`
             : ""}
+
         </div>
         `;
       });
@@ -171,13 +182,11 @@ async function del(id){
 // ================= PROFILE =================
 async function loadProfile(){
 
-  const box=document.getElementById("profileView");
-
   const snap=await db.collection("posts")
     .where("username","==",currentUser.username)
     .get();
 
-  box.innerHTML=`
+  profileView.innerHTML=`
     <div class="post">
       <h2>@${currentUser.username}</h2>
       <p>Posts: ${snap.size}</p>
