@@ -1,4 +1,3 @@
-// ================= FIREBASE =================
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
@@ -11,202 +10,200 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-// ================= STATE =================
 let currentUser = JSON.parse(localStorage.getItem("user")) || null;
-let darkMode = JSON.parse(localStorage.getItem("dark")) || false;
+let dark = true;
 
 // ================= INIT =================
 window.onload = () => {
   applyTheme();
-
-  if (currentUser?.id) {
-    showApp();
-  } else {
-    showLogin();
-  }
+  currentUser ? showApp() : showLogin();
 };
 
 // ================= THEME =================
-function toggleTheme() {
-  darkMode = !darkMode;
-  localStorage.setItem("dark", JSON.stringify(darkMode));
+function toggleTheme(){
+  dark = !dark;
+  localStorage.setItem("dark", dark);
   applyTheme();
 }
 
-function applyTheme() {
-  document.body.classList.toggle("light", !darkMode);
+function applyTheme(){
+  document.body.classList.toggle("light", !dark);
 }
 
-// ================= UI CONTROL =================
-function showLogin() {
-  document.getElementById("loginView").style.display = "block";
-  document.getElementById("appView").style.display = "none";
+// ================= VIEW CONTROL =================
+function showLogin(){
+  loginView.style.display = "block";
+  appView.style.display = "none";
 }
 
-function showApp() {
-  document.getElementById("loginView").style.display = "none";
-  document.getElementById("appView").style.display = "block";
-
-  go("feedView", "Inicio");
+function showApp(){
+  loginView.style.display = "none";
+  appView.style.display = "block";
+  go("feedView","Inicio");
   listenFeed();
   updateRoleUI();
 }
 
-// ================= NAVIGATION =================
-function go(viewId, title) {
-  document.querySelectorAll(".screen").forEach(v => {
-    v.style.display = "none";
-  });
-
-  const el = document.getElementById(viewId);
-  if (el) el.style.display = "block";
-
-  document.getElementById("title").innerText = title;
+// ================= NAV =================
+function go(id,title){
+  document.querySelectorAll(".screen").forEach(s => s.style.display="none");
+  document.getElementById(id).style.display="block";
+  titleEl(title);
 }
 
-// ================= AUTH =================
-async function login() {
-  const phone = loginPhone.value.trim();
+function titleEl(t){
+  document.getElementById("title").innerText = t;
+}
+
+// ================= ADMIN LOGIN =================
+async function login(){
+
+  const phone = loginPhone.value;
   const pass = loginPass.value;
 
-  if (phone === "admin" && pass === "admin") {
-    currentUser = {
-      id: "admin",
-      username: "admin",
-      role: "admin"
-    };
-
-    localStorage.setItem("user", JSON.stringify(currentUser));
+  if(phone==="admin" && pass==="admin"){
+    currentUser = {id:"admin",username:"admin",role:"admin"};
+    localStorage.setItem("user",JSON.stringify(currentUser));
     showApp();
     return;
   }
 
   const snap = await db.collection("users")
-    .where("phone", "==", phone)
-    .where("password", "==", pass)
+    .where("phone","==",phone)
+    .where("password","==",pass)
     .get();
 
-  if (snap.empty) return alert("Datos incorrectos");
+  if(snap.empty) return alert("Error login");
 
   const u = snap.docs[0].data();
 
   currentUser = {
-    id: snap.docs[0].id,
-    username: u.username,
-    role: u.role || "user"
+    id:snap.docs[0].id,
+    username:u.username,
+    role:u.role||"user"
   };
 
-  localStorage.setItem("user", JSON.stringify(currentUser));
+  localStorage.setItem("user",JSON.stringify(currentUser));
   showApp();
 }
 
-async function register() {
-  const username = regUser.value.trim();
-  const phone = regPhone.value.trim();
+// ================= REGISTER =================
+async function register(){
+
+  const username = regUser.value;
+  const phone = regPhone.value;
   const pass = regPass.value;
-
-  if (!username || !phone || !pass) return alert("Completa todo");
-
-  const exists = await db.collection("users")
-    .where("username", "==", username)
-    .get();
-
-  if (!exists.empty) return alert("Usuario ya existe");
 
   const doc = await db.collection("users").add({
     username,
     phone,
-    password: pass,
-    role: "user"
+    password:pass,
+    role:"user"
   });
 
-  currentUser = { id: doc.id, username, role: "user" };
-  localStorage.setItem("user", JSON.stringify(currentUser));
+  currentUser = {id:doc.id,username,role:"user"};
+  localStorage.setItem("user",JSON.stringify(currentUser));
 
   showApp();
 }
 
-function logout() {
-  localStorage.removeItem("user");
-  currentUser = null;
-  showLogin();
-}
-
-// ================= POSTS REALTIME FEED =================
-function listenFeed() {
+// ================= FEED REALTIME =================
+function listenFeed(){
   const feed = document.getElementById("feedView");
 
   db.collection("posts")
-    .orderBy("created", "desc")
-    .limit(30)
-    .onSnapshot(snapshot => {
+    .orderBy("created","desc")
+    .onSnapshot(snap=>{
 
-      feed.innerHTML = "";
+      feed.innerHTML="";
 
-      snapshot.forEach(doc => {
+      snap.forEach(doc=>{
         const p = doc.data();
 
-        const div = document.createElement("div");
-        div.className = "post";
+        feed.innerHTML += `
+          <div class="post">
+            <b>@${p.username}</b>
+            <p>${p.text}</p>
 
-        div.innerHTML = `
-          <b>@${p.username}</b>
-          <p>${p.text}</p>
+            <div class="reactions">
 
-          <button onclick="likePost('${doc.id}', ${p.likes || 0})">
-            ❤️ ${p.likes || 0}
-          </button>
+              <button onclick="react('${doc.id}','like')">👍 ${p.r?.like||0}</button>
+              <button onclick="react('${doc.id}','love')">❤️ ${p.r?.love||0}</button>
+              <button onclick="react('${doc.id}','wow')">😮 ${p.r?.wow||0}</button>
+              <button onclick="react('${doc.id}','haha')">😂 ${p.r?.haha||0}</button>
+              <button onclick="react('${doc.id}','angry')">😡 ${p.r?.angry||0}</button>
 
-          ${
-            currentUser?.role === "admin"
-              ? `<button style="background:red" onclick="deletePost('${doc.id}')">
-                  🗑 Eliminar
-                </button>`
-              : ""
-          }
+            </div>
+
+            ${currentUser.role==="admin"
+              ? `<button onclick="del('${doc.id}')" style="background:red">Eliminar</button>`
+              : ""}
+          </div>
         `;
-
-        feed.appendChild(div);
       });
     });
 }
 
-// ================= CREATE POST =================
-async function createPost() {
-  const text = postText.value.trim();
-  if (!text) return;
-
-  await db.collection("posts").add({
-    text,
-    username: currentUser.username,
-    likes: 0,
-    created: Date.now()
+// ================= POSTS =================
+function createPost(){
+  db.collection("posts").add({
+    text:postText.value,
+    username:currentUser.username,
+    created:Date.now(),
+    r:{like:0,love:0,wow:0,haha:0,angry:0}
   });
 
-  postText.value = "";
+  postText.value="";
 }
 
-// ================= LIKE =================
-async function likePost(id, likes) {
-  await db.collection("posts").doc(id).update({
-    likes: likes + 1
-  });
+// ================= REACTIONS =================
+async function react(id,type){
+
+  const ref = db.collection("posts").doc(id);
+  const doc = await ref.get();
+  const data = doc.data();
+
+  let r = data.r||{};
+
+  r[type]=(r[type]||0)+1;
+
+  await ref.update({r});
 }
 
-// ================= DELETE (ADMIN) =================
-async function deletePost(id) {
-  if (currentUser.role !== "admin") return;
-
+// ================= DELETE =================
+async function del(id){
+  if(currentUser.role!=="admin")return;
   await db.collection("posts").doc(id).delete();
 }
 
-// ================= ROLE UI =================
-function updateRoleUI() {
-  const badge = document.getElementById("roleBadge");
-  if (!badge) return;
+// ================= PROFILE =================
+async function loadProfile(){
+  const box = profileView;
 
-  badge.innerText =
-    currentUser?.role === "admin"
-      ? "👑 ADMIN"
-      : "USER";
+  const snap = await db.collection("posts")
+    .where("username","==",currentUser.username)
+    .get();
+
+  box.innerHTML=`
+    <div class="post">
+      <h2>@${currentUser.username}</h2>
+      <p>Posts: ${snap.size}</p>
+    </div>
+  `;
+}
+
+// ================= SEARCH (BASE) =================
+function focusPost(){
+  postText.focus();
+}
+
+// ================= LOGOUT =================
+function logout(){
+  localStorage.clear();
+  location.reload();
+}
+
+// ================= ROLE UI =================
+function updateRoleUI(){
+  roleBadge.innerText = currentUser.role==="admin"?"👑 ADMIN":"";
 }
