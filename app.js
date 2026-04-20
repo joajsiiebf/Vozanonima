@@ -12,215 +12,168 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 // ================= STATE =================
-let currentUser = null;
-
-// ================= ERROR SCREEN =================
-function showFatalError(msg) {
-  document.body.innerHTML = `
-    <div style="
-      color:white;
-      background:#0b0f14;
-      padding:20px;
-      font-family:Arial;
-    ">
-      <h2>⚠️ Error de carga</h2>
-      <p>${msg}</p>
-    </div>
-  `;
-}
-
-// ================= SAFE GET =================
-function get(id) {
-  const el = document.getElementById(id);
-  if (!el) {
-    showFatalError("Falta elemento HTML: " + id);
-    throw new Error("Missing element " + id);
-  }
-  return el;
-}
+let currentUser = JSON.parse(localStorage.getItem("user")) || null;
+let darkMode = JSON.parse(localStorage.getItem("dark")) || false;
 
 // ================= INIT =================
 window.onload = () => {
-  try {
-    boot();
-  } catch (e) {
-    console.error(e);
-    showFatalError("Error iniciando app");
+  applyTheme();
+
+  if (currentUser?.id) {
+    showApp();
+  } else {
+    showLogin();
   }
 };
 
-function boot() {
-  console.log("APP START");
-
-  currentUser = JSON.parse(localStorage.getItem("user"));
-
-  const loginView = document.getElementById("loginView");
-  const appView = document.getElementById("appView");
-
-  if (!loginView || !appView) {
-    showFatalError("HTML base incompleto (loginView/appView)");
-    return;
-  }
-
-  if (currentUser?.id) {
-    renderApp();
-  } else {
-    renderLogin();
-  }
+// ================= THEME =================
+function toggleTheme() {
+  darkMode = !darkMode;
+  localStorage.setItem("dark", JSON.stringify(darkMode));
+  applyTheme();
 }
 
-// ================= VIEWS =================
-function renderLogin() {
-  get("loginView").style.display = "block";
-  get("appView").style.display = "none";
+function applyTheme() {
+  document.body.classList.toggle("light", !darkMode);
 }
 
-function renderApp() {
-  get("loginView").style.display = "none";
-  get("appView").style.display = "block";
+// ================= UI CONTROL =================
+function showLogin() {
+  document.getElementById("loginView").style.display = "block";
+  document.getElementById("appView").style.display = "none";
+}
+
+function showApp() {
+  document.getElementById("loginView").style.display = "none";
+  document.getElementById("appView").style.display = "block";
 
   go("feedView", "Inicio");
-  loadFeed();
+  listenFeed();
+  updateRoleUI();
 }
 
-// ================= NAV =================
+// ================= NAVIGATION =================
 function go(viewId, title) {
-  const views = document.querySelectorAll(".screen");
+  document.querySelectorAll(".screen").forEach(v => {
+    v.style.display = "none";
+  });
 
-  views.forEach(v => v.style.display = "none");
+  const el = document.getElementById(viewId);
+  if (el) el.style.display = "block";
 
-  const target = document.getElementById(viewId);
-
-  if (!target) {
-    showFatalError("No existe view: " + viewId);
-    return;
-  }
-
-  target.style.display = "block";
   document.getElementById("title").innerText = title;
 }
 
-// ================= LOGIN =================
+// ================= AUTH =================
 async function login() {
-  try {
-    const phone = get("loginPhone").value;
-    const pass = get("loginPass").value;
+  const phone = loginPhone.value.trim();
+  const pass = loginPass.value;
 
-    if (phone === "admin" && pass === "admin") {
-      currentUser = { id: "admin", username: "admin", role: "admin" };
-      localStorage.setItem("user", JSON.stringify(currentUser));
-      renderApp();
-      return;
-    }
-
-    const snap = await db.collection("users")
-      .where("phone", "==", phone)
-      .where("password", "==", pass)
-      .get();
-
-    if (snap.empty) {
-      alert("Usuario incorrecto");
-      return;
-    }
-
-    const u = snap.docs[0];
-
+  if (phone === "admin" && pass === "admin") {
     currentUser = {
-      id: u.id,
-      username: u.data().username,
-      role: u.data().role || "user"
+      id: "admin",
+      username: "admin",
+      role: "admin"
     };
 
     localStorage.setItem("user", JSON.stringify(currentUser));
-
-    renderApp();
-
-  } catch (e) {
-    console.error(e);
-    showFatalError("Error login");
+    showApp();
+    return;
   }
+
+  const snap = await db.collection("users")
+    .where("phone", "==", phone)
+    .where("password", "==", pass)
+    .get();
+
+  if (snap.empty) return alert("Datos incorrectos");
+
+  const u = snap.docs[0].data();
+
+  currentUser = {
+    id: snap.docs[0].id,
+    username: u.username,
+    role: u.role || "user"
+  };
+
+  localStorage.setItem("user", JSON.stringify(currentUser));
+  showApp();
 }
 
-// ================= REGISTER =================
 async function register() {
-  try {
-    const username = get("regUser").value;
-    const phone = get("regPhone").value;
-    const pass = get("regPass").value;
+  const username = regUser.value.trim();
+  const phone = regPhone.value.trim();
+  const pass = regPass.value;
 
-    if (!username || !phone || !pass) return alert("Completa todo");
+  if (!username || !phone || !pass) return alert("Completa todo");
 
-    const exists = await db.collection("users")
-      .where("username", "==", username)
-      .get();
+  const exists = await db.collection("users")
+    .where("username", "==", username)
+    .get();
 
-    if (!exists.empty) return alert("Usuario existe");
+  if (!exists.empty) return alert("Usuario ya existe");
 
-    const doc = await db.collection("users").add({
-      username,
-      phone,
-      password: pass,
-      role: "user"
-    });
+  const doc = await db.collection("users").add({
+    username,
+    phone,
+    password: pass,
+    role: "user"
+  });
 
-    currentUser = { id: doc.id, username, role: "user" };
-    localStorage.setItem("user", JSON.stringify(currentUser));
+  currentUser = { id: doc.id, username, role: "user" };
+  localStorage.setItem("user", JSON.stringify(currentUser));
 
-    renderApp();
-
-  } catch (e) {
-    console.error(e);
-    showFatalError("Error registro");
-  }
+  showApp();
 }
 
-// ================= FEED =================
-async function loadFeed() {
-  try {
-    const feed = get("feedView");
-    feed.innerHTML = "";
-
-    const snap = await db.collection("posts")
-      .orderBy("created", "desc")
-      .limit(10)
-      .get();
-
-    snap.forEach(doc => {
-      const p = doc.data();
-
-      const div = document.createElement("div");
-      div.className = "post";
-
-      div.innerHTML = `
-        <b>@${p.username}</b>
-        <p>${p.text}</p>
-
-        <button onclick="likePost('${doc.id}', ${p.likes || 0})">
-          ❤️ ${p.likes || 0}
-        </button>
-
-        ${
-          currentUser?.role === "admin"
-            ? `<button style="background:red;" onclick="deletePost('${doc.id}')">
-                🗑
-              </button>`
-            : ""
-        }
-      `;
-
-      feed.appendChild(div);
-    });
-
-  } catch (e) {
-    console.error(e);
-    showFatalError("Error cargando feed");
-  }
+function logout() {
+  localStorage.removeItem("user");
+  currentUser = null;
+  showLogin();
 }
 
-// ================= POST =================
+// ================= POSTS REALTIME FEED =================
+function listenFeed() {
+  const feed = document.getElementById("feedView");
+
+  db.collection("posts")
+    .orderBy("created", "desc")
+    .limit(30)
+    .onSnapshot(snapshot => {
+
+      feed.innerHTML = "";
+
+      snapshot.forEach(doc => {
+        const p = doc.data();
+
+        const div = document.createElement("div");
+        div.className = "post";
+
+        div.innerHTML = `
+          <b>@${p.username}</b>
+          <p>${p.text}</p>
+
+          <button onclick="likePost('${doc.id}', ${p.likes || 0})">
+            ❤️ ${p.likes || 0}
+          </button>
+
+          ${
+            currentUser?.role === "admin"
+              ? `<button style="background:red" onclick="deletePost('${doc.id}')">
+                  🗑 Eliminar
+                </button>`
+              : ""
+          }
+        `;
+
+        feed.appendChild(div);
+      });
+    });
+}
+
+// ================= CREATE POST =================
 async function createPost() {
-  const text = get("postText").value;
-
+  const text = postText.value.trim();
   if (!text) return;
 
   await db.collection("posts").add({
@@ -230,8 +183,7 @@ async function createPost() {
     created: Date.now()
   });
 
-  get("postText").value = "";
-  loadFeed();
+  postText.value = "";
 }
 
 // ================= LIKE =================
@@ -239,21 +191,22 @@ async function likePost(id, likes) {
   await db.collection("posts").doc(id).update({
     likes: likes + 1
   });
-
-  loadFeed();
 }
 
-// ================= DELETE ADMIN =================
+// ================= DELETE (ADMIN) =================
 async function deletePost(id) {
   if (currentUser.role !== "admin") return;
 
   await db.collection("posts").doc(id).delete();
-  loadFeed();
 }
 
-// ================= LOGOUT =================
-function logout() {
-  localStorage.removeItem("user");
-  currentUser = null;
-  renderLogin();
+// ================= ROLE UI =================
+function updateRoleUI() {
+  const badge = document.getElementById("roleBadge");
+  if (!badge) return;
+
+  badge.innerText =
+    currentUser?.role === "admin"
+      ? "👑 ADMIN"
+      : "USER";
 }
