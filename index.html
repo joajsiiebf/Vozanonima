@@ -6,6 +6,7 @@
 <title>Instant</title>
 
 <style>
+/* ================= DESIGN SYSTEM ================= */
 :root{
   --bg:#0b0b10;
   --card:#14141a;
@@ -30,60 +31,42 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
   background:var(--bg);
   color:var(--text);
-  overflow:hidden;
 }
 
-/* WELCOME */
+/* ================= APP STRUCTURE ================= */
+.screen{display:none;height:100vh;}
+.active{display:block;}
+
+.hidden{display:none}
+
+/* ================= WELCOME ================= */
 #welcome{
-  height:100vh;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
   text-align:center;
+  height:100vh;
 }
 
-.logo{
-  font-size:40px;
-  font-weight:700;
-}
-
-.sub{
-  color:var(--muted);
-}
+.logo{font-size:44px;font-weight:700;}
+.sub{color:var(--muted);}
 
 .btn{
-  margin-top:20px;
+  margin-top:14px;
   padding:12px 18px;
   border:none;
   border-radius:14px;
   background:var(--accent);
-  color:white;
+  color:#fff;
   font-weight:600;
 }
 
-/* SCREENS */
-.screen{
-  position:absolute;
-  width:100%;
-  height:100%;
-  top:0;
-  left:100%;
-  transition:.35s ease;
-  background:var(--bg);
-  overflow:auto;
-}
-
-.screen.active{
-  left:0;
-}
-
-/* LOGIN */
-.login{
+/* ================= LOGIN ================= */
+#login{
   display:flex;
   flex-direction:column;
   justify-content:center;
-  height:100%;
   padding:24px;
   gap:10px;
 }
@@ -96,14 +79,34 @@ input{
   color:var(--text);
 }
 
+/* ================= APP SHELL ================= */
+#app{
+  display:flex;
+  flex-direction:column;
+}
+
+/* TOPBAR */
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  padding:14px;
+  border-bottom:1px solid var(--stroke);
+}
+
 /* FEED */
 .feed{
-  padding-bottom:100px;
+  padding-bottom:90px;
 }
 
 .post{
   padding:14px;
   border-bottom:1px solid var(--stroke);
+  animation:fade .25s ease;
+}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
 .header{
@@ -113,30 +116,37 @@ input{
 }
 
 .avatar{
-  width:36px;
-  height:36px;
+  width:36px;height:36px;
   border-radius:50%;
   background:#333;
 }
 
 .image{
-  width:100%;
-  height:260px;
+  height:240px;
   background:#222;
   border-radius:14px;
   margin-top:10px;
 }
 
-/* NAV */
+/* ACTIONS */
+.actions{
+  display:flex;
+  gap:12px;
+  font-size:13px;
+  color:var(--muted);
+  margin-top:8px;
+}
+
+/* ================= NAV BAR ================= */
 .nav{
   position:fixed;
   bottom:14px;
   left:50%;
   transform:translateX(-50%);
   width:92%;
-  height:64px;
+  height:62px;
   background:var(--glass);
-  backdrop-filter:blur(25px);
+  backdrop-filter:blur(24px);
   border-radius:22px;
   display:flex;
   justify-content:space-around;
@@ -144,7 +154,7 @@ input{
   border:1px solid var(--stroke);
 }
 
-/* PROFILE */
+/* ================= PROFILE ================= */
 .profile{
   padding:16px;
 }
@@ -159,110 +169,149 @@ input{
   height:120px;
   background:var(--card);
 }
+
+/* ================= MODALS ================= */
+.modal{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  background:var(--card);
+  border-top-left-radius:20px;
+  border-top-right-radius:20px;
+  padding:16px;
+  transform:translateY(100%);
+  transition:.3s ease;
+}
+
+.modal.active{
+  transform:translateY(0);
+}
 </style>
 </head>
 
 <body>
 
-<!-- WELCOME -->
-<div id="welcome">
+<!-- ================= WELCOME ================= -->
+<div id="welcome" class="screen active">
   <div class="logo">Instant</div>
   <div class="sub">Share moments, not noise</div>
-  <button class="btn" onclick="goLogin()">Continuar</button>
+
+  <button class="btn" onclick="goLogin()">Entrar</button>
+  <button class="btn" onclick="guestMode()">Entrar como invitado</button>
 </div>
 
-<!-- LOGIN -->
+<!-- ================= LOGIN ================= -->
 <div id="login" class="screen">
-  <div class="login">
-    <h2>Login</h2>
-    <input id="user" placeholder="usuario">
-    <input id="pass" type="password" placeholder="contraseña">
-    <button class="btn" onclick="login()">Entrar</button>
-    <button class="btn" onclick="register()">Crear cuenta</button>
-  </div>
+  <h2>Login</h2>
+  <input id="user" placeholder="usuario">
+  <input id="pass" type="password" placeholder="contraseña">
+
+  <button class="btn" onclick="login()">Entrar</button>
+  <button class="btn" onclick="register()">Crear cuenta</button>
 </div>
 
-<!-- APP -->
+<!-- ================= APP ================= -->
 <div id="app" class="screen">
 
-  <div style="padding:14px;font-weight:700">Instant</div>
+  <div class="topbar">
+    <div>Instant</div>
+    <div onclick="toggleTheme()">◐</div>
+  </div>
 
   <div id="feed" class="feed"></div>
 
   <div class="nav">
     <span onclick="loadFeed()">🏠</span>
-    <span onclick="createPost()">＋</span>
+    <span onclick="openCreate()">＋</span>
     <span onclick="openProfile()">👤</span>
+    <span onclick="openSettings()">⚙</span>
   </div>
 
 </div>
 
-<!-- PROFILE -->
+<!-- ================= PROFILE ================= -->
 <div id="profile" class="screen">
-  <div style="padding:14px" onclick="back()">← volver</div>
+  <div style="padding:14px" onclick="back()">←</div>
   <div id="profileBox"></div>
 </div>
 
-<!-- FIREBASE -->
+<!-- ================= MODAL CREATE ================= -->
+<div id="createModal" class="modal">
+  <h3>Crear post</h3>
+  <input id="postText" placeholder="¿Qué estás pensando?">
+  <button class="btn" onclick="createPost()">Publicar</button>
+</div>
+
+<!-- ================= FIREBASE ================= -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
 
-/* ================= FIREBASE CONFIG ================= */
+/* ================= FIREBASE ================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
   authDomain: "vozanonimasm.firebaseapp.com",
-  projectId: "vozanonimasm",
-  storageBucket: "vozanonimasm.firebasestorage.app",
-  messagingSenderId: "533740152067",
-  appId: "1:533740152067:web:1ec05c7842f09a9e32f536",
-  measurementId: "G-S53MVLKF66"
+  projectId: "vozanonimasm"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-/* ================= SESSION ================= */
-let currentUser = JSON.parse(localStorage.getItem("user")) || null;
+/* ================= STATE ================= */
+let userData = JSON.parse(localStorage.getItem("user"));
+let role = "guest";
 
-if(currentUser){
-  showApp();
+/* ================= NAV SYSTEM ================= */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
-/* ================= NAV ================= */
-function goLogin(){
-  welcome.style.display="none";
-  login.classList.add("active");
-}
-
-function showApp(){
-  login.classList.remove("active");
-  app.classList.add("active");
+/* ================= START ================= */
+if(userData){
+  role = userData.role || "user";
+  show("app");
   loadFeed();
+}else{
+  show("welcome");
 }
 
 /* ================= AUTH ================= */
+function goLogin(){
+  show("login");
+}
+
+function guestMode(){
+  role = "guest";
+  userData = { username:"Invitado" };
+  show("app");
+  loadFeed();
+}
+
 async function login(){
   const snap = await db.collection("users")
   .where("username","==",user.value)
   .where("password","==",pass.value)
   .get();
 
-  if(snap.empty) return alert("error login");
+  if(snap.empty) return alert("error");
 
-  currentUser = snap.docs[0].data();
-  localStorage.setItem("user", JSON.stringify(currentUser));
+  userData = snap.docs[0].data();
+  role = userData.role || "user";
 
-  showApp();
+  localStorage.setItem("user", JSON.stringify(userData));
+
+  show("app");
+  loadFeed();
 }
 
 async function register(){
   await db.collection("users").add({
     username:user.value,
     password:pass.value,
-    followers:0,
-    following:0
+    role:"user"
   });
 
   alert("creado");
@@ -290,6 +339,11 @@ function loadFeed(){
 
         <p>${p.text}</p>
 
+        <div class="actions">
+          <span>like</span>
+          <span>comment</span>
+        </div>
+
       </div>`;
     });
 
@@ -297,40 +351,53 @@ function loadFeed(){
   });
 }
 
-/* ================= POST ================= */
+/* ================= CREATE ================= */
+function openCreate(){
+  if(role==="guest") return alert("solo lectura");
+  createModal.classList.add("active");
+}
+
 function createPost(){
-  let t = prompt("texto");
-
-  if(!t) return;
-
   db.collection("posts").add({
-    username: currentUser.username,
-    text: t,
-    created: Date.now()
+    username:userData.username,
+    text:postText.value,
+    created:Date.now()
   });
+
+  postText.value="";
+  createModal.classList.remove("active");
 }
 
 /* ================= PROFILE ================= */
 function openProfile(){
-  app.classList.remove("active");
-  profile.classList.add("active");
+  show("profile");
 
   db.collection("posts")
-  .where("username","==",currentUser.username)
+  .where("username","==",userData.username)
   .get()
   .then(s=>{
-    let html = `<h3>@${currentUser.username}</h3><div class="grid">`;
+    let html=`<h3>@${userData.username}</h3><div class="grid">`;
 
-    s.forEach(()=> html += `<div></div>`);
+    s.forEach(()=>html+=`<div></div>`);
 
-    html += `</div>`;
+    html+=`</div>`;
     profileBox.innerHTML = html;
   });
 }
 
+/* ================= SETTINGS ================= */
+function openSettings(){
+  alert("settings placeholder");
+}
+
+/* ================= BACK ================= */
 function back(){
-  profile.classList.remove("active");
-  app.classList.add("active");
+  show("app");
+}
+
+/* ================= THEME ================= */
+function toggleTheme(){
+  document.body.classList.toggle("light");
 }
 
 </script>
