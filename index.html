@@ -6,38 +6,26 @@
 <title>Instant</title>
 
 <style>
-/* ================= DESIGN SYSTEM ================= */
 :root{
   --bg:#0b0b10;
-  --card:#14141a;
+  --card:rgba(20,20,26,0.7);
   --text:#f5f5f7;
   --muted:#8e8e93;
   --accent:#3897f0;
-  --glass:rgba(25,25,30,0.55);
   --stroke:rgba(255,255,255,0.08);
-}
-
-.light{
-  --bg:#f5f5f7;
-  --card:#ffffff;
-  --text:#0b0b10;
-  --muted:#6b6b70;
-  --glass:rgba(255,255,255,0.7);
-  --stroke:rgba(0,0,0,0.08);
+  --glass:rgba(25,25,30,0.6);
+  --r:18px;
 }
 
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display";
   background:var(--bg);
   color:var(--text);
 }
 
-/* ================= APP STRUCTURE ================= */
 .screen{display:none;height:100vh;}
-.active{display:block;}
-
-.hidden{display:none}
+.active{display:block}
 
 /* ================= WELCOME ================= */
 #welcome{
@@ -46,17 +34,16 @@ body{
   justify-content:center;
   align-items:center;
   text-align:center;
-  height:100vh;
 }
 
-.logo{font-size:44px;font-weight:700;}
-.sub{color:var(--muted);}
+.logo{font-size:48px;font-weight:800;}
+.sub{color:var(--muted)}
 
 .btn{
-  margin-top:14px;
+  margin-top:12px;
   padding:12px 18px;
-  border:none;
   border-radius:14px;
+  border:none;
   background:var(--accent);
   color:#fff;
   font-weight:600;
@@ -79,75 +66,57 @@ input{
   color:var(--text);
 }
 
-/* ================= APP SHELL ================= */
-#app{
-  display:flex;
-  flex-direction:column;
-}
-
-/* TOPBAR */
+/* ================= APP ================= */
 .topbar{
   display:flex;
   justify-content:space-between;
-  padding:14px;
-  border-bottom:1px solid var(--stroke);
+  padding:16px;
+  font-weight:700;
+  font-size:18px;
 }
 
-/* FEED */
-.feed{
-  padding-bottom:90px;
-}
+.feed{padding-bottom:90px;}
 
 .post{
+  margin:12px;
   padding:14px;
-  border-bottom:1px solid var(--stroke);
-  animation:fade .25s ease;
-}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(6px)}
-  to{opacity:1;transform:translateY(0)}
+  background:var(--card);
+  border-radius:var(--r);
+  border:1px solid var(--stroke);
+  backdrop-filter:blur(20px);
 }
 
 .header{
   display:flex;
-  gap:10px;
   align-items:center;
+  gap:10px;
 }
 
 .avatar{
-  width:36px;height:36px;
+  width:36px;
+  height:36px;
   border-radius:50%;
-  background:#333;
+  background:#2a2a2f;
 }
 
 .image{
   height:240px;
-  background:#222;
   border-radius:14px;
+  background:#1a1a1f;
   margin-top:10px;
 }
 
-/* ACTIONS */
-.actions{
-  display:flex;
-  gap:12px;
-  font-size:13px;
-  color:var(--muted);
-  margin-top:8px;
-}
-
-/* ================= NAV BAR ================= */
+/* ================= NAV ================= */
 .nav{
   position:fixed;
   bottom:14px;
   left:50%;
   transform:translateX(-50%);
   width:92%;
-  height:62px;
+  height:64px;
   background:var(--glass);
-  backdrop-filter:blur(24px);
-  border-radius:22px;
+  backdrop-filter:blur(30px);
+  border-radius:24px;
   display:flex;
   justify-content:space-around;
   align-items:center;
@@ -155,7 +124,7 @@ input{
 }
 
 /* ================= PROFILE ================= */
-.profile{
+#profile{
   padding:16px;
 }
 
@@ -167,51 +136,46 @@ input{
 
 .grid div{
   height:120px;
-  background:var(--card);
+  background:#1a1a20;
 }
 
-/* ================= MODALS ================= */
-.modal{
-  position:fixed;
-  bottom:0;
-  left:0;
-  width:100%;
-  background:var(--card);
-  border-top-left-radius:20px;
-  border-top-right-radius:20px;
+/* ================= SETTINGS ================= */
+#settings{
   padding:16px;
-  transform:translateY(100%);
-  transition:.3s ease;
 }
 
-.modal.active{
-  transform:translateY(0);
+.card{
+  background:var(--card);
+  padding:14px;
+  border-radius:16px;
+  border:1px solid var(--stroke);
+  margin-bottom:10px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= WELCOME ================= -->
+<!-- WELCOME -->
 <div id="welcome" class="screen active">
   <div class="logo">Instant</div>
-  <div class="sub">Share moments, not noise</div>
+  <div class="sub">Share moments like Instagram</div>
 
   <button class="btn" onclick="goLogin()">Entrar</button>
-  <button class="btn" onclick="guestMode()">Entrar como invitado</button>
+  <button class="btn" onclick="guest()">Invitado</button>
 </div>
 
-<!-- ================= LOGIN ================= -->
+<!-- LOGIN -->
 <div id="login" class="screen">
   <h2>Login</h2>
   <input id="user" placeholder="usuario">
   <input id="pass" type="password" placeholder="contraseña">
 
   <button class="btn" onclick="login()">Entrar</button>
-  <button class="btn" onclick="register()">Crear cuenta</button>
+  <button class="btn" onclick="register()">Crear</button>
 </div>
 
-<!-- ================= APP ================= -->
+<!-- APP -->
 <div id="app" class="screen">
 
   <div class="topbar">
@@ -223,85 +187,92 @@ input{
 
   <div class="nav">
     <span onclick="loadFeed()">🏠</span>
-    <span onclick="openCreate()">＋</span>
-    <span onclick="openProfile()">👤</span>
-    <span onclick="openSettings()">⚙</span>
+    <span onclick="createPost()">＋</span>
+    <span onclick="profile()">👤</span>
+    <span onclick="settings()">⚙</span>
   </div>
 
 </div>
 
-<!-- ================= PROFILE ================= -->
+<!-- PROFILE -->
 <div id="profile" class="screen">
   <div style="padding:14px" onclick="back()">←</div>
   <div id="profileBox"></div>
 </div>
 
-<!-- ================= MODAL CREATE ================= -->
-<div id="createModal" class="modal">
-  <h3>Crear post</h3>
-  <input id="postText" placeholder="¿Qué estás pensando?">
-  <button class="btn" onclick="createPost()">Publicar</button>
+<!-- SETTINGS -->
+<div id="settings" class="screen">
+  <div style="padding:14px" onclick="back()">← Ajustes</div>
+
+  <div class="card">
+    Modo oscuro
+    <button class="btn" onclick="toggleTheme()">cambiar</button>
+  </div>
+
+  <div class="card">
+    Sesión
+    <button class="btn" onclick="logout()">salir</button>
+  </div>
+
+  <div class="card">
+    Instant vFinal
+  </div>
 </div>
 
-<!-- ================= FIREBASE ================= -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
 
-/* ================= FIREBASE ================= */
-const firebaseConfig = {
-  apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
-  authDomain: "vozanonimasm.firebaseapp.com",
-  projectId: "vozanonimasm"
+const firebaseConfig={
+  apiKey:"AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+  authDomain:"vozanonimasm.firebaseapp.com",
+  projectId:"vozanonimasm"
 };
 
 firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+const db=firebase.firestore();
 
 /* ================= STATE ================= */
-let userData = JSON.parse(localStorage.getItem("user"));
-let role = "guest";
+let me=JSON.parse(localStorage.getItem("user"));
+let role="guest";
 
-/* ================= NAV SYSTEM ================= */
-function show(id){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+/* ================= NAV ================= */
+function show(s){
+  document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+  document.getElementById(s).classList.add("active");
 }
 
 /* ================= START ================= */
-if(userData){
-  role = userData.role || "user";
+if(me){
+  role=me.role||"user";
   show("app");
   loadFeed();
-}else{
-  show("welcome");
-}
+}else show("welcome");
 
 /* ================= AUTH ================= */
-function goLogin(){
-  show("login");
-}
+function goLogin(){show("login");}
 
-function guestMode(){
-  role = "guest";
-  userData = { username:"Invitado" };
+function guest(){
+  me={username:"Invitado"};
+  role="guest";
   show("app");
   loadFeed();
 }
 
 async function login(){
-  const snap = await db.collection("users")
+  const s=await db.collection("users")
   .where("username","==",user.value)
   .where("password","==",pass.value)
   .get();
 
-  if(snap.empty) return alert("error");
+  if(s.empty)return alert("error");
 
-  userData = snap.docs[0].data();
-  role = userData.role || "user";
+  me=s.docs[0].data();
+  role=me.role||"user";
 
-  localStorage.setItem("user", JSON.stringify(userData));
+  localStorage.setItem("user",JSON.stringify(me));
 
   show("app");
   loadFeed();
@@ -314,7 +285,7 @@ async function register(){
     role:"user"
   });
 
-  alert("creado");
+  alert("ok");
 }
 
 /* ================= FEED ================= */
@@ -329,73 +300,65 @@ function loadFeed(){
 
       html+=`
       <div class="post">
-
         <div class="header">
           <div class="avatar"></div>
           <b>@${p.username}</b>
         </div>
 
         <div class="image"></div>
-
         <p>${p.text}</p>
-
-        <div class="actions">
-          <span>like</span>
-          <span>comment</span>
-        </div>
 
       </div>`;
     });
 
-    feed.innerHTML = html;
+    feed.innerHTML=html;
   });
 }
 
-/* ================= CREATE ================= */
-function openCreate(){
-  if(role==="guest") return alert("solo lectura");
-  createModal.classList.add("active");
-}
-
+/* ================= POSTS ================= */
 function createPost(){
+  if(role==="guest")return alert("solo lectura");
+
+  let t=prompt("texto");
+  if(!t)return;
+
   db.collection("posts").add({
-    username:userData.username,
-    text:postText.value,
+    username:me.username,
+    text:t,
     created:Date.now()
   });
-
-  postText.value="";
-  createModal.classList.remove("active");
 }
 
 /* ================= PROFILE ================= */
-function openProfile(){
+function profile(){
   show("profile");
 
   db.collection("posts")
-  .where("username","==",userData.username)
+  .where("username","==",me.username)
   .get()
   .then(s=>{
-    let html=`<h3>@${userData.username}</h3><div class="grid">`;
+    let h=`<h3>@${me.username}</h3><div class="grid">`;
 
-    s.forEach(()=>html+=`<div></div>`);
+    s.forEach(()=>h+=`<div></div>`);
 
-    html+=`</div>`;
-    profileBox.innerHTML = html;
+    h+="</div>";
+    profileBox.innerHTML=h;
   });
 }
 
 /* ================= SETTINGS ================= */
-function openSettings(){
-  alert("settings placeholder");
+function settings(){
+  show("settings");
 }
 
-/* ================= BACK ================= */
-function back(){
-  show("app");
+function logout(){
+  localStorage.clear();
+  location.reload();
 }
 
-/* ================= THEME ================= */
+/* ================= UI ================= */
+function back(){show("app");}
+
 function toggleTheme(){
   document.body.classList.toggle("light");
 }
