@@ -5,68 +5,355 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Instant</title>
 
-<link rel="stylesheet" href="style.css">
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:-apple-system, system-ui;
+}
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+body{
+  background:#000;
+  color:#fff;
+}
+
+/* ================= LOGIN MODERNO ================= */
+.login{
+  height:100vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:25px;
+  gap:10px;
+}
+
+.login h1{
+  text-align:center;
+  margin-bottom:20px;
+}
+
+input{
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#111;
+  color:#fff;
+  outline:none;
+}
+
+button{
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#3897f0;
+  color:#fff;
+  font-weight:600;
+}
+
+/* ================= TOP ================= */
+.topbar{
+  padding:14px;
+  font-weight:700;
+  border-bottom:1px solid #222;
+}
+
+/* ================= STORIES ================= */
+.stories{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  overflow-x:auto;
+}
+
+.story{
+  min-width:60px;
+  height:60px;
+  border-radius:50%;
+  background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af);
+}
+
+/* ================= POST ================= */
+.post{
+  padding:12px;
+  border-bottom:1px solid #222;
+}
+
+.header{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.avatar{
+  width:32px;
+  height:32px;
+  border-radius:50%;
+  background:#333;
+}
+
+.img{
+  width:100%;
+  height:260px;
+  background:#111;
+  margin-top:10px;
+  border-radius:12px;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  margin-top:8px;
+}
+
+/* ================= NAV BAR BLUR ================= */
+.nav{
+  position:fixed;
+  bottom:12px;
+  left:50%;
+  transform:translateX(-50%);
+  width:92%;
+  height:60px;
+
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+
+  background:rgba(20,20,20,0.6);
+  backdrop-filter:blur(15px);
+  -webkit-backdrop-filter:blur(15px);
+
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:18px;
+}
+
+.nav span{
+  font-size:18px;
+  opacity:0.9;
+  cursor:pointer;
+}
+
+/* ================= PROFILE ================= */
+.profile{
+  padding:15px;
+}
+
+.profileHeader{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-bottom:15px;
+}
+
+.bigAvatar{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:#333;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:2px;
+}
+
+.grid div{
+  height:120px;
+  background:#111;
+}
+.hidden{display:none}
+</style>
 </head>
 
 <body>
 
-<div id="app">
+<!-- LOGIN -->
+<div id="loginView" class="login">
+  <h1>Instant</h1>
 
-  <!-- TOP -->
-  <div class="topbar">
-    <div class="logo">Instant</div>
+  <input id="user" placeholder="usuario">
+  <input id="pass" type="password" placeholder="contraseña">
 
-    <div class="top-icons">
-      <!-- search -->
-      <svg class="icon" viewBox="0 0 24 24">
-        <path d="M10 2a8 8 0 105.3 14.1l4.3 4.3 1.4-1.4-4.3-4.3A8 8 0 0010 2z"/>
-      </svg>
-    </div>
-  </div>
+  <button onclick="login()">Entrar</button>
+  <button onclick="register()">Crear cuenta</button>
+</div>
 
-  <!-- COMPOSER -->
-  <div class="composer">
-    <input id="postText" placeholder="¿Qué estás pensando?">
-    <input id="postImg" placeholder="URL imagen (opcional)">
+<!-- APP -->
+<div id="app" class="hidden">
+
+  <div class="topbar">Instant</div>
+
+  <div class="stories" id="stories"></div>
+
+  <div style="padding:10px">
+    <input id="text" placeholder="publicación">
+    <input id="img" placeholder="imagen URL">
     <button onclick="createPost()">Publicar</button>
   </div>
 
-  <!-- FEED -->
   <div id="feed"></div>
 
   <!-- PROFILE -->
-  <div id="profile" class="hidden"></div>
+  <div id="profile" class="profile hidden"></div>
 
-  <!-- NAVBAR REAL -->
+  <!-- NAV BAR BLUR -->
   <div class="nav">
-
-    <svg onclick="showFeed()" class="icon" viewBox="0 0 24 24">
-      <path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2h-5v-6H10v6H5a2 2 0 0 1-2-2z"/>
-    </svg>
-
-    <svg onclick="searchUI()" class="icon" viewBox="0 0 24 24">
-      <path d="M10 2a8 8 0 105.3 14.1l4.3 4.3 1.4-1.4-4.3-4.3A8 8 0 0010 2z"/>
-    </svg>
-
-    <svg onclick="createPostFocus()" class="icon plus" viewBox="0 0 24 24">
-      <path d="M12 5v14M5 12h14"/>
-    </svg>
-
-    <svg onclick="showProfile()" class="icon" viewBox="0 0 24 24">
-      <path d="M12 12a4 4 0 100-8 4 4 0 000 8zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z"/>
-    </svg>
-
-    <svg onclick="settingsUI()" class="icon" viewBox="0 0 24 24">
-      <path d="M12 8a4 4 0 100 8 4 4 0 000-8zm9 4l-2 1 1 2-2 2-2-1-1 2h-3l-1-2-2 1-2-2 1-2-2-1v-3l2-1-1-2 2-2 2 1 1-2h3l1 2 2-1 2 2-1 2 2 1z"/>
-    </svg>
-
+    <span onclick="loadFeed()">🏠</span>
+    <span onclick="loadStories()">🔍</span>
+    <span onclick="openProfile()">👤</span>
+    <span onclick="addStory()">➕</span>
+    <span>⚙️</span>
   </div>
 
 </div>
 
-<script src="app.js"></script>
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+const firebaseConfig = {
+  apiKey:"AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+  authDomain:"vozanonimasm.firebaseapp.com",
+  projectId:"vozanonimasm"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+
+let currentUser=null;
+
+/* ================= LOGIN MEJORADO ================= */
+async function login(){
+  const snap=await db.collection("users")
+  .where("username","==",user.value)
+  .where("password","==",pass.value)
+  .get();
+
+  if(snap.empty) return alert("credenciales incorrectas");
+
+  currentUser=snap.docs[0].data();
+  showApp();
+}
+
+async function register(){
+  if(!user.value||!pass.value) return;
+
+  await db.collection("users").add({
+    username:user.value,
+    password:pass.value,
+    created:Date.now()
+  });
+
+  alert("cuenta creada");
+}
+
+/* ================= APP ================= */
+function showApp(){
+  loginView.classList.add("hidden");
+  app.classList.remove("hidden");
+  loadFeed();
+  loadStories();
+}
+
+/* ================= POST ================= */
+function createPost(){
+  db.collection("posts").add({
+    username:currentUser.username,
+    text:text.value,
+    image:img.value||"",
+    created:Date.now(),
+    likes:0
+  });
+
+  text.value="";
+  img.value="";
+}
+
+/* ================= FEED ================= */
+function loadFeed(){
+  db.collection("posts")
+  .orderBy("created","desc")
+  .onSnapshot(s=>{
+    let html="";
+    s.forEach(d=>{
+      let p=d.data();
+
+      html+=`
+      <div class="post">
+        <div class="header">
+          <div class="avatar"></div>
+          <b onclick="openProfile('${p.username}')">@${p.username}</b>
+        </div>
+
+        ${p.image?`<img class="img" src="${p.image}">`:`<div class="img"></div>`}
+
+        <div class="actions">
+          ❤️ ${p.likes||0}
+        </div>
+
+        <p><b>@${p.username}</b> ${p.text}</p>
+      </div>`;
+    });
+
+    feed.innerHTML=html;
+  });
+}
+
+/* ================= STORIES ================= */
+function loadStories(){
+  db.collection("stories")
+  .orderBy("created","desc")
+  .onSnapshot(s=>{
+    let html="";
+    s.forEach(d=>{
+      html+=`<div class="story"></div>`;
+    });
+    stories.innerHTML=html;
+  });
+}
+
+function addStory(){
+  let url=prompt("url story");
+  if(!url)return;
+
+  db.collection("stories").add({
+    user:currentUser.username,
+    image:url,
+    created:Date.now()
+  });
+}
+
+/* ================= PROFILE ================= */
+function openProfile(user=currentUser.username){
+
+  app.querySelectorAll("*").forEach(e=>e.classList.add("hidden"));
+  profile.classList.remove("hidden");
+
+  db.collection("posts")
+  .where("username","==",user)
+  .get()
+  .then(s=>{
+    let html=`
+      <div class="profileHeader">
+        <div class="bigAvatar"></div>
+        <div>
+          <b>@${user}</b><br>
+          <small>${s.size} posts</small>
+        </div>
+      </div>
+
+      <div class="grid">
+    `;
+
+    s.forEach(()=>html+=`<div></div>`);
+
+    html+=`</div>`;
+    profile.innerHTML=html;
+  });
+}
+</script>
+
 </body>
 </html>
