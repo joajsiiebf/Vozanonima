@@ -3,350 +3,357 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JSCOL_OS V35 | PRO</title>
+    <title>JSCOL_OS V36 | ULTIMATUM</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #000; --surface: #0A0A0A; --accent: #D4AF37; --border: #1F1F1F;
             --text: #fff; --dim: #71767B; --gold: #D4AF37; --error: #f4212e;
-            --glass: rgba(0, 0, 0, 0.7);
+            --glass: rgba(0, 0, 0, 0.8);
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
         body { background: var(--bg); color: var(--text); overflow: hidden; position: fixed; width: 100%; height: 100%; }
 
-        /* --- UI FRAMEWORK --- */
+        /* --- FRAMEWORK DE VISTAS --- */
         #app-root { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; border-inline: 1px solid var(--border); display: flex; flex-direction: column; background: #000; position: relative; }
         
-        .view { flex: 1; overflow-y: auto; display: none; padding-bottom: 80px; opacity: 0; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .view.active { display: block; opacity: 1; transform: translateY(0); }
+        .view { flex: 1; overflow-y: auto; display: none; padding-bottom: 90px; scroll-behavior: smooth; }
+        .view.active { display: block; animation: viewSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        @keyframes viewSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .view::-webkit-scrollbar { display: none; }
 
-        /* --- SKELETON ANIMADO (Punto 49) --- */
-        .skeleton { background: linear-gradient(90deg, #0A0A0A 25%, #161616 50%, #0A0A0A 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 12px; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-        /* --- POSTS PRO (Punto 107) --- */
-        .post { padding: 16px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* --- UI COMPONENTS --- */
+        header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 1000; }
         
-        .avatar-circle { width: 48px; height: 48px; border-radius: 50%; background: #151515; flex-shrink: 0; overflow: hidden; border: 1px solid var(--border); display: grid; place-items: center; font-weight: 800; color: var(--accent); }
-        .avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
-
-        .post-content { flex: 1; }
-        .post-header { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
-        .post-name { font-weight: 800; font-size: 15px; }
-        .post-handle { color: var(--dim); font-size: 14px; }
-        .post-body { font-size: 15px; line-height: 1.5; color: #eff3f4; margin-bottom: 12px; }
-
-        .post-actions { display: flex; justify-content: space-between; max-width: 300px; color: var(--dim); }
-        .btn-action { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; transition: 0.2s; background: none; border: none; color: inherit; }
-        .btn-action svg { width: 18px; fill: currentColor; }
-        .btn-action.liked { color: #f91880; }
-        .btn-action.liked svg { transform: scale(1.2); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-
-        /* --- HEADER & NAV --- */
-        header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(20px); sticky; top: 0; z-index: 100; }
-        nav { height: 65px; border-top: 1px solid var(--border); display: flex; background: #000; position: absolute; bottom: 0; width: 100%; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 800; color: var(--dim); cursor: pointer; }
+        nav { height: 65px; border-top: 1px solid var(--border); display: flex; background: #000; position: absolute; bottom: 0; width: 100%; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
+        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 800; color: var(--dim); cursor: pointer; transition: 0.2s; }
         .nav-link.active { color: var(--accent); }
+        .nav-link svg { width: 24px; height: 24px; }
 
-        /* --- TOAST PRO (Punto 133) --- */
-        #toast-container { position: fixed; bottom: 85px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 8px; }
-        .toast { background: var(--accent); color: #000; padding: 12px 20px; border-radius: 12px; font-weight: 800; font-size: 13px; box-shadow: 0 8px 24px rgba(0,0,0,0.4); animation: toastIn 0.3s ease; }
-        @keyframes toastIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        /* --- POSTS ESTILO X (PRO) --- */
+        .post { padding: 16px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; }
+        .p-side { flex-shrink: 0; }
+        .avatar { width: 48px; height: 48px; border-radius: 50%; background: #151515; border: 1px solid var(--border); overflow: hidden; display: grid; place-items: center; font-weight: 800; color: var(--accent); }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .p-content { flex: 1; min-width: 0; }
+        .p-header { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
+        .p-name { font-weight: 800; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-handle { color: var(--dim); font-size: 14px; }
+        .p-body { font-size: 15px; line-height: 1.5; color: #eff3f4; word-wrap: break-word; }
+        .p-media { margin-top: 12px; border-radius: 16px; border: 1px solid var(--border); width: 100%; overflow: hidden; }
+        .p-media img { width: 100%; display: block; }
+        
+        .p-actions { display: flex; margin-top: 12px; gap: 30px; color: var(--dim); }
+        .action-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: inherit; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .action-btn svg { width: 18px; fill: currentColor; }
+        .action-btn.liked { color: #f91880; }
+        .action-btn.liked svg { transform: scale(1.1); }
 
-        /* --- MODAL (Punto 131) --- */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; display: none; place-items: center; padding: 20px; backdrop-filter: blur(5px); }
-        .modal-content { background: #000; width: 100%; max-width: 400px; border-radius: 20px; border: 1px solid var(--border); overflow: hidden; }
+        /* --- SKELETON --- */
+        .skeleton { background: linear-gradient(90deg, #050505 25%, #111 50%, #050505 75%); background-size: 200% 100%; animation: skeletonWave 1.5s infinite; border-radius: 12px; }
+        @keyframes skeletonWave { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* --- MODALES & TOAST --- */
+        .modal { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; flex-direction: column; }
+        #toast-box { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 5000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+        .toast { background: var(--accent); color: #000; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
+        @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
 <div id="app-root">
     <header>
-        <div style="font-weight:900; color:var(--accent)">JSCOL_OS <span style="color:var(--dim); font-weight:400">V35</span></div>
-        <div id="sync-indicator" style="width:8px; height:8px; border-radius:50%; background:var(--dim)"></div>
+        <div style="font-weight:900; color:var(--accent); font-size:18px; letter-spacing:-0.5px">JSCOL_OS</div>
+        <div id="status-dot" style="width:8px; height:8px; border-radius:50%; background:#222"></div>
     </header>
 
     <main style="flex:1; position:relative; overflow:hidden">
         <section id="view-home" class="view active">
-            <div id="feed-render"></div>
-            <div id="feed-loader" style="padding:20px">
+            <div id="render-home"></div>
+            <div id="home-loader" style="padding:20px">
                 <div class="skeleton" style="height:120px; margin-bottom:12px"></div>
                 <div class="skeleton" style="height:120px"></div>
             </div>
         </section>
 
         <section id="view-profile" class="view">
-            <div style="height:100px; background:#111"></div>
-            <div style="padding:0 16px; margin-top:-40px">
-                <div class="avatar-circle" id="prof-avatar-big" style="width:80px; height:80px; border:4px solid #000; font-size:24px"></div>
-                <h2 id="prof-name" style="margin-top:10px">---</h2>
-                <p id="prof-handle" style="color:var(--dim)">@---</p>
-                <p id="prof-bio" style="margin-top:10px; font-size:14px; color:#ccc"></p>
-                <button onclick="APP.Router.go('settings')" style="width:100%; margin-top:15px; background:transparent; border:1px solid var(--border); color:#fff; padding:10px; border-radius:10px; font-weight:700">Editar Perfil</button>
+            <div style="height:120px; background:#151515"></div>
+            <div style="padding:0 16px; margin-top:-45px">
+                <div class="avatar" id="prof-avatar-ui" style="width:90px; height:90px; border:4px solid #000; font-size:28px"></div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px">
+                    <div>
+                        <h1 id="prof-name-ui" style="font-size:22px; font-weight:800">---</h1>
+                        <p id="prof-handle-ui" style="color:var(--dim)">@---</p>
+                    </div>
+                    <button onclick="JSCOL.Router.go('settings')" style="border:1px solid var(--border); background:transparent; color:#fff; padding:8px 16px; border-radius:20px; font-weight:700">Editar</button>
+                </div>
+                <p id="prof-bio-ui" style="margin-top:12px; color:#cfd9de; font-size:15px"></p>
             </div>
-            <div id="profile-feed" style="margin-top:20px; border-top:1px solid var(--border)"></div>
+            <div id="render-profile" style="margin-top:20px; border-top:1px solid var(--border)"></div>
         </section>
 
         <section id="view-settings" class="view">
             <div style="padding:20px">
-                <h3 style="margin-bottom:20px">Configuración de Cuenta</h3>
-                <div style="margin-bottom:15px">
-                    <label style="font-size:11px; font-weight:800; color:var(--accent)">NOMBRE</label>
-                    <input type="text" id="set-name" style="width:100%; background:#111; border:1px solid var(--border); padding:12px; border-radius:8px; color:#fff; margin-top:5px">
+                <h2 style="margin-bottom:24px">Ajustes del Sistema</h2>
+                <div style="margin-bottom:20px">
+                    <label style="font-size:11px; font-weight:900; color:var(--accent); display:block; margin-bottom:8px">NOMBRE PÚBLICO</label>
+                    <input type="text" id="in-name" style="width:100%; background:#0A0A0A; border:1px solid var(--border); padding:14px; border-radius:12px; color:#fff; outline:none">
                 </div>
-                <div style="margin-bottom:15px">
-                    <label style="font-size:11px; font-weight:800; color:var(--accent)">BIO</label>
-                    <textarea id="set-bio" style="width:100%; background:#111; border:1px solid var(--border); padding:12px; border-radius:8px; color:#fff; margin-top:5px; height:80px"></textarea>
+                <div style="margin-bottom:20px">
+                    <label style="font-size:11px; font-weight:900; color:var(--accent); display:block; margin-bottom:8px">BIOGRAFÍA</label>
+                    <textarea id="in-bio" style="width:100%; background:#0A0A0A; border:1px solid var(--border); padding:14px; border-radius:12px; color:#fff; outline:none; height:100px; resize:none"></textarea>
                 </div>
-                <div style="margin-bottom:15px">
-                    <label style="font-size:11px; font-weight:800; color:var(--accent)">URL AVATAR</label>
-                    <input type="text" id="set-avatar" style="width:100%; background:#111; border:1px solid var(--border); padding:12px; border-radius:8px; color:#fff; margin-top:5px">
+                <div style="margin-bottom:20px">
+                    <label style="font-size:11px; font-weight:900; color:var(--accent); display:block; margin-bottom:8px">URL DE AVATAR (IMGUR/GOOGLE)</label>
+                    <input type="text" id="in-avatar" style="width:100%; background:#0A0A0A; border:1px solid var(--border); padding:14px; border-radius:12px; color:#fff; outline:none">
                 </div>
-                <button onclick="APP.Auth.updateProfile()" style="width:100%; background:var(--accent); color:#000; border:none; padding:14px; border-radius:10px; font-weight:900">GUARDAR CAMBIOS</button>
+                <button onclick="JSCOL.User.update()" style="width:100%; background:var(--accent); color:#000; border:none; padding:16px; border-radius:12px; font-weight:900; font-size:15px">GUARDAR IDENTIDAD</button>
             </div>
         </section>
     </main>
 
     <nav>
-        <div class="nav-link active" onclick="APP.Router.go('home')">
-            <svg style="width:24px" viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            INICIO
+        <div class="nav-link active" onclick="JSCOL.Router.go('home')">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            FEED
         </div>
-        <div class="nav-link" onclick="APP.UI.toggleModal('post-modal', true)">
-            <svg style="width:24px; color:var(--accent)" viewBox="0 0 24 24"><path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        <div class="nav-link" onclick="JSCOL.UI.modal('m-post', true)" style="color:var(--accent)">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 13h-6v6-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
             POST
         </div>
-        <div class="nav-link" onclick="APP.Router.go('profile')">
-            <svg style="width:24px" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <div class="nav-link" onclick="JSCOL.Router.go('profile')">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
             PERFIL
         </div>
     </nav>
 </div>
 
-<div id="post-modal" class="modal-overlay">
-    <div class="modal-content">
-        <div style="padding:16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between">
-            <span onclick="APP.UI.toggleModal('post-modal', false)">Cancelar</span>
-            <button onclick="APP.Social.createPost()" style="background:var(--accent); color:#000; border:none; padding:6px 16px; border-radius:20px; font-weight:800">Publicar</button>
-        </div>
-        <textarea id="post-input" style="width:100%; height:150px; background:transparent; border:none; color:#fff; padding:20px; font-size:18px; outline:none; resize:none" placeholder="¿Qué está pasando?"></textarea>
-    </div>
+<div id="m-post" class="modal">
+    <header>
+        <span onclick="JSCOL.UI.modal('m-post', false)">Cancelar</span>
+        <button onclick="JSCOL.Social.publish()" style="background:var(--accent); color:#000; border:none; padding:8px 20px; border-radius:20px; font-weight:800">Publicar</button>
+    </header>
+    <textarea id="post-txt" style="flex:1; background:transparent; border:none; color:#fff; padding:20px; font-size:19px; outline:none; resize:none" placeholder="¿Qué quieres contar? (Pega un link de imagen para adjuntar)"></textarea>
 </div>
 
-<div id="toast-container"></div>
+<div id="toast-box"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
 /**
- * JSCOL_OS V35 - MODULAR ENGINE
+ * JSCOL_OS V36 - MOTOR MODULAR PROFESIONAL
  */
 
 const firebaseConfig = { apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU", authDomain: "vozanonimasm.firebaseapp.com", projectId: "vozanonimasm" };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-const APP = {
-    // ESTADO GLOBAL (Punto 42)
+const JSCOL = {
+    // ESTADO (Punto 42)
     State: {
-        user: {
-            id: localStorage.getItem('jscol_uid') || 'u_' + Math.random().toString(36).substr(2, 5),
-            name: localStorage.getItem('jscol_name') || 'Explorador',
-            avatar: localStorage.getItem('jscol_avatar') || '',
-            bio: localStorage.getItem('jscol_bio') || 'Bio vacía...',
-            verified: localStorage.getItem('jscol_verified') === 'true'
+        me: {
+            uid: localStorage.getItem('js_uid') || 'u_' + Math.random().toString(36).substr(2, 5),
+            name: localStorage.getItem('js_name') || 'Anónimo',
+            bio: localStorage.getItem('js_bio') || 'Explorando JSCOL_OS...',
+            avatar: localStorage.getItem('js_avatar') || '',
+            verified: localStorage.getItem('js_verify') === 'true'
         },
-        view: 'home',
-        activeListeners: []
+        lastDoc: null,
+        loading: false,
+        activeView: 'home'
     },
 
-    // MÓDULO AUTH & PERFIL (Punto 81-90)
-    Auth: {
-        init() {
-            localStorage.setItem('jscol_uid', APP.State.user.id);
-            this.syncWithDB();
-        },
-        async syncWithDB() {
-            const userRef = db.collection('users').doc(APP.State.user.id);
-            const doc = await userRef.get();
-            
-            if (doc.exists) {
-                const data = doc.data();
-                APP.State.user = { ...APP.State.user, ...data };
-                this.updateLocal();
+    // MÓDULO USUARIO (Punto 81)
+    User: {
+        async init() {
+            localStorage.setItem('js_uid', JSCOL.State.me.uid);
+            const ref = db.collection('users').doc(JSCOL.State.me.uid);
+            const doc = await ref.get();
+            if(doc.exists) {
+                JSCOL.State.me = { ...JSCOL.State.me, ...doc.data() };
             } else {
-                await userRef.set(APP.State.user);
+                await ref.set(JSCOL.State.me);
             }
-            APP.UI.syncProfileUI();
+            this.syncUI();
+            document.getElementById('status-dot').style.background = 'var(--gold)';
         },
-        async updateProfile() {
-            const newName = document.getElementById('set-name').value;
-            const newBio = document.getElementById('set-bio').value;
-            const newAvatar = document.getElementById('set-avatar').value;
-
-            APP.State.user.name = newName;
-            APP.State.user.bio = newBio;
-            APP.State.user.avatar = newAvatar;
-
-            await db.collection('users').doc(APP.State.user.id).update(APP.State.user);
-            this.updateLocal();
-            APP.UI.toast("PERFIL ACTUALIZADO EN DB");
-            APP.Router.go('profile');
+        async update() {
+            const data = {
+                name: document.getElementById('in-name').value.trim() || 'Anónimo',
+                bio: document.getElementById('in-bio').value.trim(),
+                avatar: document.getElementById('in-avatar').value.trim()
+            };
+            await db.collection('users').doc(JSCOL.State.me.uid).update(data);
+            JSCOL.State.me = { ...JSCOL.State.me, ...data };
+            
+            localStorage.setItem('js_name', data.name);
+            localStorage.setItem('js_bio', data.bio);
+            localStorage.setItem('js_avatar', data.avatar);
+            
+            this.syncUI();
+            JSCOL.UI.toast("PERFIL ACTUALIZADO");
+            JSCOL.Router.go('profile');
         },
-        updateLocal() {
-            localStorage.setItem('jscol_name', APP.State.user.name);
-            localStorage.setItem('jscol_bio', APP.State.user.bio);
-            localStorage.setItem('jscol_avatar', APP.State.user.avatar);
+        syncUI() {
+            const u = JSCOL.State.me;
+            document.getElementById('prof-name-ui').innerText = u.name;
+            document.getElementById('prof-handle-ui').innerText = '@' + u.uid;
+            document.getElementById('prof-bio-ui').innerText = u.bio;
+            document.getElementById('prof-avatar-ui').innerHTML = u.avatar ? `<img src="${u.avatar}">` : u.name[0];
+            
+            document.getElementById('in-name').value = u.name;
+            document.getElementById('in-bio').value = u.bio;
+            document.getElementById('in-avatar').value = u.avatar;
         }
     },
 
-    // MÓDULO SOCIAL (Punto 31-40)
+    // MÓDULO SOCIAL (Punto 16, 32, 47)
     Social: {
-        async createPost() {
-            const text = document.getElementById('post-input').value.trim();
-            if (!text) return;
+        async publish() {
+            const txt = document.getElementById('post-txt').value.trim();
+            if(!txt) return;
 
-            const postData = {
-                uid: APP.State.user.id,
-                author: APP.State.user.name,
-                avatar: APP.State.user.avatar,
-                content: text,
-                likesCount: 0,
-                isVerify: APP.State.user.verified,
+            const imgRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg))/i;
+            const match = txt.match(imgRegex);
+
+            const post = {
+                uid: JSCOL.State.me.uid,
+                author: JSCOL.State.me.name,
+                avatar: JSCOL.State.me.avatar,
+                content: txt,
+                media: match ? match[0] : null,
+                likes: 0,
+                isVerify: JSCOL.State.me.verified,
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             };
 
-            await db.collection('posts').add(postData);
-            document.getElementById('post-input').value = '';
-            APP.UI.toggleModal('post-modal', false);
-            APP.UI.toast("POST PUBLICADO");
+            await db.collection('posts').add(post);
+            document.getElementById('post-txt').value = '';
+            JSCOL.UI.modal('m-post', false);
+            JSCOL.UI.toast("POST ENVIADO");
+            JSCOL.Social.loadFeed('render-home');
         },
 
-        async toggleLike(postId) {
-            const likeId = `${postId}_${APP.State.user.id}`;
-            const likeRef = db.collection('likes').doc(likeId);
-            const postRef = db.collection('posts').doc(postId);
+        async loadFeed(containerId, filterUid = null, append = false) {
+            if(JSCOL.State.loading) return;
+            JSCOL.State.loading = true;
 
-            try {
-                await db.runTransaction(async (transaction) => {
-                    const likeDoc = await transaction.get(likeRef);
-                    if (!likeDoc.exists) {
-                        transaction.set(likeRef, { uid: APP.State.user.id, postId });
-                        transaction.update(postRef, { likesCount: firebase.firestore.FieldValue.increment(1) });
-                    } else {
-                        transaction.delete(likeRef);
-                        transaction.update(postRef, { likesCount: firebase.firestore.FieldValue.increment(-1) });
-                    }
-                });
-            } catch (e) {
-                APP.UI.toast("Error al procesar Like");
-            }
-        },
+            let query = db.collection('posts').orderBy('timestamp', 'desc').limit(12);
+            if(filterUid) query = query.where('uid', '==', filterUid);
+            if(append && JSCOL.State.lastDoc) query = query.startAfter(JSCOL.State.lastDoc);
 
-        listenFeed(containerId, filterUid = null) {
-            // Limpiar listeners antiguos (Punto 7)
-            APP.State.activeListeners.forEach(unsub => unsub());
-            APP.State.activeListeners = [];
-
-            let query = db.collection('posts').orderBy('timestamp', 'desc').limit(40);
-            if (filterUid) query = query.where('uid', '==', filterUid);
-
-            const unsub = query.onSnapshot(snap => {
-                const container = document.getElementById(containerId);
-                container.innerHTML = '';
-                document.getElementById('feed-loader').style.display = 'none';
-
-                snap.forEach(doc => {
-                    const post = doc.data();
-                    const el = APP.UI.createPostElement(doc.id, post);
-                    container.appendChild(el);
-                });
+            const snap = await query.get();
+            const box = document.getElementById(containerId);
+            if(!append) box.innerHTML = '';
+            
+            JSCOL.State.lastDoc = snap.docs[snap.docs.length - 1];
+            
+            snap.forEach(doc => {
+                box.appendChild(JSCOL.UI.renderPost(doc.id, doc.data()));
             });
 
-            APP.State.activeListeners.push(unsub);
+            document.getElementById('home-loader').style.display = 'none';
+            JSCOL.State.loading = false;
+        },
+
+        async like(id) {
+            const ref = db.collection('posts').doc(id);
+            await ref.update({ likes: firebase.firestore.FieldValue.increment(1) });
+            // Efecto visual rápido
+            const countEl = document.querySelector(`[data-id="${id}"] .like-count`);
+            if(countEl) countEl.innerText = parseInt(countEl.innerText) + 1;
+        },
+
+        async delete(id, ownerId) {
+            if(ownerId !== JSCOL.State.me.uid) return;
+            if(confirm("¿Eliminar este post?")) {
+                await db.collection('posts').doc(id).delete();
+                document.querySelector(`[data-id="${id}"]`).style.opacity = '0.3';
+                JSCOL.UI.toast("ELIMINADO");
+            }
         }
     },
 
     // MÓDULO ROUTER (Punto 43)
     Router: {
-        go(view) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-
-            const target = document.getElementById('view-' + view);
+        go(v) {
+            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+            
+            const target = document.getElementById('view-' + v);
             target.classList.add('active');
-            APP.State.view = view;
+            JSCOL.State.activeView = v;
+            JSCOL.State.lastDoc = null;
 
-            // Lógica de carga por vista
-            if (view === 'home') {
-                APP.Social.listenFeed('feed-render');
+            if(v === 'home') {
+                JSCOL.Social.loadFeed('render-home');
                 document.querySelectorAll('.nav-link')[0].classList.add('active');
             }
-            if (view === 'profile') {
-                APP.UI.syncProfileUI();
-                APP.Social.listenFeed('profile-feed', APP.State.user.id);
+            if(v === 'profile') {
+                JSCOL.Social.loadFeed('render-profile', JSCOL.State.me.uid);
                 document.querySelectorAll('.nav-link')[2].classList.add('active');
             }
         }
     },
 
-    // MÓDULO UI (Punto 101-140)
+    // MÓDULO UI (Punto 107, 133, 160)
     UI: {
-        createPostElement(id, post) {
+        renderPost(id, p) {
             const div = document.createElement('div');
             div.className = 'post';
+            div.dataset.id = id;
+            const isMe = p.uid === JSCOL.State.me.uid;
+
             div.innerHTML = `
-                <div class="avatar-circle">${post.avatar ? `<img src="${post.avatar}">` : post.author[0]}</div>
-                <div class="post-content">
-                    <div class="post-header">
-                        <span class="post-name">${post.author}</span>
-                        ${post.isVerify ? '<svg style="width:14px; fill:var(--gold)" viewBox="0 0 24 24"><path d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"/></svg>' : ''}
-                        <span class="post-handle">@${post.uid}</span>
+                <div class="p-side">
+                    <div class="avatar">${p.avatar ? `<img src="${p.avatar}">` : p.author[0]}</div>
+                </div>
+                <div class="p-content">
+                    <div class="p-header">
+                        <span class="p-name">${p.author}</span>
+                        ${p.isVerify ? '<svg style="width:14px; fill:var(--gold)" viewBox="0 0 24 24"><path d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"/></svg>' : ''}
+                        <span class="p-handle">@${p.uid}</span>
+                        ${isMe ? `<span onclick="JSCOL.Social.delete('${id}', '${p.uid}')" style="margin-left:auto; color:var(--error); font-size:11px; font-weight:900">BORRAR</span>` : ''}
                     </div>
-                    <div class="post-body">${post.content}</div>
-                    <div class="post-actions">
-                        <button class="btn-action" onclick="APP.Social.toggleLike('${id}')">
+                    <div class="p-body">${p.content}</div>
+                    ${p.media ? `<div class="p-media"><img src="${p.media}" loading="lazy"></div>` : ''}
+                    <div class="p-actions">
+                        <button class="action-btn" onclick="JSCOL.Social.like('${id}')">
                             <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            <span>${post.likesCount || 0}</span>
-                        </button>
-                        <button class="btn-action">
-                            <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                            <span class="like-count">${p.likes || 0}</span>
                         </button>
                     </div>
                 </div>
             `;
             return div;
         },
-        syncProfileUI() {
-            const u = APP.State.user;
-            document.getElementById('prof-name').innerText = u.name;
-            document.getElementById('prof-handle').innerText = '@' + u.id;
-            document.getElementById('prof-bio').innerText = u.bio;
-            document.getElementById('prof-avatar-big').innerHTML = u.avatar ? `<img src="${u.avatar}">` : u.name[0];
-            
-            document.getElementById('set-name').value = u.name;
-            document.getElementById('set-bio').value = u.bio;
-            document.getElementById('set-avatar').value = u.avatar;
-        },
-        toast(msg) {
-            const container = document.getElementById('toast-container');
+        toast(m) {
+            const box = document.getElementById('toast-box');
             const t = document.createElement('div');
             t.className = 'toast';
-            t.innerText = msg;
-            container.appendChild(t);
+            t.innerText = m;
+            box.appendChild(t);
             setTimeout(() => t.remove(), 3000);
         },
-        toggleModal(id, show) {
-            document.getElementById(id).style.display = show ? 'grid' : 'none';
-        }
+        modal(id, s) { document.getElementById(id).style.display = s ? 'flex' : 'none'; }
+    }
+};
+
+// DETECTOR DE SCROLL INFINITO (Punto 47)
+document.getElementById('view-home').onscroll = function(e) {
+    const el = e.target;
+    if(el.scrollHeight - el.scrollTop <= el.clientHeight + 80) {
+        JSCOL.Social.loadFeed('render-home', null, true);
     }
 };
 
 window.onload = () => {
-    APP.Auth.init();
-    APP.Router.go('home');
+    JSCOL.User.init();
+    JSCOL.Router.go('home');
 };
 </script>
 </body>
