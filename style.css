@@ -1,3 +1,28 @@
+/* entrada suave de posts */
+.post {
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* feedback táctil botones */
+button:active {
+  transform: scale(0.96);
+}
+
+/* transición de pantallas */
+.screen {
+  transition: opacity 0.2s ease;
+}
 *{
   margin:0;
   padding:0;
