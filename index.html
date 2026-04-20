@@ -6,152 +6,123 @@
 <title>Instant</title>
 
 <style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family:-apple-system, system-ui;
+:root{
+  --bg:#000;
+  --card:#111;
+  --text:#fff;
+  --glass:rgba(20,20,20,0.55);
+  --accent:#3897f0;
+}
+
+.light{
+  --bg:#f5f5f5;
+  --card:#fff;
+  --text:#000;
+  --glass:rgba(255,255,255,0.6);
 }
 
 body{
-  background:#000;
-  color:#fff;
+  margin:0;
+  font-family:-apple-system;
+  background:var(--bg);
+  color:var(--text);
+  overflow:hidden;
 }
 
-/* ================= LOGIN MODERNO ================= */
-.login{
-  height:100vh;
+/* ================= WELCOME ================= */
+#welcome{
+  position:absolute;
+  width:100%;
+  height:100%;
   display:flex;
   flex-direction:column;
   justify-content:center;
-  padding:25px;
+  align-items:center;
   gap:10px;
+  animation:fadeIn 1s ease;
 }
 
-.login h1{
-  text-align:center;
-  margin-bottom:20px;
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
 }
 
-input{
-  padding:12px;
+#welcome button{
+  padding:12px 20px;
   border:none;
   border-radius:12px;
-  background:#111;
+  background:var(--accent);
   color:#fff;
-  outline:none;
 }
 
-button{
-  padding:12px;
-  border:none;
-  border-radius:12px;
-  background:#3897f0;
-  color:#fff;
-  font-weight:600;
+/* ================= LOGIN ================= */
+.screen{
+  position:absolute;
+  width:100%;
+  height:100%;
+  top:0;
+  left:100%;
+  transition:.35s ease;
+  overflow:auto;
+}
+
+.screen.active{left:0}
+
+.login{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:20px;
+  gap:10px;
 }
 
 /* ================= TOP ================= */
-.topbar{
-  padding:14px;
-  font-weight:700;
-  border-bottom:1px solid #222;
-}
-
-/* ================= STORIES ================= */
-.stories{
+.top{
   display:flex;
-  gap:10px;
-  padding:10px;
-  overflow-x:auto;
+  justify-content:space-between;
+  padding:14px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
-.story{
-  min-width:60px;
-  height:60px;
-  border-radius:50%;
-  background:linear-gradient(45deg,#f58529,#dd2a7b,#8134af);
-}
-
-/* ================= POST ================= */
+/* ================= FEED ================= */
 .post{
   padding:12px;
-  border-bottom:1px solid #222;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  animation:pop .25s ease;
 }
 
-.header{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
-.avatar{
-  width:32px;
-  height:32px;
-  border-radius:50%;
-  background:#333;
+@keyframes pop{
+  from{transform:translateY(10px);opacity:0}
+  to{transform:translateY(0);opacity:1}
 }
 
 .img{
   width:100%;
   height:260px;
-  background:#111;
-  margin-top:10px;
+  background:#222;
   border-radius:12px;
+  margin-top:10px;
 }
 
-.actions{
-  display:flex;
-  gap:10px;
-  margin-top:8px;
-}
-
-/* ================= NAV BAR BLUR ================= */
+/* ================= NAV BAR (LIQUID GLASS) ================= */
 .nav{
   position:fixed;
-  bottom:12px;
+  bottom:14px;
   left:50%;
   transform:translateX(-50%);
   width:92%;
   height:60px;
-
+  background:var(--glass);
+  backdrop-filter:blur(20px);
+  border-radius:20px;
   display:flex;
   justify-content:space-around;
   align-items:center;
-
-  background:rgba(20,20,20,0.6);
-  backdrop-filter:blur(15px);
-  -webkit-backdrop-filter:blur(15px);
-
-  border:1px solid rgba(255,255,255,0.08);
-  border-radius:18px;
-}
-
-.nav span{
-  font-size:18px;
-  opacity:0.9;
-  cursor:pointer;
+  border:1px solid rgba(255,255,255,0.1);
 }
 
 /* ================= PROFILE ================= */
-.profile{
-  padding:15px;
-}
-
-.profileHeader{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  margin-bottom:15px;
-}
-
-.bigAvatar{
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:#333;
-}
-
 .grid{
   display:grid;
   grid-template-columns:repeat(3,1fr);
@@ -159,53 +130,71 @@ button{
 }
 
 .grid div{
-  height:120px;
-  background:#111;
+  height:110px;
+  background:#222;
 }
+
+/* ================= NOTIFY ================= */
+.notify{
+  position:fixed;
+  top:60px;
+  right:10px;
+  background:var(--card);
+  padding:10px;
+  border-radius:12px;
+  font-size:12px;
+}
+
 .hidden{display:none}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
-<div id="loginView" class="login">
+<!-- WELCOME SCREEN -->
+<div id="welcome">
   <h1>Instant</h1>
+  <p>Tu red social privada</p>
+  <button onclick="goLogin()">Continuar</button>
+</div>
 
-  <input id="user" placeholder="usuario">
-  <input id="pass" type="password" placeholder="contraseña">
-
-  <button onclick="login()">Entrar</button>
-  <button onclick="register()">Crear cuenta</button>
+<!-- LOGIN -->
+<div id="login" class="screen">
+  <div class="login">
+    <h2>Bienvenido</h2>
+    <input id="user" placeholder="usuario">
+    <input id="pass" type="password" placeholder="contraseña">
+    <button onclick="login()">Entrar</button>
+    <button onclick="register()">Crear cuenta</button>
+  </div>
 </div>
 
 <!-- APP -->
-<div id="app" class="hidden">
+<div id="app" class="screen">
 
-  <div class="topbar">Instant</div>
-
-  <div class="stories" id="stories"></div>
-
-  <div style="padding:10px">
-    <input id="text" placeholder="publicación">
-    <input id="img" placeholder="imagen URL">
-    <button onclick="createPost()">Publicar</button>
+  <div class="top">
+    <div>Instant</div>
+    <div onclick="toggleTheme()">◐</div>
   </div>
 
   <div id="feed"></div>
 
-  <!-- PROFILE -->
-  <div id="profile" class="profile hidden"></div>
-
-  <!-- NAV BAR BLUR -->
   <div class="nav">
-    <span onclick="loadFeed()">🏠</span>
-    <span onclick="loadStories()">🔍</span>
+    <span onclick="loadFeed()">⌂</span>
+    <span onclick="createPost()">＋</span>
     <span onclick="openProfile()">👤</span>
-    <span onclick="addStory()">➕</span>
-    <span>⚙️</span>
+    <span onclick="notify('acción')">🔔</span>
   </div>
 
+</div>
+
+<!-- PROFILE -->
+<div id="profile" class="screen">
+  <div class="top">
+    <div onclick="back()">←</div>
+    <div>Perfil</div>
+  </div>
+  <div id="profileBox"></div>
 </div>
 
 <!-- FIREBASE -->
@@ -213,62 +202,54 @@ button{
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-const firebaseConfig = {
-  apiKey:"AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
-  authDomain:"vozanonimasm.firebaseapp.com",
-  projectId:"vozanonimasm"
+const firebaseConfig={
+ apiKey:"AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+ authDomain:"vozanonimasm.firebaseapp.com",
+ projectId:"vozanonimasm"
 };
 
 firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 
-let currentUser=null;
+let currentUser=JSON.parse(localStorage.getItem("user"))||null;
 
-/* ================= LOGIN MEJORADO ================= */
+/* AUTO LOGIN */
+if(currentUser){
+  showApp();
+}
+
+/* ================= NAV ================= */
+function goLogin(){
+  welcome.style.display="none";
+  login.classList.add("active");
+}
+
+function showApp(){
+  login.classList.remove("active");
+  app.classList.add("active");
+  loadFeed();
+}
+
+/* ================= AUTH ================= */
 async function login(){
   const snap=await db.collection("users")
   .where("username","==",user.value)
   .where("password","==",pass.value)
   .get();
 
-  if(snap.empty) return alert("credenciales incorrectas");
+  if(snap.empty) return alert("error");
 
   currentUser=snap.docs[0].data();
+  localStorage.setItem("user",JSON.stringify(currentUser));
+
   showApp();
 }
 
 async function register(){
-  if(!user.value||!pass.value) return;
-
   await db.collection("users").add({
     username:user.value,
-    password:pass.value,
-    created:Date.now()
+    password:pass.value
   });
-
-  alert("cuenta creada");
-}
-
-/* ================= APP ================= */
-function showApp(){
-  loginView.classList.add("hidden");
-  app.classList.remove("hidden");
-  loadFeed();
-  loadStories();
-}
-
-/* ================= POST ================= */
-function createPost(){
-  db.collection("posts").add({
-    username:currentUser.username,
-    text:text.value,
-    image:img.value||"",
-    created:Date.now(),
-    likes:0
-  });
-
-  text.value="";
-  img.value="";
 }
 
 /* ================= FEED ================= */
@@ -277,23 +258,15 @@ function loadFeed(){
   .orderBy("created","desc")
   .onSnapshot(s=>{
     let html="";
+
     s.forEach(d=>{
       let p=d.data();
 
       html+=`
       <div class="post">
-        <div class="header">
-          <div class="avatar"></div>
-          <b onclick="openProfile('${p.username}')">@${p.username}</b>
-        </div>
-
-        ${p.image?`<img class="img" src="${p.image}">`:`<div class="img"></div>`}
-
-        <div class="actions">
-          ❤️ ${p.likes||0}
-        </div>
-
-        <p><b>@${p.username}</b> ${p.text}</p>
+        <b>@${p.username}</b>
+        <div class="img"></div>
+        <p>${p.text}</p>
       </div>`;
     });
 
@@ -301,57 +274,49 @@ function loadFeed(){
   });
 }
 
-/* ================= STORIES ================= */
-function loadStories(){
-  db.collection("stories")
-  .orderBy("created","desc")
-  .onSnapshot(s=>{
-    let html="";
-    s.forEach(d=>{
-      html+=`<div class="story"></div>`;
-    });
-    stories.innerHTML=html;
-  });
-}
+/* ================= POST ================= */
+function createPost(){
+  let t=prompt("texto");
 
-function addStory(){
-  let url=prompt("url story");
-  if(!url)return;
-
-  db.collection("stories").add({
-    user:currentUser.username,
-    image:url,
+  db.collection("posts").add({
+    username:currentUser.username,
+    text:t,
     created:Date.now()
   });
 }
 
 /* ================= PROFILE ================= */
-function openProfile(user=currentUser.username){
-
-  app.querySelectorAll("*").forEach(e=>e.classList.add("hidden"));
-  profile.classList.remove("hidden");
+function openProfile(){
+  app.classList.remove("active");
+  profile.classList.add("active");
 
   db.collection("posts")
-  .where("username","==",user)
+  .where("username","==",currentUser.username)
   .get()
   .then(s=>{
-    let html=`
-      <div class="profileHeader">
-        <div class="bigAvatar"></div>
-        <div>
-          <b>@${user}</b><br>
-          <small>${s.size} posts</small>
-        </div>
-      </div>
-
-      <div class="grid">
-    `;
+    let html=`<h3>@${currentUser.username}</h3><div class="grid">`;
 
     s.forEach(()=>html+=`<div></div>`);
 
     html+=`</div>`;
-    profile.innerHTML=html;
+    profileBox.innerHTML=html;
   });
+}
+
+/* ================= BACK ================= */
+function back(){
+  profile.classList.remove("active");
+  app.classList.add("active");
+}
+
+/* ================= THEME ================= */
+function toggleTheme(){
+  document.body.classList.toggle("light");
+}
+
+/* ================= NOTIFY ================= */
+function notify(msg){
+  alert(msg);
 }
 </script>
 
