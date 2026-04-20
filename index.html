@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>INSTANT - Ultra Fidelity</title>
+    <title>INSTANT - Real Time App</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -14,7 +14,7 @@
             --text: #FFFFFF;
             --border: rgba(255, 255, 255, 0.12);
             --muted: #8E8E93;
-            --glass: rgba(20, 20, 20, 0.75);
+            --glass: rgba(15, 15, 15, 0.85);
             --ios-blue: #0A84FF;
         }
 
@@ -24,20 +24,21 @@
             --text: #000000;
             --border: rgba(0, 0, 0, 0.1);
             --muted: #636366;
-            --glass: rgba(255, 255, 255, 0.8);
+            --glass: rgba(255, 255, 255, 0.85);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             margin: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+            font-family: -apple-system, system-ui, 'Inter', sans-serif;
             background-color: #000;
             color: var(--text);
             display: flex;
             justify-content: center;
             height: 100vh;
             overflow: hidden;
+            transition: background 0.3s ease;
         }
 
         .app-viewport {
@@ -48,55 +49,19 @@
             position: relative;
             display: flex;
             flex-direction: column;
-            box-shadow: 0 0 100px rgba(0,0,0,0.8);
-            transition: background 0.4s ease;
         }
 
-        /* ================= iOS STATUS BAR ================= */
-        .status-bar {
-            height: 44px;
-            padding: 0 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 100;
-            position: relative;
-        }
-
-        /* ================= SCREENS ================= */
-        .screen {
-            position: absolute;
-            inset: 0;
-            top: 44px; /* Debajo de status bar */
-            display: none;
-            flex-direction: column;
-            padding-bottom: 120px;
-            overflow-y: auto;
-            z-index: 10;
-        }
-
-        .screen.active { display: flex; animation: iosPush 0.4s cubic-bezier(0.1, 0.7, 0.1, 1); }
-
-        @keyframes iosPush {
-            from { transform: translateX(30px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        /* ================= GLASS HEADER ================= */
+        /* ================= HEADERS ================= */
         .header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
+            padding: 20px;
             background: var(--glass);
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            padding: 12px 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 0.5px solid var(--border);
+            z-index: 100;
         }
 
         .logo-text {
@@ -105,233 +70,198 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-size: 24px;
-            letter-spacing: -0.8px;
+            letter-spacing: -1px;
         }
 
-        /* ================= THREADS COMPONENT ================= */
-        .thread-card {
+        /* ================= SCREENS ================= */
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: none;
+            flex-direction: column;
+            padding-bottom: 110px;
+            overflow-y: auto;
+            background: var(--bg);
+        }
+
+        .screen.active { display: flex; animation: fadeIn 0.2s ease-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+
+        /* ================= FEED SYSTEM ================= */
+        .post-card {
             padding: 16px;
             border-bottom: 0.5px solid var(--border);
             display: flex;
-            gap: 14px;
-            transition: background 0.2s;
+            gap: 12px;
+            animation: slideUp 0.4s ease-out;
         }
 
-        .avatar-main {
-            width: 48px; height: 48px;
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .avatar {
+            width: 45px; height: 45px;
             border-radius: 50%;
             background: var(--primary-metallic);
+            flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            color: white; font-weight: bold; flex-shrink: 0;
+            color: white; font-weight: bold;
         }
 
-        .thread-content { flex: 1; }
-        .thread-user { font-weight: 700; font-size: 15px; margin-bottom: 2px; display: flex; align-items: center; gap: 4px; }
-        .verified { color: var(--ios-blue); font-size: 12px; }
-        .thread-text { font-size: 15px; line-height: 1.5; opacity: 0.95; margin-bottom: 12px; }
-        .hashtag { color: #C04FBA; font-weight: 600; cursor: pointer; }
+        .post-content { flex: 1; }
+        .post-header { font-weight: 700; font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; }
+        .post-text { font-size: 15px; line-height: 1.5; color: var(--text); margin-bottom: 12px; white-space: pre-wrap; }
+        .hashtag { color: #C04FBA; font-weight: 600; }
 
-        .thread-actions { display: flex; gap: 30px; color: var(--muted); }
-        .btn-act { display: flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .btn-act:hover { color: var(--text); }
-        .btn-act.liked { color: #FF2D55; animation: pop 0.3s ease; }
-        
-        @keyframes pop { 50% { transform: scale(1.3); } }
-
-        /* ================= NAV BAR (FIDELIDAD TOTAL) ================= */
-        .nav-wrapper {
-            position: absolute;
-            bottom: 35px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            z-index: 1000;
-            pointer-events: none;
+        .post-actions { display: flex; gap: 25px; }
+        .action-item { 
+            display: flex; align-items: center; gap: 6px; 
+            color: var(--muted); font-size: 13px; cursor: pointer; 
+            transition: 0.2s;
         }
+        .action-item:active { transform: scale(1.2); }
+        .action-item svg { width: 18px; height: 18px; }
 
+        /* ================= NAVIGATION ================= */
         .nav-island {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
             width: 90%;
-            height: 70px;
+            height: 68px;
             background: var(--primary-metallic);
-            border-radius: 35px;
+            border-radius: 34px;
             display: flex;
             justify-content: space-around;
             align-items: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            pointer-events: all;
-            position: relative;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+            z-index: 1000;
         }
 
-        .nav-btn {
-            color: white;
-            display: flex; flex-direction: column; align-items: center;
-            font-size: 10px; font-weight: 700; opacity: 0.7; cursor: pointer;
-        }
+        .nav-link { color: white; opacity: 0.7; font-size: 10px; font-weight: 700; text-align: center; cursor: pointer; }
+        .nav-link.active { opacity: 1; }
+        .nav-link svg { display: block; margin: 0 auto 3px; width: 24px; height: 24px; }
 
-        .nav-btn.active { opacity: 1; }
-        .nav-btn svg { width: 24px; height: 24px; margin-bottom: 3px; }
-
-        .btn-plus {
-            width: 62px; height: 62px;
-            background: white;
-            border-radius: 50%;
-            margin-top: -45px;
+        .add-btn {
+            width: 60px; height: 60px;
+            background: white; border-radius: 50%;
+            margin-top: -40px; border: 5px solid var(--bg);
             display: flex; align-items: center; justify-content: center;
-            color: #7A2C76; font-size: 35px;
-            border: 6px solid var(--bg);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
-        }
-        .btn-plus:active { transform: scale(0.9); }
-
-        /* ================= MODAL POST ================= */
-        .ios-modal {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(5px);
-            display: none;
-            align-items: flex-end;
-            z-index: 2000;
+            color: #7A2C76; font-size: 30px; font-weight: bold;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+            cursor: pointer;
         }
 
-        .modal-sheet {
-            background: var(--card);
-            width: 100%;
-            border-radius: 25px 25px 0 0;
-            padding: 20px;
-            animation: sheetUp 0.3s ease-out;
+        /* ================= MODALS ================= */
+        .composer-modal {
+            position: fixed; inset: 0; background: var(--bg);
+            z-index: 2000; display: none; flex-direction: column;
         }
 
-        @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-        .ios-textarea {
-            width: 100%; height: 150px;
-            background: transparent; border: none;
-            color: var(--text); font-size: 18px;
-            resize: none; margin-top: 20px;
+        .composer-header {
+            padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 0.5px solid var(--border);
         }
 
-        /* ================= SETTINGS iOS STYLE ================= */
-        .settings-section { margin: 20px 16px; }
-        .settings-label { color: var(--muted); font-size: 13px; text-transform: uppercase; margin: 0 0 8px 16px; }
-        .settings-box { background: var(--card); border-radius: 12px; overflow: hidden; border: 0.5px solid var(--border); }
-        .row { padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--border); cursor: pointer; }
-        .row:last-child { border: none; }
-        
-        .switch {
-            width: 51px; height: 31px;
-            background: #39393D; border-radius: 16px;
-            position: relative; transition: 0.3s;
+        .composer-input {
+            flex: 1; padding: 20px; border: none; background: transparent;
+            color: var(--text); font-size: 18px; resize: none;
         }
-        .switch.on { background: #34C759; }
-        .switch::after {
-            content: ''; position: absolute; width: 27px; height: 27px;
+
+        /* ================= SETTINGS ================= */
+        .settings-row {
+            padding: 16px 20px; background: var(--card);
+            border-bottom: 0.5px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            cursor: pointer;
+        }
+
+        .toggle-ios {
+            width: 50px; height: 30px; background: #39393D;
+            border-radius: 15px; position: relative; transition: 0.3s;
+        }
+        .toggle-ios.on { background: #34C759; }
+        .toggle-ios::after {
+            content: ''; position: absolute; width: 26px; height: 26px;
             background: white; border-radius: 50%; top: 2px; left: 2px;
-            transition: 0.3s; box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+            transition: 0.3s; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .switch.on::after { left: 22px; }
+        .toggle-ios.on::after { left: 22px; }
 
     </style>
 </head>
 <body>
 
 <div class="app-viewport">
-    
-    <div class="status-bar">
-        <span>9:41</span>
-        <div style="display:flex; gap:5px">📶 🛜 🔋</div>
-    </div>
 
-    <div id="scr-login" class="screen active" style="justify-content: center; padding-bottom: 0;">
+    <div id="scr-login" class="screen active" style="justify-content: center;">
         <div style="padding: 40px; text-align: center;">
-            <div class="logo-text" style="font-size: 55px; margin-bottom: 10px;">INSTANT</div>
-            <p style="color: var(--muted); font-weight: 500;">Comparte sin filtros.</p>
-            <div style="margin-top: 50px;">
-                <input type="text" id="user-field" style="background: var(--card); border: 1px solid var(--border); padding: 18px; width: 100%; border-radius: 14px; color: white; margin-bottom: 15px; font-size: 16px;" placeholder="Nombre de usuario">
-                <button onclick="handleLogin()" style="background: var(--primary-metallic); border: none; padding: 18px; width: 100%; border-radius: 14px; color: white; font-weight: 700; font-size: 16px; cursor: pointer;">Empezar</button>
-            </div>
+            <div class="logo-text" style="font-size: 50px; margin-bottom: 10px;">INSTANT</div>
+            <input id="auth-user" type="text" placeholder="Usuario" style="width: 100%; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--card); color: white; margin-bottom: 15px;">
+            <button onclick="login()" style="width:100%; padding: 16px; border-radius: 14px; border:none; background: var(--primary-metallic); color: white; font-weight: 700; cursor: pointer;">Entrar</button>
         </div>
     </div>
 
     <div id="scr-feed" class="screen">
         <header class="header">
             <div class="logo-text">INSTANT</div>
-            <div onclick="navigate('settings')" style="font-size: 20px; cursor: pointer;">👤</div>
+            <div onclick="navigate('profile')" style="cursor: pointer; font-size: 20px;">👤</div>
         </header>
-        <div id="feed-render"></div>
+        <div id="feed-container"></div>
     </div>
 
     <div id="scr-profile" class="screen">
         <header class="header">
-            <div style="width:24px"></div>
-            <div class="logo-text">MI PERFIL</div>
+            <div onclick="navigate('feed')" style="color: var(--ios-blue); cursor: pointer;">← Inicio</div>
+            <div class="logo-text">PERFIL</div>
             <div onclick="navigate('settings')" style="cursor: pointer;">⚙️</div>
         </header>
         <div style="text-align: center; padding: 40px 20px;">
-            <div class="avatar-main" style="width: 100px; height: 100px; margin: 0 auto 20px; font-size: 32px;"></div>
-            <h2 id="me-username" style="margin: 0; font-weight: 800;">@user</h2>
-            <p style="color: var(--muted); margin-top: 5px;">Miembro desde 2026</p>
-            <div style="display: flex; justify-content: center; gap: 30px; margin-top: 30px;">
-                <div><b style="font-size: 20px;">110K</b><br><small style="color:var(--muted)">Seguidores</small></div>
-                <div><b style="font-size: 20px;">482</b><br><small style="color:var(--muted)">Posts</small></div>
+            <div class="avatar" style="width: 100px; height: 100px; margin: 0 auto 20px; font-size: 32px;"></div>
+            <h2 id="prof-user" style="margin: 0;">@username</h2>
+            <div style="display: flex; justify-content: center; gap: 40px; margin-top: 30px;">
+                <div><b>110K</b><br><small class="muted">Seguidores</small></div>
+                <div><b>0</b><br><small class="muted">Posts</small></div>
             </div>
         </div>
     </div>
 
     <div id="scr-settings" class="screen">
         <header class="header">
-            <div onclick="navigate('feed')" style="color: var(--ios-blue); cursor: pointer; font-weight: 500;">← Volver</div>
+            <div onclick="navigate('profile')" style="color: var(--ios-blue); cursor: pointer;">← Atrás</div>
             <div class="logo-text">AJUSTES</div>
-            <div style="width:60px"></div>
+            <div style="width:40px"></div>
         </header>
-        
-        <div class="settings-section">
-            <div class="settings-label">Apariencia</div>
-            <div class="settings-box">
-                <div class="row" onclick="toggleTheme()">
-                    <span>Modo Oscuro</span>
-                    <div class="switch on" id="themeSwitch"></div>
-                </div>
-                <div class="row">
-                    <span>Reducir movimiento</span>
-                    <div class="switch"></div>
-                </div>
+        <div style="margin-top: 20px;">
+            <div class="settings-row" onclick="toggleTheme()">
+                <span>Modo Oscuro</span>
+                <div id="theme-toggle" class="toggle-ios on"></div>
             </div>
-        </div>
-
-        <div class="settings-section">
-            <div class="settings-label">Seguridad</div>
-            <div class="settings-box">
-                <div class="row"><span>Privacidad de cuenta</span> <span>Pública &rsaquo;</span></div>
-                <div class="row" onclick="logout()" style="color: #FF3B30; font-weight: 600;"><span>Cerrar Sesión</span></div>
+            <div class="settings-row" onclick="logout()" style="color: #FF3B30; font-weight: 600; margin-top: 30px;">
+                <span>Cerrar Sesión</span>
             </div>
         </div>
     </div>
 
-    <div class="nav-wrapper" id="nav-bar" style="display: none;">
-        <div class="nav-island">
-            <div class="nav-btn active" onclick="navigate('feed')">
-                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-                INICIO
-            </div>
-            <div class="btn-plus" onclick="toggleModal(true)">+</div>
-            <div class="nav-btn" onclick="navigate('profile')">
-                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                PERFIL
-            </div>
+    <div class="nav-island" id="main-nav" style="display: none;">
+        <div class="nav-link active" onclick="navigate('feed')">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            INICIO
+        </div>
+        <div class="add-btn" onclick="openComposer()">+</div>
+        <div class="nav-link" onclick="navigate('profile')">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            PERFIL
         </div>
     </div>
 
-    <div class="ios-modal" id="post-modal">
-        <div class="modal-sheet">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <button onclick="toggleModal(false)" style="background: none; border: none; color: var(--ios-blue); font-size: 16px;">Cancelar</button>
-                <b style="font-size: 17px;">Nuevo Post</b>
-                <button onclick="pushPost()" style="background: var(--primary-metallic); border: none; color: white; padding: 6px 16px; border-radius: 20px; font-weight: 700;">Publicar</button>
-            </div>
-            <textarea id="post-area" class="ios-textarea" placeholder="¿Qué está pasando?"></textarea>
+    <div class="composer-modal" id="composer">
+        <div class="composer-header">
+            <span onclick="closeComposer()" style="color: var(--ios-blue); cursor: pointer;">Cancelar</span>
+            <button onclick="publishPost()" style="background: var(--primary-metallic); border: none; padding: 8px 20px; border-radius: 20px; color: white; font-weight: 700;">Publicar</button>
         </div>
+        <textarea id="post-text" class="composer-input" placeholder="¿Qué está pasando?"></textarea>
     </div>
 
 </div>
@@ -348,64 +278,41 @@
     const db = firebase.firestore();
     let me = localStorage.getItem("user");
 
-    /* ================= CONTROL DE NAVEGACIÓN ================= */
     function navigate(id) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById('scr-' + id).classList.add('active');
+        document.getElementById('main-nav').style.display = (id === 'login') ? 'none' : 'flex';
         
-        document.getElementById('nav-bar').style.display = (id === 'login') ? 'none' : 'flex';
-        
-        // Actualizar active state en nav
-        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-        if(id === 'feed') document.querySelectorAll('.nav-btn')[0].classList.add('active');
-        if(id === 'profile') document.querySelectorAll('.nav-btn')[1].classList.add('active');
+        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+        if(id === 'feed') document.querySelectorAll('.nav-link')[0].classList.add('active');
+        if(id === 'profile') document.querySelectorAll('.nav-link')[1].classList.add('active');
 
-        if(id === 'feed') loadFeed();
-        if(id === 'profile') document.getElementById('me-username').innerText = '@' + me;
+        if(id === 'feed') syncFeed();
+        if(id === 'profile') document.getElementById('prof-user').innerText = '@' + me;
     }
 
-    /* ================= FUNCIONES CORE ================= */
-    function handleLogin() {
-        const u = document.getElementById('user-field').value;
-        if(!u) return;
-        me = u;
-        localStorage.setItem("user", u);
-        navigate('feed');
-    }
-
-    function toggleTheme() {
-        const body = document.body;
-        const sw = document.getElementById('themeSwitch');
-        body.classList.toggle('light-mode');
-        sw.classList.toggle('on');
-        localStorage.setItem("theme", body.classList.contains('light-mode') ? "light" : "dark");
-    }
-
-    function toggleModal(show) {
-        document.getElementById('post-modal').style.display = show ? 'flex' : 'none';
-        if(show) document.getElementById('post-area').focus();
-    }
-
-    function loadFeed() {
-        db.collection("posts").orderBy("created", "desc").onSnapshot(snap => {
-            const container = document.getElementById('feed-render');
+    function syncFeed() {
+        db.collection("posts").orderBy("created", "desc").onSnapshot(snapshot => {
+            const container = document.getElementById('feed-container');
             container.innerHTML = "";
-            snap.forEach(doc => {
+            snapshot.forEach(doc => {
                 const data = doc.data();
                 const id = doc.id;
+                const likes = data.likes || 0;
+                
                 const card = document.createElement('div');
-                card.className = 'thread-card';
+                card.className = 'post-card';
                 card.innerHTML = `
-                    <div class="avatar-main">${data.username.charAt(0).toUpperCase()}</div>
-                    <div class="thread-content">
-                        <div class="thread-user">@${data.username} <span class="verified">●</span></div>
-                        <div class="thread-text">${data.text.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>')}</div>
-                        <div class="thread-actions">
-                            <div class="btn-act" onclick="likePost('${id}', ${data.likes || 0})">
-                                <span>❤</span> <b>${data.likes || 0}</b>
+                    <div class="avatar">${data.username.charAt(0).toUpperCase()}</div>
+                    <div class="post-content">
+                        <div class="post-header">@${data.username} <span style="color:#0A84FF; font-size:12px;">●</span></div>
+                        <div class="post-text">${format(data.text)}</div>
+                        <div class="post-actions">
+                            <div class="action-item" onclick="handleLike('${id}', ${likes})">
+                                <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                <b>${likes}</b>
                             </div>
-                            <div class="btn-act"><span>💬</span> 0</div>
-                            <div class="btn-act"><span>⇆</span></div>
+                            <div class="action-item">💬 0</div>
                         </div>
                     </div>
                 `;
@@ -414,13 +321,17 @@
         });
     }
 
-    function likePost(id, current) {
-        db.collection("posts").doc(id).update({ likes: current + 1 });
-        event.currentTarget.classList.add('liked');
+    function format(t) { return t.replace(/#(\w+)/g, '<span class="hashtag">#$1</span>'); }
+
+    function handleLike(postId, current) {
+        db.collection("posts").doc(postId).update({ likes: current + 1 });
     }
 
-    function pushPost() {
-        const txt = document.getElementById('post-area').value;
+    function openComposer() { document.getElementById('composer').style.display = 'flex'; document.getElementById('post-text').focus(); }
+    function closeComposer() { document.getElementById('composer').style.display = 'none'; }
+
+    function publishPost() {
+        const txt = document.getElementById('post-text').value;
         if(!txt) return;
         db.collection("posts").add({
             username: me,
@@ -428,18 +339,30 @@
             likes: 0,
             created: Date.now()
         }).then(() => {
-            document.getElementById('post-area').value = "";
-            toggleModal(false);
+            document.getElementById('post-text').value = "";
+            closeComposer();
         });
     }
 
-    function logout() {
-        localStorage.clear();
-        location.reload();
+    function toggleTheme() {
+        const body = document.body;
+        const toggle = document.getElementById('theme-toggle');
+        body.classList.toggle('light-mode');
+        toggle.classList.toggle('on');
+        localStorage.setItem("theme", body.classList.contains('light-mode') ? 'light' : 'dark');
     }
 
-    // Inicialización
-    if(localStorage.getItem("theme") === "light") toggleTheme();
+    function login() {
+        const u = document.getElementById('auth-user').value;
+        if(!u) return;
+        me = u;
+        localStorage.setItem("user", u);
+        navigate('feed');
+    }
+
+    function logout() { localStorage.clear(); location.reload(); }
+
+    if(localStorage.getItem("theme") === 'light') toggleTheme();
     if(me) navigate('feed'); else navigate('login');
 
 </script>
