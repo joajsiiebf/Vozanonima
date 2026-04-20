@@ -7,14 +7,13 @@
 
 <style>
 :root{
-  --bg:#0b0b10;
-  --card:rgba(20,20,26,0.7);
+  --bg:#07070b;
+  --card:rgba(255,255,255,0.04);
   --text:#f5f5f7;
-  --muted:#8e8e93;
-  --accent:#3897f0;
-  --stroke:rgba(255,255,255,0.08);
-  --glass:rgba(25,25,30,0.6);
-  --r:18px;
+  --muted:#9ca3af;
+  --accent:#7c3aed;
+  --stroke:rgba(255,255,255,0.06);
+  --glass:rgba(20,20,25,0.6);
 }
 
 body{
@@ -22,10 +21,27 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display";
   background:var(--bg);
   color:var(--text);
+  overflow:hidden;
 }
 
-.screen{display:none;height:100vh;}
-.active{display:block}
+/* ================= PANTALLAS ================= */
+.screen{
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100vh;
+  opacity:0;
+  transform:translateY(20px);
+  pointer-events:none;
+  transition:0.35s ease;
+}
+
+.screen.active{
+  opacity:1;
+  transform:translateY(0);
+  pointer-events:auto;
+}
 
 /* ================= WELCOME ================= */
 #welcome{
@@ -36,16 +52,22 @@ body{
   text-align:center;
 }
 
-.logo{font-size:48px;font-weight:800;}
+.logo{
+  font-size:52px;
+  font-weight:800;
+  letter-spacing:-1px;
+  color:var(--accent);
+}
+
 .sub{color:var(--muted)}
 
 .btn{
   margin-top:12px;
   padding:12px 18px;
-  border-radius:14px;
   border:none;
+  border-radius:14px;
   background:var(--accent);
-  color:#fff;
+  color:white;
   font-weight:600;
 }
 
@@ -55,7 +77,7 @@ body{
   flex-direction:column;
   justify-content:center;
   padding:24px;
-  gap:10px;
+  gap:12px;
 }
 
 input{
@@ -75,15 +97,13 @@ input{
   font-size:18px;
 }
 
-.feed{padding-bottom:90px;}
-
+/* FEED */
 .post{
   margin:12px;
   padding:14px;
   background:var(--card);
-  border-radius:var(--r);
+  border-radius:18px;
   border:1px solid var(--stroke);
-  backdrop-filter:blur(20px);
 }
 
 .header{
@@ -93,17 +113,18 @@ input{
 }
 
 .avatar{
-  width:36px;
-  height:36px;
+  width:38px;
+  height:38px;
   border-radius:50%;
-  background:#2a2a2f;
+  background:var(--accent);
+  opacity:0.7;
 }
 
 .image{
-  height:240px;
-  border-radius:14px;
-  background:#1a1a1f;
+  height:230px;
   margin-top:10px;
+  border-radius:14px;
+  background:#111118;
 }
 
 /* ================= NAV ================= */
@@ -115,7 +136,7 @@ input{
   width:92%;
   height:64px;
   background:var(--glass);
-  backdrop-filter:blur(30px);
+  backdrop-filter:blur(28px);
   border-radius:24px;
   display:flex;
   justify-content:space-around;
@@ -124,8 +145,15 @@ input{
 }
 
 /* ================= PROFILE ================= */
-#profile{
+.profileHeader{
   padding:16px;
+}
+
+.stats{
+  display:flex;
+  justify-content:space-around;
+  padding:10px;
+  color:var(--muted);
 }
 
 .grid{
@@ -136,7 +164,7 @@ input{
 
 .grid div{
   height:120px;
-  background:#1a1a20;
+  background:#111118;
 }
 
 /* ================= SETTINGS ================= */
@@ -148,24 +176,24 @@ input{
   background:var(--card);
   padding:14px;
   border-radius:16px;
-  border:1px solid var(--stroke);
   margin-bottom:10px;
+  border:1px solid var(--stroke);
 }
 </style>
 </head>
 
 <body>
 
-<!-- WELCOME -->
+<!-- ================= WELCOME ================= -->
 <div id="welcome" class="screen active">
   <div class="logo">Instant</div>
-  <div class="sub">Share moments like Instagram</div>
+  <div class="sub">Share moments</div>
 
   <button class="btn" onclick="goLogin()">Entrar</button>
   <button class="btn" onclick="guest()">Invitado</button>
 </div>
 
-<!-- LOGIN -->
+<!-- ================= LOGIN ================= -->
 <div id="login" class="screen">
   <h2>Login</h2>
   <input id="user" placeholder="usuario">
@@ -175,47 +203,53 @@ input{
   <button class="btn" onclick="register()">Crear</button>
 </div>
 
-<!-- APP -->
-<div id="app" class="screen">
+<!-- ================= FEED ================= -->
+<div id="feedScreen" class="screen">
 
   <div class="topbar">
     <div>Instant</div>
-    <div onclick="toggleTheme()">◐</div>
+    <div onclick="openSettings()">⚙</div>
   </div>
 
-  <div id="feed" class="feed"></div>
+  <div id="feed"></div>
 
   <div class="nav">
-    <span onclick="loadFeed()">🏠</span>
+    <span onclick="showFeed()">🏠</span>
     <span onclick="createPost()">＋</span>
-    <span onclick="profile()">👤</span>
-    <span onclick="settings()">⚙</span>
+    <span onclick="openProfile()">👤</span>
   </div>
 
 </div>
 
-<!-- PROFILE -->
+<!-- ================= PROFILE ================= -->
 <div id="profile" class="screen">
-  <div style="padding:14px" onclick="back()">←</div>
-  <div id="profileBox"></div>
+
+  <div style="padding:14px" onclick="showFeed()">←</div>
+
+  <div class="profileHeader">
+    <h2 id="username"></h2>
+
+    <div class="stats">
+      <div><b id="postsCount">0</b><br>posts</div>
+      <div><b>120</b><br>followers</div>
+      <div><b>80</b><br>following</div>
+    </div>
+  </div>
+
+  <div id="grid" class="grid"></div>
+
 </div>
 
-<!-- SETTINGS -->
+<!-- ================= SETTINGS ================= -->
 <div id="settings" class="screen">
-  <div style="padding:14px" onclick="back()">← Ajustes</div>
+  <div style="padding:14px" onclick="showFeed()">← Ajustes</div>
 
   <div class="card">
-    Modo oscuro
-    <button class="btn" onclick="toggleTheme()">cambiar</button>
+    Tema morado metálico
   </div>
 
-  <div class="card">
-    Sesión
-    <button class="btn" onclick="logout()">salir</button>
-  </div>
-
-  <div class="card">
-    Instant vFinal
+  <div class="card" onclick="logout()">
+    Cerrar sesión
   </div>
 </div>
 
@@ -235,19 +269,22 @@ firebase.initializeApp(firebaseConfig);
 const db=firebase.firestore();
 
 /* ================= STATE ================= */
-let me=JSON.parse(localStorage.getItem("user"));
+let me=null;
 let role="guest";
 
-/* ================= NAV ================= */
-function show(s){
-  document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
-  document.getElementById(s).classList.add("active");
+/* ================= NAV ENGINE ================= */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 
 /* ================= START ================= */
-if(me){
+let saved=localStorage.getItem("user");
+
+if(saved){
+  me=JSON.parse(saved);
   role=me.role||"user";
-  show("app");
+  show("feedScreen");
   loadFeed();
 }else show("welcome");
 
@@ -257,24 +294,25 @@ function goLogin(){show("login");}
 function guest(){
   me={username:"Invitado"};
   role="guest";
-  show("app");
+  show("feedScreen");
   loadFeed();
 }
 
 async function login(){
-  const s=await db.collection("users")
+
+  let s=await db.collection("users")
   .where("username","==",user.value)
   .where("password","==",pass.value)
   .get();
 
-  if(s.empty)return alert("error");
+  if(s.empty) return alert("error");
 
   me=s.docs[0].data();
   role=me.role||"user";
 
   localStorage.setItem("user",JSON.stringify(me));
 
-  show("app");
+  show("feedScreen");
   loadFeed();
 }
 
@@ -285,7 +323,7 @@ async function register(){
     role:"user"
   });
 
-  alert("ok");
+  alert("creado");
 }
 
 /* ================= FEED ================= */
@@ -293,6 +331,7 @@ function loadFeed(){
   db.collection("posts")
   .orderBy("created","desc")
   .onSnapshot(s=>{
+
     let html="";
 
     s.forEach(d=>{
@@ -307,12 +346,36 @@ function loadFeed(){
 
         <div class="image"></div>
         <p>${p.text}</p>
-
       </div>`;
     });
 
     feed.innerHTML=html;
+
   });
+}
+
+/* ================= PROFILE ================= */
+function openProfile(){
+
+  show("profile");
+
+  username.innerText="@"+me.username;
+
+  db.collection("posts")
+  .where("username","==",me.username)
+  .get()
+  .then(s=>{
+
+    postsCount.innerText=s.size;
+
+    let html="";
+
+    s.forEach(()=>html+=`<div></div>`);
+
+    grid.innerHTML=html;
+
+  });
+
 }
 
 /* ================= POSTS ================= */
@@ -329,38 +392,14 @@ function createPost(){
   });
 }
 
-/* ================= PROFILE ================= */
-function profile(){
-  show("profile");
-
-  db.collection("posts")
-  .where("username","==",me.username)
-  .get()
-  .then(s=>{
-    let h=`<h3>@${me.username}</h3><div class="grid">`;
-
-    s.forEach(()=>h+=`<div></div>`);
-
-    h+="</div>";
-    profileBox.innerHTML=h;
-  });
-}
-
 /* ================= SETTINGS ================= */
-function settings(){
-  show("settings");
-}
+function openSettings(){show("settings");}
+
+function showFeed(){show("feedScreen");}
 
 function logout(){
   localStorage.clear();
   location.reload();
-}
-
-/* ================= UI ================= */
-function back(){show("app");}
-
-function toggleTheme(){
-  document.body.classList.toggle("light");
 }
 
 </script>
