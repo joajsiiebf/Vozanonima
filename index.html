@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>InstaLite Pro</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InstaPro</title>
 
 <link rel="stylesheet" href="style.css">
 
@@ -17,7 +17,7 @@
 <div id="loginView" class="view">
   <div class="card">
 
-    <h2>InstaLite</h2>
+    <h2>InstaPro</h2>
 
     <input id="loginPhone" placeholder="Teléfono o admin">
     <input id="loginPass" type="password" placeholder="Contraseña">
@@ -26,13 +26,11 @@
 
     <hr>
 
-    <h3>Crear cuenta</h3>
-
     <input id="regUser" placeholder="Username">
     <input id="regPhone" placeholder="Teléfono">
     <input id="regPass" type="password" placeholder="Contraseña">
 
-    <button onclick="register()">Registrar</button>
+    <button onclick="register()">Crear cuenta</button>
 
   </div>
 </div>
@@ -40,16 +38,13 @@
 <!-- APP -->
 <div id="appView" class="view hidden">
 
-  <!-- HEADER -->
   <header class="topbar">
-    <span>InstaLite</span>
+    <b>InstaPro</b>
     <span id="roleBadge"></span>
   </header>
 
-  <!-- STORIES -->
-  <div class="stories">
-    <div class="story">+</div>
-  </div>
+  <!-- PROFILE HEADER -->
+  <section id="profileHeader" class="profile hidden"></section>
 
   <!-- COMPOSER -->
   <div class="composer">
@@ -65,17 +60,14 @@
 
   <!-- SETTINGS -->
   <section id="settingsView" class="screen hidden">
-    <button onclick="toggleTheme()">Modo oscuro</button>
     <button onclick="logout()">Salir</button>
   </section>
 
   <!-- NAV -->
   <nav class="nav">
-
     <button onclick="go('feedView')">🏠</button>
-    <button onclick="go('profileView'); loadProfile()">👤</button>
+    <button onclick="goProfile()">👤</button>
     <button onclick="go('settingsView')">⚙️</button>
-
   </nav>
 
 </div>
