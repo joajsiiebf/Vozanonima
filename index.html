@@ -3,109 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>INSTANT PRO | Edición Final</title>
+    <title>INSTANT | Full Config</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: linear-gradient(135deg, #C04FBA 0%, #7A2C76 100%);
-            --bg: #000000; --surface: #121212; --card: #1C1C1E;
-            --text: #FFFFFF; --muted: #8E8E93; --border: rgba(255, 255, 255, 0.1);
+            --bg: #000000; --card: #1C1C1E; --text: #FFFFFF;
+            --muted: #8E8E93; --border: rgba(255, 255, 255, 0.1);
             --ios-blue: #0A84FF; --glass: rgba(15, 15, 15, 0.85);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; }
+        body.light-mode {
+            --bg: #F2F2F7; --card: #FFFFFF; --text: #000000;
+            --border: rgba(0, 0, 0, 0.1); --muted: #636366;
+        }
 
-        #app-shell { width: 100%; max-width: 430px; height: 100%; position: relative; background: var(--bg); display: flex; flex-direction: column; border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; overflow: hidden; display: flex; justify-content: center; transition: background 0.3s; }
+
+        #app-shell { width: 100%; max-width: 430px; height: 100%; position: relative; background: var(--bg); display: flex; flex-direction: column; }
 
         /* VISTAS */
         .view { position: absolute; inset: 0; display: none; flex-direction: column; background: var(--bg); z-index: 10; padding-bottom: 90px; }
-        .view.active { display: flex; animation: slideIn 0.3s cubic-bezier(0.1, 0.7, 0.1, 1); }
-        @keyframes slideIn { from { transform: scale(1.05); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .view.active { display: flex; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
 
         /* HEADER */
         .header { position: sticky; top: 0; padding: 18px 20px; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--border); z-index: 100; }
         .logo { font-weight: 800; background: var(--primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 24px; letter-spacing: -1.2px; }
 
-        /* POSTS */
+        /* SETTINGS UI */
+        .settings-list { padding: 20px; }
+        .settings-group { background: var(--card); border-radius: 12px; overflow: hidden; margin-bottom: 20px; border: 0.5px solid var(--border); }
+        .settings-item { padding: 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 0.5px solid var(--border); cursor: pointer; }
+        .settings-item:last-child { border-bottom: none; }
+        .settings-item:active { background: rgba(255,255,255,0.05); }
+
+        /* SWITCH */
+        .switch { width: 50px; height: 28px; background: #39393D; border-radius: 15px; position: relative; transition: 0.3s; }
+        .switch.on { background: #34C759; }
+        .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 24px; height: 24px; background: white; border-radius: 50%; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .switch.on::after { left: 24px; }
+
+        /* RESTO DE UI (FEED/POSTS) */
         .post { padding: 16px; border-bottom: 0.5px solid var(--border); display: flex; gap: 12px; }
-        .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; cursor: pointer; }
-        .post-content { flex: 1; }
-        .post-user { font-weight: 700; font-size: 15px; margin-bottom: 4px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
-        .post-text { font-size: 15px; line-height: 1.4; color: rgba(255,255,255,0.9); }
-        .post-actions { display: flex; gap: 25px; margin-top: 12px; }
-        .btn-act { display: flex; align-items: center; gap: 6px; color: var(--muted); font-size: 13px; cursor: pointer; }
-        .btn-act.liked { color: #FF2D55; font-weight: 700; }
-
-        /* PERFIL */
-        .profile-hero { padding: 30px 20px; text-align: center; border-bottom: 0.5px solid var(--border); }
-        .stats { display: flex; justify-content: center; gap: 35px; margin: 20px 0; }
-        .stat-val { display: block; font-size: 18px; font-weight: 800; }
-        .stat-lab { font-size: 11px; color: var(--muted); text-transform: uppercase; }
-        .btn-follow { padding: 8px 35px; border-radius: 20px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; }
-        .btn-follow.following { background: var(--card); color: white; border: 1px solid var(--border); }
-        .btn-follow.not-following { background: white; color: black; }
-
-        /* NAV BAR */
-        .nav-bar { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; height: 68px; background: var(--primary); border-radius: 34px; display: flex; justify-content: space-around; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); z-index: 1000; }
+        .avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+        .nav-bar { position: absolute; bottom: 25px; left: 50%; transform: translateX(-50%); width: 90%; height: 68px; background: var(--primary); border-radius: 34px; display: flex; justify-content: space-around; align-items: center; z-index: 1000; }
         .nav-item { color: white; opacity: 0.6; font-size: 10px; font-weight: 800; text-align: center; cursor: pointer; }
         .nav-item.active { opacity: 1; }
-        .nav-item svg { width: 22px; height: 22px; margin-bottom: 2px; }
-        .btn-plus { width: 56px; height: 56px; background: white; border-radius: 50%; margin-top: -40px; border: 5px solid var(--bg); display: flex; align-items: center; justify-content: center; color: #7A2C76; font-size: 28px; cursor: pointer; }
-
-        /* AUTH & MODALS */
-        .auth-view { justify-content: center; padding: 40px; text-align: center; }
-        .ios-input { width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: var(--card); color: white; font-size: 16px; margin-bottom: 15px; }
-        .ios-btn { width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--primary); color: white; font-weight: 700; cursor: pointer; }
-        .badge { position: absolute; top: -4px; right: -4px; background: #FF3B30; color: white; width: 18px; height: 18px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; border: 2px solid #7A2C76; }
+        .nav-item svg { width: 22px; height: 22px; margin-bottom: 2px; display: block; margin: 0 auto; }
     </style>
 </head>
 <body>
 
 <div id="app-shell">
-    <div id="view-auth" class="view auth-view active">
-        <div class="logo" style="font-size: 55px; margin-bottom: 10px;">INSTANT</div>
-        <p style="color: var(--muted); margin-bottom: 40px;">Real Data. Real People.</p>
-        <input id="login-user" class="ios-input" placeholder="@usuario">
-        <button onclick="App.Auth.login()" class="ios-btn">Empezar</button>
+    <div id="view-auth" class="view auth-view active" style="justify-content: center; text-align: center; padding: 40px;">
+        <div class="logo" style="font-size: 55px; margin-bottom: 40px;">INSTANT</div>
+        <input id="login-user" style="width: 100%; padding: 18px; border-radius: 15px; border: 1px solid var(--border); background: var(--card); color: white; margin-bottom: 15px;" placeholder="@usuario">
+        <button onclick="App.Auth.login()" style="width: 100%; padding: 18px; border-radius: 15px; border: none; background: var(--primary); color: white; font-weight: 700;">Entrar</button>
     </div>
 
     <div id="view-feed" class="view">
         <header class="header">
             <div class="logo">INSTANT</div>
-            <div onclick="App.Router.go('notifs')" style="position:relative; cursor:pointer; font-size:20px">
-                🔔 <div id="notif-badge" class="badge" style="display:none">0</div>
-            </div>
+            <div onclick="App.Router.go('settings')" style="cursor:pointer; font-size: 20px;">⚙️</div>
         </header>
         <div id="feed-container" style="overflow-y:auto; flex:1"></div>
     </div>
 
-    <div id="view-profile" class="view">
+    <div id="view-settings" class="view">
         <header class="header">
             <div onclick="App.Router.back()" style="color:var(--ios-blue); cursor:pointer">← Volver</div>
-            <div id="p-title" class="logo" style="font-size:18px">PERFIL</div>
-            <div onclick="App.Auth.logout()" style="color:#FF3B30; font-size:12px; font-weight:800">CERRAR</div>
-        </header>
-        <div id="profile-ui"></div>
-        <div id="profile-posts"></div>
-    </div>
-
-    <div id="view-notifs" class="view">
-        <header class="header">
-            <div onclick="App.Router.back()" style="color:var(--ios-blue); cursor:pointer">← Atrás</div>
-            <div class="logo">ACTIVIDAD</div>
+            <div class="logo" style="font-size:18px">AJUSTES</div>
             <div style="width:40px"></div>
         </header>
-        <div id="notif-list"></div>
+        <div class="settings-list">
+            <p style="color:var(--muted); font-size:12px; margin-left:15px; text-transform:uppercase">Preferencia Visual</p>
+            <div class="settings-group">
+                <div class="settings-item" onclick="App.UI.toggleDarkMode()">
+                    <span>Modo Oscuro</span>
+                    <div id="dark-switch" class="switch on"></div>
+                </div>
+            </div>
+
+            <p style="color:var(--muted); font-size:12px; margin-left:15px; text-transform:uppercase">Cuenta</p>
+            <div class="settings-group">
+                <div class="settings-item" onclick="alert('Copia tu ID: ' + App.State.me)">
+                    <span>ID de Usuario</span>
+                    <span style="color:var(--muted)" id="setting-my-id"></span>
+                </div>
+                <div class="settings-item" onclick="App.Auth.logout()" style="color:#FF3B30">
+                    <b>Cerrar Sesión</b>
+                </div>
+            </div>
+            <p style="text-align:center; color:var(--muted); font-size:11px">INSTANT v2.0.4 Build 2026</p>
+        </div>
+    </div>
+
+    <div id="view-profile" class="view">
+        <header class="header">
+            <div onclick="App.Router.back()" style="color:var(--ios-blue); cursor:pointer">← Atrás</div>
+            <div class="logo" style="font-size:18px">PERFIL</div>
+            <div style="width:40px"></div>
+        </header>
+        <div id="profile-ui"></div>
     </div>
 
     <nav id="nav-main" class="nav-bar" style="display:none">
         <div class="nav-item active" onclick="App.Router.go('feed')">
-            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> INICIO
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>INICIO
         </div>
-        <div class="btn-plus" onclick="App.Social.post()">+</div>
+        <div onclick="App.Social.post()" style="width:50px; height:50px; background:white; border-radius:50%; margin-top:-30px; display:flex; align-items:center; justify-content:center; color:#7A2C76; font-size:24px; cursor:pointer">+</div>
         <div class="nav-item" onclick="App.Router.goProfile(App.State.me)">
-            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg> YO
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>PERFIL
         </div>
     </nav>
 </div>
@@ -114,7 +124,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 <script>
-    // ⚡ CONFIGURACIÓN FIREBASE
     firebase.initializeApp({
         apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
         authDomain: "vozanonimasm.firebaseapp.com",
@@ -122,27 +131,24 @@
     });
     const db = firebase.firestore();
 
-    // 🧠 APP ENGINE
     const App = {
         State: {
             me: localStorage.getItem('inst_u'),
-            history: ['feed']
+            history: ['feed'],
+            isDark: true
         },
 
-        // --- MÓDULO RUTAS ---
         Router: {
             go(id) {
                 document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-                document.getElementById('view-' + id).classList.add('active');
-                document.getElementById('nav-main').style.display = (id === 'auth') ? 'none' : 'flex';
+                const target = document.getElementById('view-' + id);
+                if(target) target.classList.add('active');
                 
-                const tabs = document.querySelectorAll('.nav-item');
-                tabs[0].classList.toggle('active', id === 'feed');
-                tabs[1].classList.toggle('active', id === 'profile' && App.State.viewing === App.State.me);
-
-                if (id === 'feed') App.Social.loadFeed();
-                if (id === 'notifs') App.Social.loadNotifs();
-                if (id !== App.State.history[App.State.history.length-1]) App.State.history.push(id);
+                document.getElementById('nav-main').style.display = (id === 'auth') ? 'none' : 'flex';
+                if(id === 'feed') App.Social.loadFeed();
+                if(id === 'settings') document.getElementById('setting-my-id').innerText = '@' + App.State.me;
+                
+                if(id !== App.State.history[App.State.history.length-1]) App.State.history.push(id);
             },
             back() {
                 if(App.State.history.length > 1) {
@@ -151,149 +157,62 @@
                 }
             },
             goProfile(u) {
-                App.State.viewing = u;
                 this.go('profile');
                 App.Social.loadProfile(u);
             }
         },
 
-        // --- MÓDULO SOCIAL (DATA) ---
+        UI: {
+            toggleDarkMode() {
+                App.State.isDark = !App.State.isDark;
+                document.body.classList.toggle('light-mode');
+                document.getElementById('dark-switch').classList.toggle('on');
+            }
+        },
+
         Social: {
             loadFeed() {
-                db.collection("posts").orderBy("created", "desc").limit(30).onSnapshot(snap => {
-                    const container = document.getElementById('feed-container');
-                    container.innerHTML = "";
+                db.collection("posts").orderBy("created", "desc").limit(20).onSnapshot(snap => {
+                    const cont = document.getElementById('feed-container');
+                    cont.innerHTML = "";
                     snap.forEach(doc => {
                         const p = doc.data();
-                        const el = document.createElement('div');
-                        el.className = 'post';
-                        el.innerHTML = `
-                            <div class="avatar" onclick="App.Router.goProfile('${p.user}')">${p.user[0].toUpperCase()}</div>
-                            <div class="post-content">
-                                <div class="post-user" onclick="App.Router.goProfile('${p.user}')">@${p.user}</div>
-                                <div class="post-text">${p.text}</div>
-                                <div class="post-actions">
-                                    <div class="btn-act" onclick="App.Social.like('${doc.id}', '${p.user}')">❤️ ${p.likes || 0}</div>
-                                    <div class="btn-act">💬 0</div>
+                        cont.innerHTML += `
+                            <div class="post">
+                                <div class="avatar" onclick="App.Router.goProfile('${p.user}')">${p.user[0].toUpperCase()}</div>
+                                <div style="flex:1">
+                                    <div class="post-user" onclick="App.Router.goProfile('${p.user}')">@${p.user}</div>
+                                    <div class="post-text">${p.text}</div>
                                 </div>
                             </div>
                         `;
-                        container.appendChild(el);
                     });
                 });
-                this.listenNotifs();
             },
-
-            async like(pid, owner) {
-                const id = `${App.State.me}_${pid}`;
-                const ref = db.collection("likes").doc(id);
-                const doc = await ref.get();
-                if (!doc.exists) {
-                    await ref.set({ u: App.State.me, p: pid });
-                    await db.collection("posts").doc(pid).update({ likes: firebase.firestore.FieldValue.increment(1) });
-                    if(owner !== App.State.me) this.notify(owner, 'like');
-                } else {
-                    await ref.delete();
-                    await db.collection("posts").doc(pid).update({ likes: firebase.firestore.FieldValue.increment(-1) });
-                }
-            },
-
-            async post() {
-                const text = prompt("¿Qué está pasando?");
-                if (!text) return;
-                await db.collection("posts").add({
-                    user: App.State.me,
-                    text: text,
-                    created: Date.now(),
-                    likes: 0
-                });
-            },
-
             async loadProfile(u) {
                 const userDoc = await db.collection("users").doc(u).get();
                 const data = userDoc.data() || {followers:0, following:0};
-                const followDoc = await db.collection("follows").doc(`${App.State.me}_${u}`).get();
-                const isF = followDoc.exists;
-
                 document.getElementById('profile-ui').innerHTML = `
                     <div class="profile-hero">
                         <div class="avatar" style="width:80px; height:80px; margin:0 auto 15px; font-size:30px">${u[0].toUpperCase()}</div>
-                        <h2 style="margin:0">@${u}</h2>
+                        <h2>@${u}</h2>
                         <div class="stats">
                             <div class="stat-item"><span class="stat-val">${data.followers}</span><span class="stat-lab">Followers</span></div>
                             <div class="stat-item"><span class="stat-val">${data.following}</span><span class="stat-lab">Following</span></div>
                         </div>
-                        ${u !== App.State.me ? `
-                            <button onclick="App.Social.toggleFollow('${u}')" class="btn-follow ${isF?'following':'not-following'}">
-                                ${isF?'Siguiendo':'Seguir'}
-                            </button>
-                        ` : ''}
                     </div>
                 `;
-                // Cargar mini-feed del perfil
-                db.collection("posts").where("user", "==", u).get().then(snap => {
-                    const container = document.getElementById('profile-posts');
-                    container.innerHTML = "";
-                    snap.forEach(doc => {
-                        const p = doc.data();
-                        container.innerHTML += `<div class="post"><div class="post-content"><div class="post-text">${p.text}</div></div></div>`;
-                    });
-                });
             },
-
-            async toggleFollow(target) {
-                const id = `${App.State.me}_${target}`;
-                const ref = db.collection("follows").doc(id);
-                const doc = await ref.get();
-                const batch = db.batch();
-
-                if(!doc.exists) {
-                    batch.set(ref, { follower: App.State.me, following: target });
-                    batch.update(db.collection("users").doc(App.State.me), { following: firebase.firestore.FieldValue.increment(1) });
-                    batch.update(db.collection("users").doc(target), { followers: firebase.firestore.FieldValue.increment(1) });
-                    this.notify(target, 'follow');
-                } else {
-                    batch.delete(ref);
-                    batch.update(db.collection("users").doc(App.State.me), { following: firebase.firestore.FieldValue.increment(-1) });
-                    batch.update(db.collection("users").doc(target), { followers: firebase.firestore.FieldValue.increment(-1) });
-                }
-                await batch.commit();
-                this.loadProfile(target);
-            },
-
-            notify(to, type) {
-                db.collection("notifs").add({ to, from: App.State.me, type, created: Date.now(), read: false });
-            },
-
-            listenNotifs() {
-                db.collection("notifs").where("to", "==", App.State.me).where("read", "==", false).onSnapshot(snap => {
-                    const b = document.getElementById('notif-badge');
-                    b.innerText = snap.size;
-                    b.style.display = snap.size > 0 ? 'flex' : 'none';
-                });
-            },
-
-            loadNotifs() {
-                db.collection("notifs").where("to", "==", App.State.me).orderBy("created", "desc").limit(20).get().then(snap => {
-                    const list = document.getElementById('notif-list');
-                    list.innerHTML = "";
-                    snap.forEach(doc => {
-                        const n = doc.data();
-                        const el = document.createElement('div');
-                        el.className = 'post';
-                        el.innerHTML = `<b>@${n.from}</b> ${n.type === 'like' ? 'le dio like a tu post' : 'empezó a seguirte'}`;
-                        list.appendChild(el);
-                        db.collection("notifs").doc(doc.id).update({ read: true });
-                    });
-                });
+            async post() {
+                const text = prompt("¿Qué piensas?");
+                if(text) db.collection("posts").add({ user: App.State.me, text, created: Date.now() });
             }
         },
 
-        // --- MÓDULO AUTH ---
         Auth: {
             login() {
                 const u = document.getElementById('login-user').value.trim().toLowerCase();
-                if (u.length < 3) return alert("Usuario muy corto");
+                if(u.length < 3) return;
                 App.State.me = u;
                 localStorage.setItem('inst_u', u);
                 db.collection("users").doc(u).set({ u }, { merge: true });
@@ -303,8 +222,7 @@
         }
     };
 
-    // INIT
-    if (App.State.me) App.Router.go('feed');
+    if(App.State.me) App.Router.go('feed');
 </script>
 </body>
 </html>
