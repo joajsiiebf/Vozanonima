@@ -32,43 +32,25 @@ input{
 button{
   width:100%;
   padding:12px;
+  border:none;
   border-radius:10px;
   background:#4c7dff;
-  border:none;
   color:white;
 }
 
-/* HEADER */
+/* TOP */
 .topbar{
-  padding:14px;
-  font-weight:bold;
+  padding:12px;
   display:flex;
   justify-content:space-between;
 }
 
-/* STORIES */
-.stories{
-  display:flex;
-  padding:10px;
-  gap:10px;
-  overflow-x:auto;
-}
-
-.story{
-  width:55px;
-  height:55px;
-  border-radius:50%;
-  background:linear-gradient(45deg,#ff4c4c,#4c7dff);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* COMPOSER */
-.composer{
-  display:flex;
-  gap:6px;
-  padding:10px;
+/* PROFILE HEADER */
+.profile{
+  padding:12px;
+  background:#121824;
+  margin:10px;
+  border-radius:14px;
 }
 
 /* FEED */
