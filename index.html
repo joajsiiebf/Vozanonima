@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JSCOL | Retro Vertical Arcade</title>
+    <title>JSCOL | Pixel Reaper Challenge</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -20,78 +20,69 @@
             background-image: radial-gradient(circle at center, #0a0a30 0%, #010115 100%);
         }
 
-        /* Scanlines CRT */
         body::after {
             content: " "; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
             background-size: 100% 3px; pointer-events: none; z-index: 1000;
         }
 
-        #app { display: flex; flex-direction: column; height: 100%; padding: 10px; box-sizing: border-box; }
+        #app { display: flex; flex-direction: column; height: 100%; padding: 10px; box-sizing: border-box; z-index: 10; }
 
-        /* Contenedores de Pantallas */
         .screen { display: none; flex-direction: column; height: 100%; width: 100%; }
         .screen.active { display: flex; }
 
-        /* HEADER ESTILO ARCADE */
         .header-stats {
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px; border: 2px solid var(--neon-cian); margin-bottom: 10px;
-            background: rgba(0, 247, 255, 0.05); box-shadow: 0 0 15px var(--neon-cian);
-            font-size: 8px;
+            background: rgba(0, 247, 255, 0.05); font-size: 8px;
         }
 
-        /* FRAME PRINCIPAL (VERTICAL) */
         .game-frame {
             flex-grow: 1; border: 3px solid var(--neon-magenta); position: relative;
             background: rgba(5, 5, 30, 0.95); display: flex; flex-direction: column;
-            align-items: center; overflow-y: auto; padding: 15px;
-            box-shadow: inset 0 0 40px rgba(255, 0, 255, 0.2);
+            align-items: center; padding: 20px; overflow: hidden; text-align: center;
         }
 
-        /* LA PARCA NPC (MEDIA PANTALLA) */
-        #reaper-npc {
-            position: absolute; bottom: -100%; left: 0; width: 100%; height: 55vh;
-            background: url('https://i.ibb.co/9G67Xk9/reaper-pixel-art.png') no-repeat bottom center;
-            background-size: contain; z-index: 100; transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: drop-shadow(0 0 20px #ff0040); display: flex; flex-direction: column; align-items: center;
+        /* --- LA PARCA EN CSS PURO (Pixel Art) --- */
+        .pixel-reaper {
+            position: absolute; bottom: -100%; width: 10px; height: 10px;
+            background: transparent;
+            /* Dibujo simplificado de la parca usando sombras de pixeles */
+            box-shadow: 
+                0 0 #000, 10px 0 #000, 20px 0 #000,
+                -10px 10px #000, 0 10px #fff, 10px 10px #fff, 20px 10px #fff, 30px 10px #000,
+                -10px 20px #000, 0 20px #fff, 10px 20px #000, 20px 20px #fff, 30px 20px #000,
+                -10px 30px #000, 0 30px #fff, 10px 30px #fff, 20px 30px #fff, 30px 30px #000,
+                0 40px #000, 10px 40px #000, 20px 40px #000,
+                0 50px #333, 10px 50px #333, 20px 50px #333,
+                -20px 20px #777, -30px 20px #777, -40px 20px #777; /* La guadaña */
+            transition: bottom 0.5s ease-out; transform: scale(4); z-index: 100;
         }
-        #reaper-npc.active { bottom: 0; }
+        .pixel-reaper.active { bottom: 30%; }
 
         .speech-bubble {
             background: #000; border: 2px solid #ff0040; padding: 12px; width: 85%;
-            margin-top: 10px; font-size: 7px; line-height: 1.6; color: #fff;
-            box-shadow: 0 0 15px #ff0040; z-index: 101;
+            margin-bottom: 20px; font-size: 7px; line-height: 1.6; color: #fff;
+            box-shadow: 0 0 15px #ff0040; display: none;
         }
+        .speech-bubble.active { display: block; z-index: 101; }
 
-        /* BOTONES Y INPUTS */
         .main-btn {
             background: var(--neon-cian); color: #000; border: none; padding: 18px;
-            font-family: 'Press Start 2P'; width: 95%; margin: 10px 0; cursor: pointer;
+            font-family: 'Press Start 2P'; width: 100%; margin: 10px 0; cursor: pointer;
             box-shadow: 4px 4px 0 var(--neon-magenta); font-size: 9px;
-            text-transform: uppercase;
         }
-
-        .lvl-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 100%;
-            margin-top: 20px;
-        }
-        .lvl-box {
-            border: 2px solid var(--neon-cian); padding: 15px 5px; font-size: 7px;
-            text-align: center; background: rgba(0, 247, 255, 0.1); color: #fff;
-        }
-        .lvl-box.active { border-color: var(--neon-yellow); color: var(--neon-yellow); box-shadow: 0 0 10px var(--neon-yellow); }
 
         input {
             background: #000; border: 2px solid var(--neon-yellow); color: var(--neon-yellow);
-            padding: 15px; font-family: 'Press Start 2P'; width: 85%; margin-top: 20px;
-            text-align: center; outline: none; font-size: 11px;
+            padding: 15px; font-family: 'Press Start 2P'; width: 80%; margin-top: 20px;
+            text-align: center; font-size: 11px; outline: none;
         }
 
         .heart { color: #ff0040; font-size: 14px; margin: 0 2px; }
         .heart.lost { color: #222; }
 
-        #ticker { font-size: 6px; color: var(--neon-cian); text-align: center; padding: 12px; border-top: 1px solid rgba(0, 247, 255, 0.2); line-height: 1.4; }
+        #ticker { font-size: 6px; color: var(--neon-cian); text-align: center; padding: 12px; }
     </style>
 </head>
 <body>
@@ -99,27 +90,12 @@
 <div id="app">
     <div id="screen-home" class="screen active">
         <div class="game-frame">
-            <h1 style="font-size:12px; color:var(--neon-cian); text-align:center; line-height:1.5;">BIENVENIDO A<br>JSCOL PUZZLE CHALLENGE</h1>
-            <div style="margin: 30px 0; border: 2px solid var(--neon-cian); padding: 15px; font-size: 7px; line-height: 1.8; background: rgba(0,0,0,0.5);">
-                <p>CÓMO JUGAR Y GANAR:</p>
-                <p>💡 1. RESUELVE 20 NIVELES</p>
-                <p>⏱ 2. GANA PUNTOS POR VELOCIDAD</p>
-                <p>🏆 3. LLEGA AL TOP DEL RANKING</p>
-                <p>💰 4. GANA EL PREMIO DE $10,000 COP</p>
+            <h1 style="font-size:12px; color:var(--neon-cian);">JSCOL<br>ARCADE</h1>
+            <div style="border: 2px solid var(--neon-cian); padding: 15px; font-size: 7px; margin: 30px 0; line-height: 2;">
+                <p>💡 RESUELVE 20 NIVELES</p>
+                <p>💰 PREMIO: $10,000 COP</p>
             </div>
-            <button class="main-btn" onclick="nav('levels')">¡EMPEZAR EL RETRO DESAFÍO!</button>
-        </div>
-    </div>
-
-    <div id="screen-levels" class="screen">
-        <div class="header-stats">
-            <div>LEVELS CLEAR: 0/20</div>
-            <div style="color:var(--neon-yellow)">$10,000 COP</div>
-        </div>
-        <div class="game-frame">
-            <h2 style="font-size:10px; color:var(--neon-cian)">SELECCIONAR NIVEL</h2>
-            <div class="lvl-grid" id="grid-container"></div>
-            <button class="main-btn" style="margin-top:30px;" onclick="startGame()">JUGAR NIVEL ACTUAL</button>
+            <button class="main-btn" onclick="nav('game')">EMPEZAR RETRO DESAFÍO</button>
         </div>
     </div>
 
@@ -127,13 +103,15 @@
         <div class="header-stats">
             <div id="lvl-tag">LVL: 01/20</div>
             <div id="lives-ui"></div>
-            <div id="user-ui">JSCOL</div>
+            <div>JSCOL</div>
         </div>
         <div class="game-frame">
-            <div id="reaper-npc"><div class="speech-bubble" id="reaper-text"></div></div>
-            <p style="font-size:8px; color:var(--neon-cian); margin-bottom:15px;">[ PUZZLE DATA ]</p>
-            <div id="question-text" style="font-size:10px; line-height:1.8; padding:0 10px; text-align:center;">...</div>
-            <input id="ans-input" placeholder="TU RESPUESTA..." autocomplete="off">
+            <div class="speech-bubble" id="reaper-text"></div>
+            <div class="pixel-reaper" id="reaper-npc"></div>
+
+            <p style="font-size:8px; color:var(--neon-cian); margin-top: 40px;">PUZZLE DATA</p>
+            <div id="question-text" style="font-size:10px; line-height:1.6; margin: 20px 0;">...</div>
+            <input id="ans-input" placeholder="RESPUESTA..." autocomplete="off">
             <button class="main-btn" onclick="checkAnswer()">VALIDAR ESTRATEGIA</button>
         </div>
     </div>
@@ -153,55 +131,32 @@
         osc.start(); osc.stop(AudioCtx.currentTime + dur);
     }
 
-    // Datos curiosos JSCOL (Identidad Estratégica)
     const jscolFacts = [
         "Jscol piensa como estratega, viendo varios pasos adelante.",
         "Jscol no soporta lo genérico; todo debe tener identidad propia.",
         "Jscol mezcla creatividad con técnica: diseña y construye.",
-        "Jscol se estresa cuando algo está mal organizado.",
-        "Jscol insinúa más de lo que dice, prefiere el misterio.",
-        "Jscol quiere independencia y no depender de nadie.",
-        "Jscol sabe provocar reacciones, no pasa desapercibido.",
-        "Jscol analiza detalles que otros no ven.",
-        "Jscol vive entre la razón y la emoción.",
-        "Jscol no nació para ser promedio, siempre quiere destacar."
+        "Jscol cuida mucho su imagen y cómo lo perciben."
     ];
 
     const puzzles = [
         {q: "¿Cuál es el color del neón secundario?", a: "magenta"},
         {q: "LÓGICA: 2, 4, 16, 256, ?", a: "65536"},
-        {q: "ESTRATEGIA: Escribe 'JSCOL' al revés", a: "locsj"},
-        {q: "¿Cuánto es el premio mayor del arcade?", a: "10000 cop"},
-        {q: "SISTEMA: ¿Cuántos niveles tiene el desafío?", a: "20"}
+        {q: "Escribe 'JSCOL' al revés", a: "locsj"}
     ];
 
     let state = { lvl: 1, lives: 3 };
 
     function nav(id) {
         AudioCtx.resume();
-        playSound(600, 'sine', 0.1);
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         document.getElementById('screen-' + id).classList.add('active');
-        if(id === 'levels') renderGrid();
+        if(id === 'game') loadPuzzle();
     }
-
-    function renderGrid() {
-        const container = document.getElementById('grid-container');
-        container.innerHTML = "";
-        for(let i=1; i<=20; i++) {
-            const box = document.createElement('div');
-            box.className = `lvl-box ${i === state.lvl ? 'active' : ''}`;
-            box.innerText = `LEVEL ${i}`;
-            container.appendChild(box);
-        }
-    }
-
-    function startGame() { nav('game'); loadPuzzle(); }
 
     function loadPuzzle() {
         renderLives();
         document.getElementById('lvl-tag').innerText = `LVL: 0${state.lvl}/20`;
-        const p = puzzles[state.lvl-1] || {q: "FIN DEL RETRO DESAFÍO", a: ""};
+        const p = puzzles[state.lvl-1] || {q: "¡VICTORIA! RECLAMA TUS $10,000 COP", a: ""};
         document.getElementById('question-text').innerText = p.q;
         document.getElementById('ans-input').value = "";
     }
@@ -216,31 +171,27 @@
         const val = document.getElementById('ans-input').value.toLowerCase().trim();
         if(val === puzzles[state.lvl-1].a) {
             playSound(1000, 'square', 0.2);
-            state.lvl++;
-            loadPuzzle();
+            state.lvl++; loadPuzzle();
         } else {
-            state.lives--;
-            triggerReaper();
+            state.lives--; triggerReaper();
         }
     }
 
     function triggerReaper() {
         const npc = document.getElementById('reaper-npc');
         const txt = document.getElementById('reaper-text');
-        const fact = jscolFacts[Math.floor(Math.random() * jscolFacts.length)];
+        txt.innerHTML = `<span style="color:#ff0040">FALLASTE:</span><br><br>` + jscolFacts[Math.floor(Math.random() * jscolFacts.length)];
         
-        txt.innerHTML = `<span style="color:#ff0040">ESTRATEGIA ERRÓNEA:</span><br><br>${fact}`;
         npc.classList.add('active');
+        txt.classList.add('active');
         playSound(80, 'sawtooth', 0.8, 0.2);
         
         setTimeout(() => {
             npc.classList.remove('active');
+            txt.classList.remove('active');
             renderLives();
-            if(state.lives <= 0) {
-                alert("GAME OVER - LA PARCA HA RECLAMADO TU ALMA");
-                location.reload();
-            }
-        }, 4000);
+            if(state.lives <= 0) location.reload();
+        }, 3500);
     }
 </script>
 </body>
