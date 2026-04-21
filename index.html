@@ -2,225 +2,227 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSCOL | Arcade Challenge</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JSCOL Arcade</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
             --neon-cyan: #00f7ff; --neon-magenta: #ff00ff; --neon-yellow: #fff200;
-            --bg-dark: #020210; --panel-bg: rgba(5, 5, 30, 0.95);
+            --bg-dark: #020210;
         }
 
         body {
             margin: 0; background: var(--bg-dark); color: #fff;
             font-family: 'Press Start 2P', cursive; overflow: hidden;
-            background-image: radial-gradient(circle at center, #1a1a4a 0%, #020210 80%),
-                linear-gradient(var(--neon-cyan) 0.1rem, transparent 0.1rem),
-                linear-gradient(90deg, var(--neon-cyan) 0.1rem, transparent 0.1rem);
-            background-size: 100% 100%, 40px 40px; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+            background-image: radial-gradient(circle at center, #1a1a4a 0%, #020210 80%);
+            height: 100vh; display: flex; flex-direction: column;
+        }
+
+        /* Scanlines */
+        body::after {
+            content: " "; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 3px; pointer-events: none; z-index: 100;
         }
 
         #app {
-            display: grid; grid-template-columns: 280px 1fr 280px; gap: 15px;
-            width: 98%; max-width: 1300px; height: 85vh; z-index: 5;
+            display: flex; flex-direction: column; height: 100%; padding: 10px; box-sizing: border-box;
         }
 
-        .panel {
-            background: var(--panel-bg); border: 4px solid var(--neon-cyan);
-            box-shadow: 0 0 20px rgba(0, 247, 255, 0.4); padding: 20px;
-            display: flex; flex-direction: column; position: relative;
+        .header-stats {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px; border: 2px solid var(--neon-cyan); margin-bottom: 10px; font-size: 8px;
         }
 
-        .main-panel { border-color: var(--neon-magenta); text-align: center; }
+        .main-game {
+            flex-grow: 1; border: 3px solid var(--neon-magenta); background: rgba(5, 5, 30, 0.9);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            padding: 15px; text-align: center; position: relative; box-shadow: 0 0 15px rgba(255, 0, 255, 0.3);
+        }
 
-        .heart { color: #ff0040; text-shadow: 0 0 10px #ff0040; font-size: 20px; margin: 0 5px; transition: 0.3s; }
-        .heart.lost { color: #222; text-shadow: none; transform: scale(0.8); }
+        .heart { color: #ff0040; font-size: 14px; margin-left: 2px; }
+        .heart.lost { color: #222; }
 
         input {
-            background: #000; border: 3px solid var(--neon-yellow); color: var(--neon-cyan);
-            padding: 15px; font-family: 'Press Start 2P'; width: 80%; margin-top: 20px; text-align: center; outline: none;
+            background: #000; border: 2px solid var(--neon-yellow); color: var(--neon-cyan);
+            padding: 12px; font-family: 'Press Start 2P'; width: 90%; margin-top: 15px;
+            font-size: 12px; text-align: center; outline: none; -webkit-appearance: none;
         }
 
         button {
-            background: var(--neon-magenta); color: #fff; border: none; padding: 15px 30px;
-            font-family: 'Press Start 2P'; cursor: pointer; margin-top: 20px;
-            box-shadow: 5px 5px 0px #000; transition: 0.1s;
+            background: var(--neon-cyan); color: #000; border: none; padding: 15px 20px;
+            font-family: 'Press Start 2P'; font-size: 10px; cursor: pointer; margin-top: 15px;
+            box-shadow: 4px 4px 0px var(--neon-magenta); width: 90%;
         }
 
-        button:hover { background: var(--neon-cyan); color: #000; transform: translate(-2px, -2px); box-shadow: 7px 7px 0px var(--neon-magenta); }
+        #ranking-min { font-size: 7px; margin-top: 10px; color: var(--neon-cyan); opacity: 0.7; }
 
-        /* Efecto Glitch de Daño */
-        .damage-flash { animation: flash-red 0.1s 3; }
-        @keyframes flash-red { 0%, 100% { background: transparent; } 50% { background: rgba(255, 0, 0, 0.4); } }
-
-        #ranking p { font-size: 9px; border-left: 3px solid var(--neon-magenta); padding-left: 8px; margin: 12px 0; }
+        .damage { animation: flash 0.1s 3; }
+        @keyframes flash { 0% { background: #ff0040; } 100% { background: transparent; } }
     </style>
 </head>
 <body>
 
 <div id="app">
-    <div class="panel">
-        <h2>SISTEMA</h2>
-        <div style="margin:20px 0;">VIDAS:<br><div id="lives-container"></div></div>
-        <div class="stat">NIVEL: <span id="p-level" style="color:var(--neon-yellow)">01</span></div>
-        <div class="stat">PLAYER: <span id="p-name" style="color:var(--neon-cyan)">---</span></div>
-        <div style="margin-top:auto; font-size:9px; color:var(--neon-yellow); border:1px dashed var(--neon-yellow); padding:10px;">
-            BOUNTY: $10,000 COP
-        </div>
+    <div class="header-stats">
+        <div>LVL:<span id="lvl">01</span></div>
+        <div id="lives-ui"></div>
+        <div id="user-ui">---</div>
     </div>
 
-    <div class="panel main-panel" id="game-core">
-        <h2 id="lvl-title">JSCOL ARCADE</h2>
-        <div id="content" style="flex-grow:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-            <p>CARGANDO INTERFAZ...</p>
-        </div>
+    <div class="main-game" id="game-view">
+        <h2 style="font-size:12px; color:var(--neon-yellow)">BIENVENIDO A JSCOL</h2>
+        <button onclick="startApp()">DESBLOQUEAR SONIDO Y EMPEZAR</button>
     </div>
 
-    <div class="panel">
-        <h2>RANKING</h2>
-        <div id="ranking"></div>
-    </div>
+    <div id="ranking-min">CARGANDO LÍDERES...</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <script>
-    // --- MOTOR DE AUDIO AVANZADO ---
-    const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let ambientNode = null;
+    // --- MOTOR DE AUDIO (CORREGIDO PARA MÓVIL) ---
+    let audioContext;
+    let ambientOsc;
 
-    function playSFX(type) {
-        const osc = AudioCtx.createOscillator();
-        const gain = AudioCtx.createGain();
-        osc.connect(gain); gain.connect(AudioCtx.destination);
-
-        if(type === 'click') {
-            osc.type = 'sine'; osc.frequency.setValueAtTime(800, AudioCtx.currentTime);
-            gain.gain.setValueAtTime(0.1, AudioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.1);
-        } else if(type === 'win') {
-            osc.type = 'square'; osc.frequency.setValueAtTime(523.25, AudioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(1046.50, AudioCtx.currentTime + 0.2);
-            gain.gain.setValueAtTime(0.1, AudioCtx.currentTime);
-        } else if(type === 'fail') {
-            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, AudioCtx.currentTime);
-            osc.frequency.linearRampToValueAtTime(40, AudioCtx.currentTime + 0.4);
-            gain.gain.setValueAtTime(0.1, AudioCtx.currentTime);
+    function initAudio() {
+        if (!audioContext) {
+            audioContext = new (window.AudioContext || window.webkitAudioContext)();
         }
-        osc.start(); osc.stop(AudioCtx.currentTime + 0.4);
     }
 
-    function startAmbient() {
-        if(ambientNode) return;
-        // Sonido base suave (tipo Minecraft)
-        const base = AudioCtx.createOscillator();
-        const filter = AudioCtx.createBiquadFilter();
-        const gain = AudioCtx.createGain();
+    function playSFX(freq, type = 'sine', duration = 0.2) {
+        if (!audioContext) return;
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioContext.currentTime);
+        if(type === 'sawtooth') osc.frequency.exponentialRampToValueAtTime(10, audioContext.currentTime + duration);
         
-        base.type = 'triangle';
-        base.frequency.setValueAtTime(110, AudioCtx.currentTime);
-        filter.type = 'lowpass'; filter.frequency.value = 400;
-        gain.gain.value = 0.03;
-
-        base.connect(filter); filter.connect(gain); gain.connect(AudioCtx.destination);
-        base.start();
-        ambientNode = base;
+        gain.gain.setValueAtTime(0.05, audioContext.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+        
+        osc.connect(gain); gain.connect(audioContext.destination);
+        osc.start(); osc.stop(audioContext.currentTime + duration);
     }
 
-    // --- LOGICA DE JUEGO ---
+    function playAmbient() {
+        if (ambientOsc) return;
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(80, audioContext.currentTime); // Frecuencia baja tipo Minecraft
+        gain.gain.value = 0.02;
+        osc.connect(gain); gain.connect(audioContext.destination);
+        osc.start();
+        ambientOsc = osc;
+    }
+
+    // --- LÓGICA ---
     const firebaseConfig = { apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU", authDomain: "vozanonimasm.firebaseapp.com", projectId: "vozanonimasm" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let USER = { 
-        uid: localStorage.getItem("uid") || "js_"+Math.random().toString(36).substr(2,5), 
-        name: localStorage.getItem("name"), 
-        level: parseInt(localStorage.getItem("level")) || 1,
-        lives: 3 
-    };
+    let USER = { uid: localStorage.getItem("uid") || "js_"+Math.random().toString(36).substr(2,4), name: localStorage.getItem("name"), level: parseInt(localStorage.getItem("level")) || 1, lives: 3 };
+    localStorage.setItem("uid", USER.uid);
 
     const puzzles = [
-        {q:"Escribe el ID de tu marca", a:"jscol"},
-        {q:"¿Qué número sigue? 2, 4, 16, 256, ?", a:"65536"},
-        {q:"¿Cuántos colores tiene el arcoíris?", a:"7"},
-        {q:"Si hoy es lunes, ¿qué día será en 100 días?", a:"martes"},
-        {q:"Escribe 'HOLA' en Binario", a:"01001000 01001111 01001100 01000001"},
-        {q:"Resuelve: (4 * 4) + (4 / 4) - 4", a:"13"},
-        {q:"¿Cuál es la capital de Colombia?", a:"bogotá"},
-        {q:"Escribe la palabra 'PIXEL' al revés", a:"lexip"},
-        {q:"¿Cuál es el color que resulta de mezclar Rojo y Azul?", a:"violeta"},
-        {q:"Nivel Final: ¿Cuál es el código secreto? (Pista: JSCOL)", a:"jscol2026"}
+        {q:"Escribe el nombre de tu marca", a:"jscol"},
+        {q:"¿Cuánto es 12 + 13 - 5?", a:"20"},
+        {q:"Escribe 'NIVEL' al revés", a:"levin"},
+        {q:"Si tienes 3 manzanas y quitas 2, ¿cuántas tienes?", a:"2"},
+        {q:"¿Cuál es el primer color del arcoíris?", a:"rojo"},
+        {q:"Toca el botón 5 veces rápidamente", multi:5},
+        {q:"¿Qué animal dice 'Miau'?", a:"gato"},
+        {q:"Suma: 10 + 20 + 30", a:"60"},
+        {q:"Escribe la palabra: ARCADE", a:"arcade"},
+        {q:"Final: ¿Quién creó este reto? (Pista: JS...)", a:"jscol"}
     ];
 
-    function init() {
-        if(!USER.name) {
-            document.getElementById("content").innerHTML = `<h2>INGRESA AL ARCADE</h2><input id="u-in" placeholder="TU NOMBRE"><button id="start-btn">CONECTAR</button>`;
-            document.getElementById("start-btn").onclick = () => { startAmbient(); login(); };
-        } else {
-            startAmbient();
-            document.getElementById("p-name").innerText = USER.name;
-            renderLives();
-            loadLevel();
-        }
+    function startApp() {
+        initAudio();
+        playAmbient();
+        playSFX(600);
+        if(!USER.name) showLogin(); else showGame();
     }
 
-    function login() {
-        let n = document.getElementById("u-in").value.toUpperCase();
-        if(n.length > 2) { playSFX('win'); USER.name = n; localStorage.setItem("name", n); init(); }
+    function showLogin() {
+        document.getElementById("game-view").innerHTML = `
+            <p style="font-size:10px">INGRESA TU ALIAS</p>
+            <input id="nick" placeholder="NOMBRE">
+            <button onclick="saveNick()">EMPEZAR</button>
+        `;
+    }
+
+    function saveNick() {
+        let n = document.getElementById("nick").value.toUpperCase();
+        if(n.length > 2) { USER.name = n; localStorage.setItem("name", n); showGame(); }
     }
 
     function renderLives() {
         let h = "";
         for(let i=0; i<3; i++) h += `<span class="heart ${i >= USER.lives ? 'lost' : ''}">❤</span>`;
-        document.getElementById("lives-container").innerHTML = h;
+        document.getElementById("lives-ui").innerHTML = h;
     }
 
-    function loadLevel() {
+    function showGame() {
+        document.getElementById("user-ui").innerText = USER.name;
+        renderLives();
         let p = puzzles[USER.level-1];
         if(!p) { finish(); return; }
-        document.getElementById("lvl-title").innerText = `RETRO PUZZLE 0${USER.level}`;
-        document.getElementById("p-level").innerText = USER.level;
-        document.getElementById("content").innerHTML = `<p>${p.q}</p><input id="ans" autocomplete="off"><button onclick="playSFX('click'); check();">ENVIAR</button>`;
+        
+        document.getElementById("lvl").innerText = USER.level < 10 ? "0"+USER.level : USER.level;
+        let view = document.getElementById("game-view");
+        
+        if(p.multi) {
+            let c = 0;
+            view.innerHTML = `<p>${p.q}</p><button id="m-btn">TOCAR (${p.multi})</button>`;
+            document.getElementById("m-btn").onclick = () => { 
+                c++; playSFX(800 + (c*100)); 
+                document.getElementById("m-btn").innerText = `TOCAR (${p.multi - c})`;
+                if(c >= p.multi) next(); 
+            };
+        } else {
+            view.innerHTML = `<p style="font-size:11px">${p.q}</p><input id="ans" autocomplete="off"><button onclick="check()">VALIDAR</button>`;
+        }
     }
 
     function check() {
-        let v = document.getElementById("ans").value.toLowerCase().trim();
-        if(v === puzzles[USER.level-1].a) {
-            playSFX('win'); USER.level++;
-            localStorage.setItem("level", USER.level);
-            db.collection("players").doc(USER.uid).set({name:USER.name, level:USER.level}, {merge:true});
-            loadLevel();
+        let val = document.getElementById("ans").value.toLowerCase().trim();
+        if(val === puzzles[USER.level-1].a) {
+            playSFX(1000, 'sine'); next();
         } else {
             USER.lives--;
-            playSFX('fail');
-            document.body.classList.add("damage-flash");
-            setTimeout(() => document.body.classList.remove("damage-flash"), 300);
+            playSFX(150, 'sawtooth', 0.5);
+            document.getElementById("game-view").classList.add("damage");
+            setTimeout(() => document.getElementById("game-view").classList.remove("damage"), 300);
             renderLives();
             if(USER.lives <= 0) gameOver();
         }
     }
 
-    function gameOver() {
-        document.getElementById("content").innerHTML = `<h2 style="color:red">CONEXIÓN PERDIDA</h2><p>TE HAS QUEDADO SIN VIDAS</p><button onclick="reset()">REINICIAR</button>`;
+    function next() {
+        USER.level++;
+        localStorage.setItem("level", USER.level);
+        db.collection("players").doc(USER.uid).set({name:USER.name, level:USER.level}, {merge:true});
+        showGame();
     }
 
-    function reset() {
-        USER.level = 1; USER.lives = 3;
+    function gameOver() {
+        document.getElementById("game-view").innerHTML = `<h2>GAME OVER</h2><button onclick="location.reload()">REINTENTAR</button>`;
         localStorage.setItem("level", 1);
-        init();
     }
 
     function finish() {
-        document.getElementById("content").innerHTML = `<h2>VICTORIA TOTAL</h2><p>ERES UNA LEYENDA</p>`;
+        document.getElementById("game-view").innerHTML = `<h2 style="color:var(--neon-cyan)">GANASTE</h2><p>Código: JSCOL-${USER.uid.toUpperCase()}</p>`;
     }
 
-    db.collection("players").orderBy("level","desc").limit(6).onSnapshot(s => {
-        let html = ""; s.forEach(d => html += `<p>> ${d.data().name} - LVL ${d.data().level}</p>`);
-        document.getElementById("ranking").innerHTML = html;
+    db.collection("players").orderBy("level","desc").limit(3).onSnapshot(s => {
+        let h = "TOP: "; s.forEach(d => h += `${d.data().name}(L${d.data().level}) `);
+        document.getElementById("ranking-min").innerText = h;
     });
 
-    init();
 </script>
 </body>
 </html>
