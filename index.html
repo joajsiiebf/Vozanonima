@@ -8,92 +8,85 @@
     <style>
         :root {
             --neon-cian: #00f7ff; --neon-magenta: #ff00ff; --neon-yellow: #fff200;
-            --bg-dark: #010115; --panel-bg: rgba(10, 10, 42, 0.9);
+            --bg-dark: #010115; --panel-bg: rgba(10, 10, 42, 0.95);
         }
 
         body {
             margin: 0; background: var(--bg-dark); color: #fff;
             font-family: 'Press Start 2P', cursive; overflow: hidden;
-            background-image: 
-                radial-gradient(circle at center, #0a0a30 0%, #010115 80%),
-                linear-gradient(var(--neon-cian) 1px, transparent 1px),
-                linear-gradient(90deg, var(--neon-cian) 1px, transparent 1px);
-            background-size: 100% 100%, 50px 50px;
+            background-image: radial-gradient(circle at center, #0a0a30 0%, #010115 80%);
             height: 100vh; display: flex; flex-direction: column;
-            animation: backgroundMove 20s linear infinite;
         }
 
-        @keyframes backgroundMove { 0% { background-position: 0 0; } 100% { background-position: 50px 50px; } }
-
-        /* Overlay de líneas de TV vieja */
+        /* Scanlines */
         body::after {
             content: " "; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
             background-size: 100% 4px; pointer-events: none; z-index: 100;
         }
 
-        #app { display: flex; flex-direction: column; height: 100%; padding: 15px; box-sizing: border-box; }
+        #app { display: flex; flex-direction: column; height: 100%; padding: 15px; box-sizing: border-box; position: relative; }
 
         .header-stats {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 10px; border: 3px solid var(--neon-cian); margin-bottom: 15px; font-size: 9px;
+            padding: 8px; border: 2px solid var(--neon-cian); margin-bottom: 10px; font-size: 8px;
             box-shadow: 0 0 10px var(--neon-cian);
         }
 
         .main-game {
-            flex-grow: 1; border: 4px solid var(--neon-magenta); background: var(--panel-bg);
+            flex-grow: 1; border: 3px solid var(--neon-magenta); background: var(--panel-bg);
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            padding: 20px; text-align: center; position: relative;
+            padding: 15px; text-align: center; position: relative;
             box-shadow: 0 0 20px rgba(255, 0, 255, 0.4); overflow: hidden;
         }
 
-        /* Animación de Parca y Calavera */
-        #reaper-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 0, 64, 0.7); display: none; justify-content: center; align-items: center;
-            z-index: 50; animation: reaperAppear 0.3s;
-        }
-
-        #reaper-sprite {
-            width: 120px; height: 120px;
+        /* --- NPC LA PARCA & DIÁLOGO (50% VH) --- */
+        #reaper-npc {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 50vh;
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><path fill="%23FFFFFF" d="M3,0 h10 v2 h1 v2 h1 v10 h-1 v2 h-10 v-2 h-1 v-10 h1 v-2 h1 z M5,3 h6 v1 h-6 z M4,4 h8 v1 h-8 z M3,5 h10 v1 h-10 z M2,6 h12 v6 h-12 z M3,12 h10 v1 h-10 z M4,13 h8 v1 h-8 z M5,14 h6 v1 h-6 z M6,7 h4 v2 h-4 z M7,8 v1 h2 v-1 z M7,6 h2 v1 h-2 z"/></svg>'); /* Parca Simplificada */
-            background-size: contain; background-repeat: no-repeat;
-            filter: drop-shadow(0 0 10px #ff0040);
+            background-size: contain; background-repeat: no-repeat; background-position: bottom center;
+            display: none; flex-direction: column; align-items: center; justify-content: flex-start;
+            z-index: 60; animation: reaperRise 0.5s ease-out;
+            filter: drop-shadow(0 0 15px #ff0040);
         }
 
-        @keyframes reaperAppear { 0% { transform: scale(0.5) rotate(-30deg); opacity: 0; } 100% { transform: scale(1) rotate(0deg); opacity: 1; } }
+        @keyframes reaperRise { 0% { transform: translateY(100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 
-        .heart { color: #ff0040; font-size: 16px; margin-left: 3px; text-shadow: 0 0 5px #ff0040; }
-        .heart.lost { color: #333; text-shadow: none; animation: heartBurst 0.3s; }
+        #reaper-dialog {
+            background: #000; border: 3px solid #ff0040; border-radius: 5px;
+            padding: 10px; width: 85%; margin-top: 20px;
+            font-size: 7px; line-height: 1.6; color: #fff;
+            box-shadow: 0 0 15px #ff0040; position: relative;
+        }
 
-        @keyframes heartBurst { 0% { transform: scale(1); } 50% { transform: scale(1.5) rotate(15deg); } 100% { transform: scale(0.8); } }
+        #reaper-dialog::before {
+            content: "💀"; position: absolute; top: -15px; left: 10px; font-size: 14px;
+        }
+
+        .heart { color: #ff0040; font-size: 14px; margin-left: 2px; text-shadow: 0 0 5px #ff0040; }
+        .heart.lost { color: #222; text-shadow: none; }
 
         input {
-            background: #000; border: 3px solid var(--neon-yellow); color: var(--neon-cian);
-            padding: 15px; font-family: 'Press Start 2P'; width: 90%; margin-top: 20px;
-            font-size: 14px; text-align: center; outline: none; box-shadow: 0 0 10px var(--neon-yellow);
+            background: #000; border: 2px solid var(--neon-yellow); color: var(--neon-cian);
+            padding: 12px; font-family: 'Press Start 2P'; width: 90%; margin-top: 15px;
+            font-size: 12px; text-align: center; outline: none; -webkit-appearance: none;
         }
 
         button {
-            background: var(--neon-cian); color: #000; border: none; padding: 18px 25px;
-            font-family: 'Press Start 2P'; font-size: 11px; cursor: pointer; margin-top: 20px;
-            box-shadow: 5px 5px 0px var(--neon-magenta); width: 90%;
-            transition: 0.1s;
+            background: var(--neon-cian); color: #000; border: none; padding: 15px 20px;
+            font-family: 'Press Start 2P'; font-size: 10px; cursor: pointer; margin-top: 15px;
+            box-shadow: 4px 4px 0px var(--neon-magenta); width: 90%;
         }
 
-        button:hover { background: var(--neon-magenta); color: #fff; transform: translate(-2px, -2px); box-shadow: 7px 7px 0px var(--neon-cian); }
-        button:active { transform: translate(3px, 3px); box-shadow: 0px 0px 0px; }
+        #ranking-min { font-size: 7px; margin-top: 12px; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); }
 
-        #ranking-min { font-size: 8px; margin-top: 15px; color: var(--neon-yellow); text-shadow: 0 0 5px var(--neon-yellow); }
-
-        /* Efecto de Daño General */
-        .damage-flash { animation: shake 0.3s infinite, flash-magenta 0.1s 3; }
-        @keyframes shake { 0%, 100% { transform: translate(0); } 50% { transform: translate(3px, 3px); } }
+        .damage-flash { animation: flash-magenta 0.1s 3; }
         @keyframes flash-magenta { 0% { background: #ff00ff66; } 100% { background: transparent; } }
 
         @media (min-width: 900px) {
-            #app { padding: 50px; }
-            .main-game { width: 70%; align-self: center; }
+            #app { padding: 40px; }
+            .main-game { width: 60%; align-self: center; }
+            #reaper-npc { height: 40vh; }
         }
     </style>
 </head>
@@ -107,10 +100,14 @@
     </div>
 
     <div class="main-game" id="game-view">
-        <div id="reaper-overlay"><div id="reaper-sprite"></div></div>
+        <div id="reaper-npc">
+            <div id="reaper-dialog">
+                <p>LA ESTRATEGIA FALLÓ...</p>
+                <p id="reaper-fact" style="color: var(--neon-yellow); margin-top: 5px;"></p>
+            </div>
+        </div>
         
-        <h2 style="font-size:14px; color:var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan);">JSCOL ARCADE</h2>
-        <p style="font-size: 9px; margin-top: 15px;">FLOW RETRO DETECTADO</p>
+        <h2 style="font-size:12px; color:var(--neon-cyan);">JSCOL ARCADE</h2>
         <button onclick="startApp()">DESBLOQUEAR SONIDO Y EMPEZAR</button>
     </div>
 
@@ -140,9 +137,33 @@
         if (ambientOsc) return;
         const osc = audioContext.createOscillator(); const gain = audioContext.createGain();
         osc.type = 'triangle'; osc.frequency.setValueAtTime(90, audioContext.currentTime);
-        gain.gain.value = 0.03; osc.connect(gain); gain.connect(audioContext.destination);
+        gain.gain.value = 0.02; osc.connect(gain); gain.connect(audioContext.destination);
         osc.start(); ambientOsc = osc;
     }
+
+    // --- DATOS CURIOSOS DE JSCOL (ESTRATEGIA) ---
+    const jscolFacts = [
+        "Jscol piensa como estratega, siempre viendo varios pasos adelante.",
+        "Jscol no soporta lo genérico; todo debe tener identidad propia.",
+        "Jscol mezcla creatividad con técnica: diseña, escribe y construye.",
+        "Jscol se estresa cuando algo está mal organizado.",
+        "Jscol cuida mucho su imagen y cómo lo perciben.",
+        "Jscol insinúa más de lo que dice, le gusta dejar misterio.",
+        "Jscol prefiere lo elegante con carácter, nada vacío.",
+        "Jscol quiere independencia temprano y no depender de nadie.",
+        "Jscol analiza a las personas y detecta detalles ocultos.",
+        "Jscol sabe provocar reacciones, no pasa desapercibido.",
+        "Jscol es romántico, pero no se entrega sin pensar.",
+        "Jscol viene de lo urbano, apuntando a algo más grande.",
+        "Jscol se obsesiona con lo que le importa hasta hacerlo bien.",
+        "Jscol se aburre rápido de lo repetitivo.",
+        "Jscol busca respeto real, no solo atención.",
+        "Jscol se adapta sin perder su esencia.",
+        "Jscol quiere entender su mente y por qué es como es.",
+        "Jscol vive entre la razón y la emoción.",
+        "Jscol crea más de lo que consume.",
+        "Jscol no nació para ser promedio."
+    ];
 
     // --- LÓGICA ARCADE ---
     const firebaseConfig = { apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU", authDomain: "vozanonimasm.firebaseapp.com", projectId: "vozanonimasm" };
@@ -152,13 +173,12 @@
     localStorage.setItem("uid", USER.uid);
 
     const puzzles = [
-        {q:"Escribe 'JSCOL' para verificar conexión", a:"jscol"},
-        {q:"¿Cuál es el color de este neón principal?", a:"cian"},
-        {q:"Escribe la palabra: ARCADE", a:"arcade"},
-        {q:"¿Cuánto es (10 x 5) / 2?", a:"25"},
-        {q:"Escribe el color de los bordes de la pantalla de juego", a:"magenta"},
-        {q:"¿Qué sigue? 2, 4, 8, 16, ?", a:"32"},
-        {q:"Si tienes 5 naranjas y quitas 3, ¿cuántas tienes?", a:"3"},
+        {q:"Verifica conexión: Escribe 'JSCOL'", a:"jscol"},
+        {q:"¿Cuánto es (12 + 13) - 5?", a:"20"},
+        {q:"Secuencia: 2, 4, 16, 256, ?", a:"65536"},
+        {q:"¿Qué animal dice 'Miau'?", a:"gato"},
+        {q:"Escribe 'NIVEL' al revés", a:"levin"},
+        {q:"Si hoy es lunes, ¿qué día será en 100 días?", a:"martes"},
         {q:"Nivel Final: ¿Quién te reta hoy? (JS...)", a:"jscol"}
     ];
 
@@ -166,16 +186,16 @@
 
     function showLogin() {
         document.getElementById("game-view").innerHTML = `
-            <div id="reaper-overlay"><div id="reaper-sprite"></div></div>
-            <p style="font-size:10px; color:var(--neon-yellow)">INGRESA AL SISTEMA</p>
-            <input id="nick" placeholder="ALIAS (MAX 8)" maxlength="8">
+            <div id="reaper-npc"><div id="reaper-dialog"><p id="reaper-fact"></p></div></div>
+            <p style="font-size:9px">INGRESA AL SISTEMA</p>
+            <input id="nick" placeholder="ALIAS" maxlength="8">
             <button onclick="saveNick()">EMPEZAR RETRO</button>
         `;
     }
 
     function saveNick() {
         let n = document.getElementById("nick").value.toUpperCase().trim();
-        if(n.length >= 3) { USER.name = n; localStorage.setItem("name", n); showGame(); playSFX(1000, 'square', 0.1); }
+        if(n.length >= 3) { USER.name = n; localStorage.setItem("name", n); showGame(); }
     }
 
     function renderLives() {
@@ -190,30 +210,36 @@
         if(!p) { finish(); return; }
         document.getElementById("lvl").innerText = USER.level < 10 ? "0"+USER.level : USER.level;
         document.getElementById("game-view").innerHTML = `
-            <div id="reaper-overlay"><div id="reaper-sprite"></div></div>
-            <p style="font-size:12px; line-height:1.6">${p.q}</p>
-            <input id="ans" autocomplete="off" placeholder="...">
-            <button onclick="playSFX(700, 'sine', 0.1); check();">ENVIAR SISTEMA</button>
+            <div id="reaper-npc"><div id="reaper-dialog"><p id="reaper-fact"></p></div></div>
+            <p style="font-size:11px; line-height:1.6">${p.q}</p>
+            <input id="ans" autocomplete="off">
+            <button onclick="playSFX(700, 'sine', 0.1); check();">ENVIAR</button>
         `;
     }
 
     function check() {
         let val = document.getElementById("ans").value.toLowerCase().trim();
-        if(val === puzzles[USER.level-1].a) { playSFX(1200, 'square', 0.1); next(); } else { USER.lives--; showReaper(); }
+        if(val === puzzles[USER.level-1].a) { playSFX(1200, 'square', 0.1); next(); } else { USER.lives--; triggerReaper(); }
     }
 
-    function showReaper() {
-        const overlay = document.getElementById("reaper-overlay");
-        overlay.style.display = 'flex';
-        playSFX(100, 'sawtooth', 0.8, 0.001); // Sonido siniestro
+    function triggerReaper() {
+        const npc = document.getElementById("reaper-npc");
+        const factText = document.getElementById("reaper-fact");
+        
+        // Seleccionar dato curioso aleatorio
+        const fact = jscolFacts[Math.floor(Math.random() * jscolFacts.length)];
+        factText.innerText = `> ${fact}`;
+        
+        npc.style.display = 'flex';
+        playSFX(110, 'sawtooth', 0.8, 0.001); // Sonido siniestro
         document.getElementById("game-view").classList.add("damage-flash");
         
         setTimeout(() => {
-            overlay.style.display = 'none';
+            npc.style.display = 'none';
             document.getElementById("game-view").classList.remove("damage-flash");
             renderLives();
             if(USER.lives <= 0) gameOver();
-        }, 1200); // Duración de la parca
+        }, 3000); // Duración del NPC (más tiempo para leer el dato)
     }
 
     function next() {
@@ -223,24 +249,18 @@
     }
 
     function gameOver() {
-        document.getElementById("game-view").innerHTML = `
-            <h2 style="color:#ff0040; font-size:16px;">CONEXIÓN PERDIDA</h2>
-            <button onclick="location.reload()">REINTENTAR</button>
-        `;
-        playSFX(100, 'sawtooth', 2, 0.001); // Sonido de derrota largo
+        document.getElementById("game-view").innerHTML = `<h2 style="color:#ff0040">GAME OVER</h2><button onclick="location.reload()">REINTENTAR</button>`;
         localStorage.setItem("level", 1);
     }
 
     function finish() {
         document.getElementById("game-view").innerHTML = `
             <h2 style="color:var(--neon-yellow)">VICTORIA TOTAL</h2>
-            <div style="font-size: 8px; border:2px solid var(--neon-yellow); padding:10px; margin-top:15px; background: rgba(255, 242, 0, 0.1);">
+            <div style="font-size: 7px; border:2px solid var(--neon-yellow); padding:8px; margin-top:10px;">
                 PREMIO: $10,000 COP
-                <p style="color:var(--neon-cian); font-size:10px; margin-top:8px;">JSCOL-${USER.uid.toUpperCase()}</p>
+                <p style="color:var(--neon-cian); font-size:9px; margin-top:5px;">JSCOL-${USER.uid.toUpperCase()}</p>
             </div>
-            <p style="font-size:7px; margin-top:20px;">CAPTURA Y RECLAMA</p>
         `;
-        playSFX(2000, 'square', 0.5); // Sonido de victoria final
     }
 
     db.collection("players").orderBy("level","desc").limit(3).onSnapshot(s => {
