@@ -3,89 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JSCOL | Final Puzzle Challenge</title>
+    <title>JSCOL | Retro Challenge</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         :root {
-            --neon-cian: #00f7ff; --neon-magenta: #ff00ff; --neon-yellow: #fff200;
-            --bg-dark: #020210; --panel-bg: rgba(5, 5, 30, 0.98);
+            --neon-cian: #00f7ff;
+            --neon-magenta: #ff00ff;
+            --neon-yellow: #fff200;
+            --bg-dark: #020210;
         }
 
         body {
-            margin: 0; background: var(--bg-dark); color: #fff;
-            font-family: 'Press Start 2P', cursive; overflow: hidden;
-            height: 100vh; display: flex; flex-direction: column;
+            margin: 0;
+            background: var(--bg-dark);
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
             background-image: radial-gradient(circle at center, #0a0a30 0%, #010115 100%);
         }
 
-        /* Scanlines y Estética Retro */
+        /* Scanlines Estilo CRT */
         body::after {
-            content: " "; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            content: " ";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-            background-size: 100% 3px; pointer-events: none; z-index: 1000;
+            background-size: 100% 3px;
+            pointer-events: none;
+            z-index: 1000;
         }
 
-        #app { display: flex; flex-direction: column; height: 100%; padding: 10px; box-sizing: border-box; z-index: 10; }
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
 
         .header-stats {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px; border: 2px solid var(--neon-cian); margin-bottom: 10px;
-            background: rgba(0, 247, 255, 0.05); box-shadow: 0 0 15px var(--neon-cian);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border: 2px solid var(--neon-cian);
+            margin-bottom: 10px;
+            background: rgba(0, 247, 255, 0.05);
+            box-shadow: 0 0 15px var(--neon-cian);
+            font-size: 8px;
         }
 
         .game-container {
-            flex-grow: 1; border: 3px solid var(--neon-magenta); position: relative;
-            background: var(--panel-bg); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; overflow: hidden;
+            flex-grow: 1;
+            border: 3px solid var(--neon-magenta);
+            position: relative;
+            background: rgba(5, 5, 30, 0.95);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
             box-shadow: inset 0 0 50px rgba(255, 0, 255, 0.2);
+            text-align: center;
         }
 
-        /* --- LA PARCA NPC --- */
+        /* NPC LA PARCA (Basado en tu imagen) */
         #reaper-npc {
-            position: absolute; bottom: -100%; left: 0; width: 100%; height: 60%;
+            position: absolute;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            height: 65vh; /* Ocupa más de la mitad para impacto */
             background: url('https://i.ibb.co/LzN2kR9/reaper-pixel.png') no-repeat bottom center;
-            background-size: contain; z-index: 100; transition: bottom 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            filter: drop-shadow(0 0 20px #ff0040); display: flex; flex-direction: column; align-items: center;
+            background-size: contain;
+            z-index: 100;
+            transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            filter: drop-shadow(0 0 20px #ff0040);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         #reaper-npc.active { bottom: 0; }
 
         .speech-bubble {
-            background: #000; border: 3px solid #ff0040; padding: 15px; width: 80%;
-            margin-top: -150px; font-size: 8px; line-height: 1.8; position: relative;
-            box-shadow: 0 0 20px #ff0040; color: #fff;
+            background: #000;
+            border: 3px solid #ff0040;
+            padding: 15px;
+            width: 85%;
+            margin-top: 20px;
+            font-size: 7px;
+            line-height: 1.8;
+            box-shadow: 0 0 20px #ff0040;
+            color: #fff;
+            position: relative;
         }
-
-        /* --- INTERFAZ DE NIVELES --- */
-        .level-grid {
-            display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 20px;
-        }
-
-        .lvl-btn {
-            background: rgba(0, 247, 255, 0.1); border: 1px solid var(--neon-cian);
-            color: #fff; padding: 15px 5px; font-size: 8px; cursor: pointer;
-        }
-
-        .lvl-btn.locked { opacity: 0.3; cursor: not-allowed; }
-        .lvl-btn.active { background: var(--neon-cian); color: #000; box-shadow: 0 0 15px var(--neon-cian); }
 
         input {
-            background: #000; border: 2px solid var(--neon-yellow); color: var(--neon-yellow);
-            padding: 15px; font-family: 'Press Start 2P'; width: 85%; margin-top: 20px;
-            text-align: center; outline: none; font-size: 14px;
+            background: #000;
+            border: 2px solid var(--neon-yellow);
+            color: var(--neon-yellow);
+            padding: 15px;
+            font-family: 'Press Start 2P';
+            width: 80%;
+            margin-top: 20px;
+            text-align: center;
+            outline: none;
+            font-size: 12px;
+            -webkit-appearance: none;
         }
 
-        button.main-btn {
-            background: var(--neon-magenta); color: #fff; border: none; padding: 18px;
-            font-family: 'Press Start 2P'; width: 85%; margin-top: 20px; cursor: pointer;
-            box-shadow: 4px 4px 0 #000; font-size: 10px;
+        .main-btn {
+            background: var(--neon-cian);
+            color: #000;
+            border: none;
+            padding: 18px;
+            font-family: 'Press Start 2P';
+            width: 85%;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0 var(--neon-magenta);
+            font-size: 10px;
         }
 
-        .heart { color: #ff0040; font-size: 16px; margin: 0 3px; }
-        .heart.lost { color: #222; filter: grayscale(1); }
+        .heart { color: #ff0040; font-size: 14px; margin: 0 2px; }
+        .heart.lost { color: #222; }
 
         #bottom-bar {
-            font-size: 7px; color: var(--neon-cian); text-align: center; padding: 10px;
+            font-size: 7px;
+            color: var(--neon-cian);
+            text-align: center;
+            padding: 10px;
             border-top: 1px solid rgba(0, 247, 255, 0.2);
         }
     </style>
@@ -96,7 +148,7 @@
     <div class="header-stats">
         <div id="lvl-tag">LVL: 01/20</div>
         <div id="lives-ui"></div>
-        <div id="score-ui">SCORE: 0000</div>
+        <div id="user-ui">JSCOL</div>
     </div>
 
     <div class="game-container" id="game-view">
@@ -104,101 +156,91 @@
             <div class="speech-bubble" id="reaper-text"></div>
         </div>
         
-        <h1 style="font-size:14px; color:var(--neon-cian); margin-bottom:30px;">JSCOL PUZZLE</h1>
-        <button class="main-btn" onclick="initApp()">INICIAR RETRO AVENTURA</button>
+        <h1 style="font-size:12px; color:var(--neon-cian);">BIENVENIDO AL DESAFÍO</h1>
+        <button class="main-btn" onclick="startApp()">DESBLOQUEAR AUDIO Y JUGAR</button>
     </div>
 
     <div id="bottom-bar">JS COOL — THE RETRO ADVENTURE BEGINS NOW — POWER UP!</div>
 </div>
 
 <script>
-    // --- MOTOR DE AUDIO ---
+    // --- MOTOR DE AUDIO (ESTILO MINECRAFT/RETRO) ---
     const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     function playSound(freq, type='sine', dur=0.2, vol=0.1) {
         const osc = AudioCtx.createOscillator();
         const gain = AudioCtx.createGain();
-        osc.type = type; osc.frequency.setValueAtTime(freq, AudioCtx.currentTime);
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, AudioCtx.currentTime);
         gain.gain.setValueAtTime(vol, AudioCtx.currentTime);
         gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + dur);
         osc.connect(gain); gain.connect(AudioCtx.destination);
         osc.start(); osc.stop(AudioCtx.currentTime + dur);
     }
 
-    function playMinecraftAmbient() {
-        const osc = AudioCtx.createOscillator();
-        const gain = AudioCtx.createGain();
-        osc.type = 'triangle'; osc.frequency.value = 80;
-        gain.gain.value = 0.02;
-        osc.connect(gain); gain.connect(AudioCtx.destination);
-        osc.start();
-    }
-
-    // --- IDENTIDAD JSCOL ---
+    // --- IDENTIDAD Y ESTRATEGIA JSCOL ---
     const jscolFacts = [
         "Jscol piensa como estratega, viendo varios pasos adelante.",
-        "Jscol no soporta lo genérico; todo debe tener identidad.",
-        "Jscol mezcla creatividad con técnica: diseña y construye.",
-        "Jscol se estresa con la falta de estructura clara.",
-        "Jscol insinúa más de lo que dice, prefiere el misterio.",
+        "Jscol no soporta lo genérico; todo debe tener identidad propia.",
+        "Jscol mezcla creatividad con técnica: diseña y construye al mismo tiempo.",
+        "Jscol se estresa cuando algo está mal organizado.",
+        "Jscol cuida mucho su imagen y cómo lo perciben.",
+        "Jscol insinúa más de lo que dice, le gusta el misterio.",
         "Jscol prefiere lo elegante con carácter, nada vacío.",
         "Jscol quiere independencia y no depender de nadie.",
         "Jscol analiza detalles que otros no ven.",
-        "Jscol sabe provocar reacciones, no pasa desapercibido.",
-        "Jscol viene de lo urbano hacia algo más grande."
+        "Jscol sabe provocar reacciones, no pasa desapercibido."
     ];
 
     const puzzles = [
-        {q: "CONEXIÓN: Escribe el ID de la marca", a: "jscol"},
-        {q: "LOGICA: 2, 4, 16, 256, ?", a: "65536"},
-        {q: "VISUAL: ¿De qué color es el borde principal?", a: "magenta"},
-        {q: "BINARIO: 01001010 + 01010011 es 'JS'. ¿Cierto? (si/no)", a: "si"},
-        {q: "ESTRATEGIA: ¿Cuántos corazones tienes en total?", a: "3"}
+        {q: "SISTEMA: Escribe el nombre de la marca en minúsculas", a: "jscol"},
+        {q: "¿Cuál es el color del neón secundario en este arcade?", a: "magenta"},
+        {q: "LOGICA: 2, 4, 8, 16, ?", a: "32"},
+        {q: "Si la parca tiene 3 calaveras y te quita 2, ¿cuántas tienes tú?", a: "0"},
+        {q: "Escribe 'RETR0' sustituyendo la O por un cero", a: "retr0"}
     ];
 
-    let state = { level: 1, lives: 3, score: 0 };
+    let game = { lvl: 1, lives: 3 };
 
-    function initApp() {
+    function startApp() {
         AudioCtx.resume();
-        playMinecraftAmbient();
+        playSound(440, 'square', 0.1);
         renderGame();
     }
 
     function renderLives() {
         let h = "";
-        for(let i=0; i<3; i++) h += `<span class="heart ${i >= state.lives ? 'lost' : ''}">❤</span>`;
+        for(let i=0; i<3; i++) h += `<span class="heart ${i >= game.lives ? 'lost' : ''}">❤</span>`;
         document.getElementById("lives-ui").innerHTML = h;
     }
 
     function renderGame() {
         renderLives();
-        document.getElementById("lvl-tag").innerText = `LVL: 0${state.level}/20`;
-        const p = puzzles[state.level-1];
+        document.getElementById("lvl-tag").innerText = `LVL: 0${game.lvl}/20`;
+        const p = puzzles[game.lvl-1];
         
         if(!p) {
-            document.getElementById("game-view").innerHTML = `<h2>VICTORIA TOTAL</h2><p>PREMIO: $10,000 COP</p>`;
+            document.getElementById("game-view").innerHTML = `<h2 style="color:var(--neon-yellow)">VICTORIA TOTAL</h2><p style="font-size:8px">RECLAMA TU PREMIO: $10,000 COP</p>`;
             return;
         }
 
         document.getElementById("game-view").innerHTML = `
             <div id="reaper-npc"><div class="speech-bubble" id="reaper-text"></div></div>
-            <p style="font-size:10px; margin-bottom:20px; color:var(--neon-yellow)">[PUZZLE ACTIVO]</p>
-            <div style="padding:20px; line-height:1.6; font-size:11px;">${p.q}</div>
-            <input id="ans" autocomplete="off" placeholder="RESPUESTA...">
-            <button class="main-btn" onclick="checkAns()">ENVIAR DATOS</button>
+            <p style="font-size:9px; color:var(--neon-cian); margin-bottom:10px;">PUZZLE DATA</p>
+            <div style="font-size:10px; line-height:1.5; padding:0 20px;">${p.q}</div>
+            <input id="ans" placeholder="TU RESPUESTA..." autocomplete="off">
+            <button class="main-btn" onclick="checkAns()">VALIDAR ESTRATEGIA</button>
         `;
     }
 
     function checkAns() {
         const val = document.getElementById("ans").value.toLowerCase().trim();
-        if(val === puzzles[state.level-1].a) {
-            playSound(800, 'square', 0.2);
-            state.level++;
-            state.score += 500;
-            document.getElementById("score-ui").innerText = `SCORE: ${state.score}`;
+        if(val === puzzles[game.lvl-1].a) {
+            playSound(1000, 'sine', 0.2);
+            game.lvl++;
             renderGame();
         } else {
-            state.lives--;
+            game.lives--;
             triggerReaper();
         }
     }
@@ -208,19 +250,18 @@
         const txt = document.getElementById("reaper-text");
         const fact = jscolFacts[Math.floor(Math.random() * jscolFacts.length)];
         
-        txt.innerHTML = `<span style="color:#ff0040">ERROR DE ESTRATEGIA:</span><br><br>${fact}`;
+        txt.innerHTML = `<span style="color:#ff0040">ERROR...</span><br><br>${fact}`;
         npc.classList.add("active");
-        playSound(100, 'sawtooth', 0.8, 0.15);
+        playSound(80, 'sawtooth', 0.8, 0.2);
         
         setTimeout(() => {
             npc.classList.remove("active");
             renderLives();
-            if(state.lives <= 0) {
+            if(game.lives <= 0) {
                 document.getElementById("game-view").innerHTML = `<h2 style="color:red">GAME OVER</h2><button class="main-btn" onclick="location.reload()">REINTENTAR</button>`;
             }
-        }, 4000);
+        }, 3500);
     }
-
 </script>
 </body>
 </html>
