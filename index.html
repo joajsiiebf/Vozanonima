@@ -3,222 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSCOL | Retro Puzzle Challenge</title>
-
+    <title>JSCOL | Arcade Challenge</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-
     <style>
         :root {
-            --neon-cyan: #00f7ff;
-            --neon-magenta: #ff00ff;
-            --neon-yellow: #fff200;
-            --bg-dark: #05051a;
-            --panel-bg: rgba(10, 10, 42, 0.85);
+            --neon-cyan: #00f7ff; --neon-magenta: #ff00ff; --neon-yellow: #fff200;
+            --bg-dark: #020210; --panel-bg: rgba(5, 5, 30, 0.95);
         }
 
         body {
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-dark);
-            background-image: 
-                linear-gradient(var(--neon-cyan) 1px, transparent 1px),
-                linear-gradient(90deg, var(--neon-cyan) 1px, transparent 1px);
-            background-size: 50px 50px;
-            background-attachment: fixed;
-            color: #fff;
-            font-family: 'Press Start 2P', cursive;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-            /* Efecto Scanlines */
-            background-blend-mode: overlay;
-        }
-
-        /* Overlay de líneas de TV vieja */
-        body::after {
-            content: " ";
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 4px, 3px 100%;
-            pointer-events: none;
-            z-index: 10;
+            margin: 0; background: var(--bg-dark); color: #fff;
+            font-family: 'Press Start 2P', cursive; overflow: hidden;
+            background-image: radial-gradient(circle at center, #1a1a4a 0%, #020210 80%),
+                linear-gradient(var(--neon-cyan) 0.1rem, transparent 0.1rem),
+                linear-gradient(90deg, var(--neon-cyan) 0.1rem, transparent 0.1rem);
+            background-size: 100% 100%, 40px 40px; display: flex; justify-content: center; align-items: center; min-height: 100vh;
         }
 
         #app {
-            display: grid;
-            grid-template-columns: 280px 1fr 280px;
-            gap: 20px;
-            width: 95%;
-            max-width: 1400px;
-            height: 90vh;
-            z-index: 2;
+            display: grid; grid-template-columns: 280px 1fr 280px; gap: 15px;
+            width: 98%; max-width: 1300px; height: 85vh; z-index: 5;
         }
 
         .panel {
-            background: var(--panel-bg);
-            border: 3px solid var(--neon-cyan);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px rgba(0, 247, 255, 0.3);
-            display: flex;
-            flex-direction: column;
-            position: relative;
+            background: var(--panel-bg); border: 4px solid var(--neon-cyan);
+            box-shadow: 0 0 20px rgba(0, 247, 255, 0.4); padding: 20px;
+            display: flex; flex-direction: column; position: relative;
         }
 
-        /* Estilo JSCOL Especial */
-        .main-panel {
-            border-color: var(--neon-magenta);
-            box-shadow: 0 0 20px var(--neon-magenta), inset 0 0 15px rgba(255, 0, 255, 0.2);
-            text-align: center;
-            justify-content: center;
-        }
+        .main-panel { border-color: var(--neon-magenta); text-align: center; }
 
-        h2 {
-            font-size: 14px;
-            margin-bottom: 20px;
-            color: var(--neon-yellow);
-            text-shadow: 2px 2px var(--neon-magenta);
-            text-transform: uppercase;
-        }
-
-        .stat-box {
-            margin-bottom: 20px;
-            padding: 10px;
-            border-bottom: 2px dashed var(--neon-cyan);
-        }
-
-        .stat-label { font-size: 10px; color: var(--neon-cyan); margin-bottom: 8px; display: block; }
-        .stat-value { font-size: 14px; color: #fff; }
-
-        /* Pantalla de juego */
-        #content {
-            background: rgba(0,0,0,0.4);
-            padding: 30px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
+        .heart { color: #ff0040; text-shadow: 0 0 10px #ff0040; font-size: 20px; margin: 0 5px; transition: 0.3s; }
+        .heart.lost { color: #222; text-shadow: none; transform: scale(0.8); }
 
         input {
-            background: #000;
-            border: 2px solid var(--neon-cyan);
-            color: var(--neon-yellow);
-            padding: 15px;
-            font-family: 'Press Start 2P';
-            font-size: 12px;
-            width: 80%;
-            margin-top: 20px;
-            text-align: center;
-            outline: none;
+            background: #000; border: 3px solid var(--neon-yellow); color: var(--neon-cyan);
+            padding: 15px; font-family: 'Press Start 2P'; width: 80%; margin-top: 20px; text-align: center; outline: none;
         }
 
         button {
-            background: var(--neon-magenta);
-            color: white;
-            border: none;
-            padding: 15px 25px;
-            margin-top: 20px;
-            font-family: 'Press Start 2P';
-            font-size: 10px;
-            cursor: pointer;
-            box-shadow: 4px 4px 0px #6a006a;
-            transition: all 0.1s;
+            background: var(--neon-magenta); color: #fff; border: none; padding: 15px 30px;
+            font-family: 'Press Start 2P'; cursor: pointer; margin-top: 20px;
+            box-shadow: 5px 5px 0px #000; transition: 0.1s;
         }
 
-        button:hover {
-            transform: translate(-2px, -2px);
-            box-shadow: 6px 6px 0px #6a006a;
-            filter: brightness(1.2);
-        }
+        button:hover { background: var(--neon-cyan); color: #000; transform: translate(-2px, -2px); box-shadow: 7px 7px 0px var(--neon-magenta); }
 
-        button:active {
-            transform: translate(2px, 2px);
-            box-shadow: 0px 0px 0px #6a006a;
-        }
+        /* Efecto Glitch de Daño */
+        .damage-flash { animation: flash-red 0.1s 3; }
+        @keyframes flash-red { 0%, 100% { background: transparent; } 50% { background: rgba(255, 0, 0, 0.4); } }
 
-        .prize-tag {
-            color: var(--neon-yellow);
-            background: rgba(255, 242, 0, 0.1);
-            padding: 10px;
-            border: 1px solid var(--neon-yellow);
-            margin-top: auto;
-            font-size: 10px;
-            line-height: 1.5;
-        }
-
-        #ranking p {
-            font-size: 9px;
-            line-height: 1.8;
-            border-left: 4px solid var(--neon-magenta);
-            padding-left: 10px;
-            margin: 10px 0;
-        }
-
-        /* Animación Glitch */
-        .glitch {
-            animation: glitch-anim 0.3s infinite;
-        }
-        @keyframes glitch-anim {
-            0% { transform: translate(0); }
-            20% { transform: translate(-3px, 2px); filter: hue-rotate(90deg); }
-            40% { transform: translate(3px, -2px); }
-            60% { transform: translate(-3px, -2px); }
-            80% { transform: translate(3px, 2px); }
-            100% { transform: translate(0); }
-        }
-
-        @media (max-width: 900px) {
-            #app { grid-template-columns: 1fr; height: auto; padding: 20px 0; }
-            .panel { margin-bottom: 20px; }
-        }
+        #ranking p { font-size: 9px; border-left: 3px solid var(--neon-magenta); padding-left: 8px; margin: 12px 0; }
     </style>
 </head>
 <body>
 
 <div id="app">
     <div class="panel">
-        <h2><span style="color: var(--neon-magenta);">[</span> JSCOL PLAYER <span style="color: var(--neon-magenta);">]</span></h2>
-        
-        <div class="stat-box">
-            <span class="stat-label">USUARIO:</span>
-            <span id="playerName" class="stat-value">---</span>
-        </div>
-        
-        <div class="stat-box">
-            <span class="stat-label">NIVEL ACTUAL:</span>
-            <span id="playerLevel" class="stat-value">0</span>
-        </div>
-
-        <div class="stat-box">
-            <span class="stat-label">PROGRESO:</span>
-            <span id="progress" class="stat-value">0/20</span>
-        </div>
-
-        <div class="prize-tag">
-            GRAND PRIZE:<br>
-            <span style="font-size: 14px;">$10,000 COP</span>
+        <h2>SISTEMA</h2>
+        <div style="margin:20px 0;">VIDAS:<br><div id="lives-container"></div></div>
+        <div class="stat">NIVEL: <span id="p-level" style="color:var(--neon-yellow)">01</span></div>
+        <div class="stat">PLAYER: <span id="p-name" style="color:var(--neon-cyan)">---</span></div>
+        <div style="margin-top:auto; font-size:9px; color:var(--neon-yellow); border:1px dashed var(--neon-yellow); padding:10px;">
+            BOUNTY: $10,000 COP
         </div>
     </div>
 
-    <div class="panel main-panel" id="game">
-        <h2 id="levelTitle">INICIALIZANDO...</h2>
-        <div id="content">
-            </div>
+    <div class="panel main-panel" id="game-core">
+        <h2 id="lvl-title">JSCOL ARCADE</h2>
+        <div id="content" style="flex-grow:1; display:flex; flex-direction:column; justify-content:center; align-items:center;">
+            <p>CARGANDO INTERFAZ...</p>
+        </div>
     </div>
 
     <div class="panel">
-        <h2>TOP PUZZLERS</h2>
-        <div id="ranking">
-            <p>Cargando datos...</p>
-        </div>
+        <h2>RANKING</h2>
+        <div id="ranking"></div>
     </div>
 </div>
 
@@ -226,185 +86,141 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <script>
-    // Tu Configuración (Asegúrate que coincida con tu proyecto de Firebase)
-    const firebaseConfig = {
-        apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
-        authDomain: "vozanonimasm.firebaseapp.com",
-        projectId: "vozanonimasm"
-    };
+    // --- MOTOR DE AUDIO AVANZADO ---
+    const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let ambientNode = null;
 
+    function playSFX(type) {
+        const osc = AudioCtx.createOscillator();
+        const gain = AudioCtx.createGain();
+        osc.connect(gain); gain.connect(AudioCtx.destination);
+
+        if(type === 'click') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(800, AudioCtx.currentTime);
+            gain.gain.setValueAtTime(0.1, AudioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + 0.1);
+        } else if(type === 'win') {
+            osc.type = 'square'; osc.frequency.setValueAtTime(523.25, AudioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1046.50, AudioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.1, AudioCtx.currentTime);
+        } else if(type === 'fail') {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, AudioCtx.currentTime);
+            osc.frequency.linearRampToValueAtTime(40, AudioCtx.currentTime + 0.4);
+            gain.gain.setValueAtTime(0.1, AudioCtx.currentTime);
+        }
+        osc.start(); osc.stop(AudioCtx.currentTime + 0.4);
+    }
+
+    function startAmbient() {
+        if(ambientNode) return;
+        // Sonido base suave (tipo Minecraft)
+        const base = AudioCtx.createOscillator();
+        const filter = AudioCtx.createBiquadFilter();
+        const gain = AudioCtx.createGain();
+        
+        base.type = 'triangle';
+        base.frequency.setValueAtTime(110, AudioCtx.currentTime);
+        filter.type = 'lowpass'; filter.frequency.value = 400;
+        gain.gain.value = 0.03;
+
+        base.connect(filter); filter.connect(gain); gain.connect(AudioCtx.destination);
+        base.start();
+        ambientNode = base;
+    }
+
+    // --- LOGICA DE JUEGO ---
+    const firebaseConfig = { apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU", authDomain: "vozanonimasm.firebaseapp.com", projectId: "vozanonimasm" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    let USER = {
-        uid: localStorage.getItem("uid") || "u_"+Math.random().toString(36).slice(2,7),
-        name: localStorage.getItem("name") || null,
-        level: parseInt(localStorage.getItem("level")) || 1
+    let USER = { 
+        uid: localStorage.getItem("uid") || "js_"+Math.random().toString(36).substr(2,5), 
+        name: localStorage.getItem("name"), 
+        level: parseInt(localStorage.getItem("level")) || 1,
+        lives: 3 
     };
-    localStorage.setItem("uid", USER.uid);
 
-    const content = document.getElementById("content");
-    const ranking = document.getElementById("ranking");
+    const puzzles = [
+        {q:"Escribe el ID de tu marca", a:"jscol"},
+        {q:"¿Qué número sigue? 2, 4, 16, 256, ?", a:"65536"},
+        {q:"¿Cuántos colores tiene el arcoíris?", a:"7"},
+        {q:"Si hoy es lunes, ¿qué día será en 100 días?", a:"martes"},
+        {q:"Escribe 'HOLA' en Binario", a:"01001000 01001111 01001100 01000001"},
+        {q:"Resuelve: (4 * 4) + (4 / 4) - 4", a:"13"},
+        {q:"¿Cuál es la capital de Colombia?", a:"bogotá"},
+        {q:"Escribe la palabra 'PIXEL' al revés", a:"lexip"},
+        {q:"¿Cuál es el color que resulta de mezclar Rojo y Azul?", a:"violeta"},
+        {q:"Nivel Final: ¿Cuál es el código secreto? (Pista: JSCOL)", a:"jscol2026"}
+    ];
 
-    // Lógica de Inicio
-    function checkLogin() {
-        if(!USER.name){
-            content.innerHTML = `
-                <p style="font-size:10px; margin-bottom:20px;">BIENVENIDO AL DESAFÍO JSCOL</p>
-                <input id="userNameInput" placeholder="TU ALIAS" maxlength="10">
-                <button onclick="login()">EMPEZAR RETRO</button>
-            `;
+    function init() {
+        if(!USER.name) {
+            document.getElementById("content").innerHTML = `<h2>INGRESA AL ARCADE</h2><input id="u-in" placeholder="TU NOMBRE"><button id="start-btn">CONECTAR</button>`;
+            document.getElementById("start-btn").onclick = () => { startAmbient(); login(); };
         } else {
-            initGame();
+            startAmbient();
+            document.getElementById("p-name").innerText = USER.name;
+            renderLives();
+            loadLevel();
         }
     }
 
     function login() {
-        const input = document.getElementById("userNameInput");
-        if(input.value.trim().length > 2) {
-            USER.name = input.value.trim().toUpperCase();
-            localStorage.setItem("name", USER.name);
-            saveProgress();
-            initGame();
-        }
+        let n = document.getElementById("u-in").value.toUpperCase();
+        if(n.length > 2) { playSFX('win'); USER.name = n; localStorage.setItem("name", n); init(); }
     }
 
-    function saveProgress() {
-        db.collection("players").doc(USER.uid).set({
-            name: USER.name,
-            level: USER.level,
-            lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
-        }, {merge: true});
-    }
-
-    // Ranking en Tiempo Real
-    db.collection("players")
-        .orderBy("level", "desc")
-        .limit(8)
-        .onSnapshot(snap => {
-            let html = "";
-            snap.forEach(doc => {
-                const p = doc.data();
-                html += `<p><span style="color:var(--neon-yellow)">></span> ${p.name} <br> <span style="color:var(--neon-cyan)">LVL ${p.level}</span></p>`;
-            });
-            ranking.innerHTML = html;
-        });
-
-    const puzzles = [
-        {q:"TERCERA PALABRA DE ESTA FRASE", a:"palabra"},
-        {q:"ENCUENTRA EL BOTÓN OCULTO", action:()=>next()},
-        {q:"SERIE: 2, 6, 7, 21, 22, ?", a:"66"},
-        {q:"COMANDO: PRESIONA ENTER", enter:true},
-        {q:"LA RESPUESTA ESTÁ AQUÍ", a:"aquí"},
-        {q:"PROHIBIDO ESCRIBIR 'SÍ'", a:"no"}, // Trampa sutil
-        {q:"ASCII: 72 69 76 76 79", a:"hello"},
-        {q:"COMBO: 3 CLICKS EN LA PANTALLA", multi:3},
-        {q:"SISTEMA SATURADO... ESPERA", wait:5000},
-        {q:"ERROR CRÍTICO: NO DEBERÍAS ESTAR AQUÍ", glitch:true, wait:10000},
-    ];
-
-    function initGame() {
-        document.getElementById("playerName").innerText = USER.name;
-        loadLevel();
+    function renderLives() {
+        let h = "";
+        for(let i=0; i<3; i++) h += `<span class="heart ${i >= USER.lives ? 'lost' : ''}">❤</span>`;
+        document.getElementById("lives-container").innerHTML = h;
     }
 
     function loadLevel() {
-        document.body.classList.remove("glitch");
-        const levelIdx = USER.level - 1;
-        const p = puzzles[levelIdx];
-
-        document.getElementById("playerLevel").innerText = USER.level;
-        document.getElementById("progress").innerText = `${USER.level}/20`;
-        document.getElementById("levelTitle").innerText = `PUZZLE 0${USER.level}`;
-
-        if(!p) { finishGame(); return; }
-
-        content.innerHTML = `<p style="line-height:1.6; font-size:12px;">${p.q}</p>`;
-
-        if(p.a) {
-            content.innerHTML += `<input id="ansInput" autocomplete="off"><br><button onclick="validate('${p.a}')">ENVIAR</button>`;
-        }
-
-        if(p.action) {
-            const btn = document.createElement("button");
-            btn.innerText = "SISTEMA";
-            btn.onclick = p.action;
-            content.appendChild(btn);
-        }
-
-        if(p.enter) {
-            content.innerHTML += `<input id="ansInput" placeholder="..."><p style="font-size:8px; margin-top:10px;">[ENTER]</p>`;
-            setTimeout(() => {
-                const inp = document.getElementById("ansInput");
-                inp.onkeydown = e => { if(e.key === "Enter") next(); };
-                inp.focus();
-            }, 100);
-        }
-
-        if(p.multi) {
-            let count = 0;
-            const clickHandler = () => {
-                count++;
-                if(count >= p.multi) {
-                    window.removeEventListener("click", clickHandler);
-                    next();
-                }
-            };
-            window.addEventListener("click", clickHandler);
-        }
-
-        if(p.wait) {
-            let bar = document.createElement("div");
-            bar.style.cssText = "width:0%; height:4px; background:var(--neon-cyan); margin-top:20px; transition: width "+p.wait+"ms linear;";
-            content.appendChild(bar);
-            setTimeout(() => bar.style.width = "100%", 50);
-            setTimeout(next, p.wait);
-        }
-
-        if(p.glitch) document.body.classList.add("glitch");
+        let p = puzzles[USER.level-1];
+        if(!p) { finish(); return; }
+        document.getElementById("lvl-title").innerText = `RETRO PUZZLE 0${USER.level}`;
+        document.getElementById("p-level").innerText = USER.level;
+        document.getElementById("content").innerHTML = `<p>${p.q}</p><input id="ans" autocomplete="off"><button onclick="playSFX('click'); check();">ENVIAR</button>`;
     }
 
-    function validate(correctAns) {
-        const val = document.getElementById("ansInput").value.toLowerCase().trim();
-        if(val === correctAns.toLowerCase()) {
-            next();
+    function check() {
+        let v = document.getElementById("ans").value.toLowerCase().trim();
+        if(v === puzzles[USER.level-1].a) {
+            playSFX('win'); USER.level++;
+            localStorage.setItem("level", USER.level);
+            db.collection("players").doc(USER.uid).set({name:USER.name, level:USER.level}, {merge:true});
+            loadLevel();
         } else {
-            const err = document.createElement("p");
-            err.innerText = "ACCESO DENEGADO";
-            err.style.color = "var(--neon-magenta)";
-            err.style.fontSize = "8px";
-            content.appendChild(err);
-            setTimeout(() => err.remove(), 1000);
+            USER.lives--;
+            playSFX('fail');
+            document.body.classList.add("damage-flash");
+            setTimeout(() => document.body.classList.remove("damage-flash"), 300);
+            renderLives();
+            if(USER.lives <= 0) gameOver();
         }
     }
 
-    function next() {
-        USER.level++;
-        localStorage.setItem("level", USER.level);
-        saveProgress();
-        loadLevel();
+    function gameOver() {
+        document.getElementById("content").innerHTML = `<h2 style="color:red">CONEXIÓN PERDIDA</h2><p>TE HAS QUEDADO SIN VIDAS</p><button onclick="reset()">REINICIAR</button>`;
     }
 
-    function finishGame() {
-        const winCode = "JSCOL-" + Math.random().toString(36).substring(2,8).toUpperCase();
-        db.collection("players").doc(USER.uid).update({
-            completed: true,
-            code: winCode
-        });
-        
-        content.innerHTML = `
-            <h2 style="color:var(--neon-cyan)">SISTEMA COMPLETADO</h2>
-            <p style="font-size:10px; color:var(--neon-yellow)">¡FELICIDADES ${USER.name}!</p>
-            <div style="border:2px solid var(--neon-cyan); padding:15px; margin-top:20px;">
-                <p style="font-size:8px;">CÓDIGO DE PREMIO:</p>
-                <p style="font-size:14px; color:var(--neon-magenta)">${winCode}</p>
-            </div>
-            <p style="font-size:8px; margin-top:20px;">TOMA CAPTURA Y RECLAMA TUS $10,000 COP</p>
-        `;
+    function reset() {
+        USER.level = 1; USER.lives = 3;
+        localStorage.setItem("level", 1);
+        init();
     }
 
-    checkLogin();
+    function finish() {
+        document.getElementById("content").innerHTML = `<h2>VICTORIA TOTAL</h2><p>ERES UNA LEYENDA</p>`;
+    }
+
+    db.collection("players").orderBy("level","desc").limit(6).onSnapshot(s => {
+        let html = ""; s.forEach(d => html += `<p>> ${d.data().name} - LVL ${d.data().level}</p>`);
+        document.getElementById("ranking").innerHTML = html;
+    });
+
+    init();
 </script>
-
 </body>
 </html>
