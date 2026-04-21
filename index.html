@@ -2,359 +2,409 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>JSCOL_OS V36 | ULTIMATUM</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSCOL | Retro Puzzle Challenge</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
     <style>
         :root {
-            --bg: #000; --surface: #0A0A0A; --accent: #D4AF37; --border: #1F1F1F;
-            --text: #fff; --dim: #71767B; --gold: #D4AF37; --error: #f4212e;
-            --glass: rgba(0, 0, 0, 0.8);
+            --neon-cyan: #00f7ff;
+            --neon-magenta: #ff00ff;
+            --neon-yellow: #fff200;
+            --bg-dark: #05051a;
+            --panel-bg: rgba(10, 10, 42, 0.85);
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; }
-        body { background: var(--bg); color: var(--text); overflow: hidden; position: fixed; width: 100%; height: 100%; }
 
-        /* --- FRAMEWORK DE VISTAS --- */
-        #app-root { width: 100%; max-width: 500px; height: 100vh; margin: 0 auto; border-inline: 1px solid var(--border); display: flex; flex-direction: column; background: #000; position: relative; }
-        
-        .view { flex: 1; overflow-y: auto; display: none; padding-bottom: 90px; scroll-behavior: smooth; }
-        .view.active { display: block; animation: viewSlide 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        @keyframes viewSlide { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .view::-webkit-scrollbar { display: none; }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-dark);
+            background-image: 
+                linear-gradient(var(--neon-cyan) 1px, transparent 1px),
+                linear-gradient(90deg, var(--neon-cyan) 1px, transparent 1px);
+            background-size: 50px 50px;
+            background-attachment: fixed;
+            color: #fff;
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* Efecto Scanlines */
+            background-blend-mode: overlay;
+        }
 
-        /* --- UI COMPONENTS --- */
-        header { height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; border-bottom: 1px solid var(--border); background: var(--glass); backdrop-filter: blur(15px); position: sticky; top: 0; z-index: 1000; }
-        
-        nav { height: 65px; border-top: 1px solid var(--border); display: flex; background: #000; position: absolute; bottom: 0; width: 100%; padding-bottom: env(safe-area-inset-bottom); z-index: 1000; }
-        .nav-link { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 10px; font-weight: 800; color: var(--dim); cursor: pointer; transition: 0.2s; }
-        .nav-link.active { color: var(--accent); }
-        .nav-link svg { width: 24px; height: 24px; }
+        /* Overlay de líneas de TV vieja */
+        body::after {
+            content: " ";
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 3px 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
 
-        /* --- POSTS ESTILO X (PRO) --- */
-        .post { padding: 16px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; }
-        .p-side { flex-shrink: 0; }
-        .avatar { width: 48px; height: 48px; border-radius: 50%; background: #151515; border: 1px solid var(--border); overflow: hidden; display: grid; place-items: center; font-weight: 800; color: var(--accent); }
-        .avatar img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .p-content { flex: 1; min-width: 0; }
-        .p-header { display: flex; align-items: center; gap: 4px; margin-bottom: 2px; }
-        .p-name { font-weight: 800; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .p-handle { color: var(--dim); font-size: 14px; }
-        .p-body { font-size: 15px; line-height: 1.5; color: #eff3f4; word-wrap: break-word; }
-        .p-media { margin-top: 12px; border-radius: 16px; border: 1px solid var(--border); width: 100%; overflow: hidden; }
-        .p-media img { width: 100%; display: block; }
-        
-        .p-actions { display: flex; margin-top: 12px; gap: 30px; color: var(--dim); }
-        .action-btn { display: flex; align-items: center; gap: 6px; background: none; border: none; color: inherit; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .action-btn svg { width: 18px; fill: currentColor; }
-        .action-btn.liked { color: #f91880; }
-        .action-btn.liked svg { transform: scale(1.1); }
+        #app {
+            display: grid;
+            grid-template-columns: 280px 1fr 280px;
+            gap: 20px;
+            width: 95%;
+            max-width: 1400px;
+            height: 90vh;
+            z-index: 2;
+        }
 
-        /* --- SKELETON --- */
-        .skeleton { background: linear-gradient(90deg, #050505 25%, #111 50%, #050505 75%); background-size: 200% 100%; animation: skeletonWave 1.5s infinite; border-radius: 12px; }
-        @keyframes skeletonWave { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .panel {
+            background: var(--panel-bg);
+            border: 3px solid var(--neon-cyan);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 0 15px var(--neon-cyan), inset 0 0 10px rgba(0, 247, 255, 0.3);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
 
-        /* --- MODALES & TOAST --- */
-        .modal { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; flex-direction: column; }
-        #toast-box { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 5000; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
-        .toast { background: var(--accent); color: #000; padding: 12px 24px; border-radius: 30px; font-weight: 800; font-size: 13px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: toastIn 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28); }
-        @keyframes toastIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        /* Estilo JSCOL Especial */
+        .main-panel {
+            border-color: var(--neon-magenta);
+            box-shadow: 0 0 20px var(--neon-magenta), inset 0 0 15px rgba(255, 0, 255, 0.2);
+            text-align: center;
+            justify-content: center;
+        }
+
+        h2 {
+            font-size: 14px;
+            margin-bottom: 20px;
+            color: var(--neon-yellow);
+            text-shadow: 2px 2px var(--neon-magenta);
+            text-transform: uppercase;
+        }
+
+        .stat-box {
+            margin-bottom: 20px;
+            padding: 10px;
+            border-bottom: 2px dashed var(--neon-cyan);
+        }
+
+        .stat-label { font-size: 10px; color: var(--neon-cyan); margin-bottom: 8px; display: block; }
+        .stat-value { font-size: 14px; color: #fff; }
+
+        /* Pantalla de juego */
+        #content {
+            background: rgba(0,0,0,0.4);
+            padding: 30px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        input {
+            background: #000;
+            border: 2px solid var(--neon-cyan);
+            color: var(--neon-yellow);
+            padding: 15px;
+            font-family: 'Press Start 2P';
+            font-size: 12px;
+            width: 80%;
+            margin-top: 20px;
+            text-align: center;
+            outline: none;
+        }
+
+        button {
+            background: var(--neon-magenta);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            margin-top: 20px;
+            font-family: 'Press Start 2P';
+            font-size: 10px;
+            cursor: pointer;
+            box-shadow: 4px 4px 0px #6a006a;
+            transition: all 0.1s;
+        }
+
+        button:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #6a006a;
+            filter: brightness(1.2);
+        }
+
+        button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0px 0px 0px #6a006a;
+        }
+
+        .prize-tag {
+            color: var(--neon-yellow);
+            background: rgba(255, 242, 0, 0.1);
+            padding: 10px;
+            border: 1px solid var(--neon-yellow);
+            margin-top: auto;
+            font-size: 10px;
+            line-height: 1.5;
+        }
+
+        #ranking p {
+            font-size: 9px;
+            line-height: 1.8;
+            border-left: 4px solid var(--neon-magenta);
+            padding-left: 10px;
+            margin: 10px 0;
+        }
+
+        /* Animación Glitch */
+        .glitch {
+            animation: glitch-anim 0.3s infinite;
+        }
+        @keyframes glitch-anim {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 2px); filter: hue-rotate(90deg); }
+            40% { transform: translate(3px, -2px); }
+            60% { transform: translate(-3px, -2px); }
+            80% { transform: translate(3px, 2px); }
+            100% { transform: translate(0); }
+        }
+
+        @media (max-width: 900px) {
+            #app { grid-template-columns: 1fr; height: auto; padding: 20px 0; }
+            .panel { margin-bottom: 20px; }
+        }
     </style>
 </head>
 <body>
 
-<div id="app-root">
-    <header>
-        <div style="font-weight:900; color:var(--accent); font-size:18px; letter-spacing:-0.5px">JSCOL_OS</div>
-        <div id="status-dot" style="width:8px; height:8px; border-radius:50%; background:#222"></div>
-    </header>
-
-    <main style="flex:1; position:relative; overflow:hidden">
-        <section id="view-home" class="view active">
-            <div id="render-home"></div>
-            <div id="home-loader" style="padding:20px">
-                <div class="skeleton" style="height:120px; margin-bottom:12px"></div>
-                <div class="skeleton" style="height:120px"></div>
-            </div>
-        </section>
-
-        <section id="view-profile" class="view">
-            <div style="height:120px; background:#151515"></div>
-            <div style="padding:0 16px; margin-top:-45px">
-                <div class="avatar" id="prof-avatar-ui" style="width:90px; height:90px; border:4px solid #000; font-size:28px"></div>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px">
-                    <div>
-                        <h1 id="prof-name-ui" style="font-size:22px; font-weight:800">---</h1>
-                        <p id="prof-handle-ui" style="color:var(--dim)">@---</p>
-                    </div>
-                    <button onclick="JSCOL.Router.go('settings')" style="border:1px solid var(--border); background:transparent; color:#fff; padding:8px 16px; border-radius:20px; font-weight:700">Editar</button>
-                </div>
-                <p id="prof-bio-ui" style="margin-top:12px; color:#cfd9de; font-size:15px"></p>
-            </div>
-            <div id="render-profile" style="margin-top:20px; border-top:1px solid var(--border)"></div>
-        </section>
-
-        <section id="view-settings" class="view">
-            <div style="padding:20px">
-                <h2 style="margin-bottom:24px">Ajustes del Sistema</h2>
-                <div style="margin-bottom:20px">
-                    <label style="font-size:11px; font-weight:900; color:var(--accent); display:block; margin-bottom:8px">NOMBRE PÚBLICO</label>
-                    <input type="text" id="in-name" style="width:100%; background:#0A0A0A; border:1px solid var(--border); padding:14px; border-radius:12px; color:#fff; outline:none">
-                </div>
-                <div style="margin-bottom:20px">
-                    <label style="font-size:11px; font-weight:900; color:var(--accent); display:block; margin-bottom:8px">BIOGRAFÍA</label>
-                    <textarea id="in-bio" style="width:100%; background:#0A0A0A; border:1px solid var(--border); padding:14px; border-radius:12px; color:#fff; outline:none; height:100px; resize:none"></textarea>
-                </div>
-                <div style="margin-bottom:20px">
-                    <label style="font-size:11px; font-weight:900; color:var(--accent); display:block; margin-bottom:8px">URL DE AVATAR (IMGUR/GOOGLE)</label>
-                    <input type="text" id="in-avatar" style="width:100%; background:#0A0A0A; border:1px solid var(--border); padding:14px; border-radius:12px; color:#fff; outline:none">
-                </div>
-                <button onclick="JSCOL.User.update()" style="width:100%; background:var(--accent); color:#000; border:none; padding:16px; border-radius:12px; font-weight:900; font-size:15px">GUARDAR IDENTIDAD</button>
-            </div>
-        </section>
-    </main>
-
-    <nav>
-        <div class="nav-link active" onclick="JSCOL.Router.go('home')">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            FEED
+<div id="app">
+    <div class="panel">
+        <h2><span style="color: var(--neon-magenta);">[</span> JSCOL PLAYER <span style="color: var(--neon-magenta);">]</span></h2>
+        
+        <div class="stat-box">
+            <span class="stat-label">USUARIO:</span>
+            <span id="playerName" class="stat-value">---</span>
         </div>
-        <div class="nav-link" onclick="JSCOL.UI.modal('m-post', true)" style="color:var(--accent)">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M19 13h-6v6-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            POST
+        
+        <div class="stat-box">
+            <span class="stat-label">NIVEL ACTUAL:</span>
+            <span id="playerLevel" class="stat-value">0</span>
         </div>
-        <div class="nav-link" onclick="JSCOL.Router.go('profile')">
-            <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            PERFIL
+
+        <div class="stat-box">
+            <span class="stat-label">PROGRESO:</span>
+            <span id="progress" class="stat-value">0/20</span>
         </div>
-    </nav>
+
+        <div class="prize-tag">
+            GRAND PRIZE:<br>
+            <span style="font-size: 14px;">$10,000 COP</span>
+        </div>
+    </div>
+
+    <div class="panel main-panel" id="game">
+        <h2 id="levelTitle">INICIALIZANDO...</h2>
+        <div id="content">
+            </div>
+    </div>
+
+    <div class="panel">
+        <h2>TOP PUZZLERS</h2>
+        <div id="ranking">
+            <p>Cargando datos...</p>
+        </div>
+    </div>
 </div>
 
-<div id="m-post" class="modal">
-    <header>
-        <span onclick="JSCOL.UI.modal('m-post', false)">Cancelar</span>
-        <button onclick="JSCOL.Social.publish()" style="background:var(--accent); color:#000; border:none; padding:8px 20px; border-radius:20px; font-weight:800">Publicar</button>
-    </header>
-    <textarea id="post-txt" style="flex:1; background:transparent; border:none; color:#fff; padding:20px; font-size:19px; outline:none; resize:none" placeholder="¿Qué quieres contar? (Pega un link de imagen para adjuntar)"></textarea>
-</div>
-
-<div id="toast-box"></div>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
 
 <script>
-/**
- * JSCOL_OS V36 - MOTOR MODULAR PROFESIONAL
- */
+    // Tu Configuración (Asegúrate que coincida con tu proyecto de Firebase)
+    const firebaseConfig = {
+        apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+        authDomain: "vozanonimasm.firebaseapp.com",
+        projectId: "vozanonimasm"
+    };
 
-const firebaseConfig = { apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU", authDomain: "vozanonimasm.firebaseapp.com", projectId: "vozanonimasm" };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-const JSCOL = {
-    // ESTADO (Punto 42)
-    State: {
-        me: {
-            uid: localStorage.getItem('js_uid') || 'u_' + Math.random().toString(36).substr(2, 5),
-            name: localStorage.getItem('js_name') || 'Anónimo',
-            bio: localStorage.getItem('js_bio') || 'Explorando JSCOL_OS...',
-            avatar: localStorage.getItem('js_avatar') || '',
-            verified: localStorage.getItem('js_verify') === 'true'
-        },
-        lastDoc: null,
-        loading: false,
-        activeView: 'home'
-    },
+    let USER = {
+        uid: localStorage.getItem("uid") || "u_"+Math.random().toString(36).slice(2,7),
+        name: localStorage.getItem("name") || null,
+        level: parseInt(localStorage.getItem("level")) || 1
+    };
+    localStorage.setItem("uid", USER.uid);
 
-    // MÓDULO USUARIO (Punto 81)
-    User: {
-        async init() {
-            localStorage.setItem('js_uid', JSCOL.State.me.uid);
-            const ref = db.collection('users').doc(JSCOL.State.me.uid);
-            const doc = await ref.get();
-            if(doc.exists) {
-                JSCOL.State.me = { ...JSCOL.State.me, ...doc.data() };
-            } else {
-                await ref.set(JSCOL.State.me);
-            }
-            this.syncUI();
-            document.getElementById('status-dot').style.background = 'var(--gold)';
-        },
-        async update() {
-            const data = {
-                name: document.getElementById('in-name').value.trim() || 'Anónimo',
-                bio: document.getElementById('in-bio').value.trim(),
-                avatar: document.getElementById('in-avatar').value.trim()
-            };
-            await db.collection('users').doc(JSCOL.State.me.uid).update(data);
-            JSCOL.State.me = { ...JSCOL.State.me, ...data };
-            
-            localStorage.setItem('js_name', data.name);
-            localStorage.setItem('js_bio', data.bio);
-            localStorage.setItem('js_avatar', data.avatar);
-            
-            this.syncUI();
-            JSCOL.UI.toast("PERFIL ACTUALIZADO");
-            JSCOL.Router.go('profile');
-        },
-        syncUI() {
-            const u = JSCOL.State.me;
-            document.getElementById('prof-name-ui').innerText = u.name;
-            document.getElementById('prof-handle-ui').innerText = '@' + u.uid;
-            document.getElementById('prof-bio-ui').innerText = u.bio;
-            document.getElementById('prof-avatar-ui').innerHTML = u.avatar ? `<img src="${u.avatar}">` : u.name[0];
-            
-            document.getElementById('in-name').value = u.name;
-            document.getElementById('in-bio').value = u.bio;
-            document.getElementById('in-avatar').value = u.avatar;
-        }
-    },
+    const content = document.getElementById("content");
+    const ranking = document.getElementById("ranking");
 
-    // MÓDULO SOCIAL (Punto 16, 32, 47)
-    Social: {
-        async publish() {
-            const txt = document.getElementById('post-txt').value.trim();
-            if(!txt) return;
-
-            const imgRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif|webp|svg))/i;
-            const match = txt.match(imgRegex);
-
-            const post = {
-                uid: JSCOL.State.me.uid,
-                author: JSCOL.State.me.name,
-                avatar: JSCOL.State.me.avatar,
-                content: txt,
-                media: match ? match[0] : null,
-                likes: 0,
-                isVerify: JSCOL.State.me.verified,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-            };
-
-            await db.collection('posts').add(post);
-            document.getElementById('post-txt').value = '';
-            JSCOL.UI.modal('m-post', false);
-            JSCOL.UI.toast("POST ENVIADO");
-            JSCOL.Social.loadFeed('render-home');
-        },
-
-        async loadFeed(containerId, filterUid = null, append = false) {
-            if(JSCOL.State.loading) return;
-            JSCOL.State.loading = true;
-
-            let query = db.collection('posts').orderBy('timestamp', 'desc').limit(12);
-            if(filterUid) query = query.where('uid', '==', filterUid);
-            if(append && JSCOL.State.lastDoc) query = query.startAfter(JSCOL.State.lastDoc);
-
-            const snap = await query.get();
-            const box = document.getElementById(containerId);
-            if(!append) box.innerHTML = '';
-            
-            JSCOL.State.lastDoc = snap.docs[snap.docs.length - 1];
-            
-            snap.forEach(doc => {
-                box.appendChild(JSCOL.UI.renderPost(doc.id, doc.data()));
-            });
-
-            document.getElementById('home-loader').style.display = 'none';
-            JSCOL.State.loading = false;
-        },
-
-        async like(id) {
-            const ref = db.collection('posts').doc(id);
-            await ref.update({ likes: firebase.firestore.FieldValue.increment(1) });
-            // Efecto visual rápido
-            const countEl = document.querySelector(`[data-id="${id}"] .like-count`);
-            if(countEl) countEl.innerText = parseInt(countEl.innerText) + 1;
-        },
-
-        async delete(id, ownerId) {
-            if(ownerId !== JSCOL.State.me.uid) return;
-            if(confirm("¿Eliminar este post?")) {
-                await db.collection('posts').doc(id).delete();
-                document.querySelector(`[data-id="${id}"]`).style.opacity = '0.3';
-                JSCOL.UI.toast("ELIMINADO");
-            }
-        }
-    },
-
-    // MÓDULO ROUTER (Punto 43)
-    Router: {
-        go(v) {
-            document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-            
-            const target = document.getElementById('view-' + v);
-            target.classList.add('active');
-            JSCOL.State.activeView = v;
-            JSCOL.State.lastDoc = null;
-
-            if(v === 'home') {
-                JSCOL.Social.loadFeed('render-home');
-                document.querySelectorAll('.nav-link')[0].classList.add('active');
-            }
-            if(v === 'profile') {
-                JSCOL.Social.loadFeed('render-profile', JSCOL.State.me.uid);
-                document.querySelectorAll('.nav-link')[2].classList.add('active');
-            }
-        }
-    },
-
-    // MÓDULO UI (Punto 107, 133, 160)
-    UI: {
-        renderPost(id, p) {
-            const div = document.createElement('div');
-            div.className = 'post';
-            div.dataset.id = id;
-            const isMe = p.uid === JSCOL.State.me.uid;
-
-            div.innerHTML = `
-                <div class="p-side">
-                    <div class="avatar">${p.avatar ? `<img src="${p.avatar}">` : p.author[0]}</div>
-                </div>
-                <div class="p-content">
-                    <div class="p-header">
-                        <span class="p-name">${p.author}</span>
-                        ${p.isVerify ? '<svg style="width:14px; fill:var(--gold)" viewBox="0 0 24 24"><path d="M23,12L20.56,9.22L20.9,5.54L17.29,4.72L15.4,1.54L12,3L8.6,1.54L6.71,4.72L3.1,5.53L3.44,9.21L1,12L3.44,14.78L3.1,18.47L6.71,19.29L8.6,22.47L12,21L15.4,22.46L17.29,19.28L20.9,18.46L20.56,14.78L23,12M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z"/></svg>' : ''}
-                        <span class="p-handle">@${p.uid}</span>
-                        ${isMe ? `<span onclick="JSCOL.Social.delete('${id}', '${p.uid}')" style="margin-left:auto; color:var(--error); font-size:11px; font-weight:900">BORRAR</span>` : ''}
-                    </div>
-                    <div class="p-body">${p.content}</div>
-                    ${p.media ? `<div class="p-media"><img src="${p.media}" loading="lazy"></div>` : ''}
-                    <div class="p-actions">
-                        <button class="action-btn" onclick="JSCOL.Social.like('${id}')">
-                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            <span class="like-count">${p.likes || 0}</span>
-                        </button>
-                    </div>
-                </div>
+    // Lógica de Inicio
+    function checkLogin() {
+        if(!USER.name){
+            content.innerHTML = `
+                <p style="font-size:10px; margin-bottom:20px;">BIENVENIDO AL DESAFÍO JSCOL</p>
+                <input id="userNameInput" placeholder="TU ALIAS" maxlength="10">
+                <button onclick="login()">EMPEZAR RETRO</button>
             `;
-            return div;
-        },
-        toast(m) {
-            const box = document.getElementById('toast-box');
-            const t = document.createElement('div');
-            t.className = 'toast';
-            t.innerText = m;
-            box.appendChild(t);
-            setTimeout(() => t.remove(), 3000);
-        },
-        modal(id, s) { document.getElementById(id).style.display = s ? 'flex' : 'none'; }
+        } else {
+            initGame();
+        }
     }
-};
 
-// DETECTOR DE SCROLL INFINITO (Punto 47)
-document.getElementById('view-home').onscroll = function(e) {
-    const el = e.target;
-    if(el.scrollHeight - el.scrollTop <= el.clientHeight + 80) {
-        JSCOL.Social.loadFeed('render-home', null, true);
+    function login() {
+        const input = document.getElementById("userNameInput");
+        if(input.value.trim().length > 2) {
+            USER.name = input.value.trim().toUpperCase();
+            localStorage.setItem("name", USER.name);
+            saveProgress();
+            initGame();
+        }
     }
-};
 
-window.onload = () => {
-    JSCOL.User.init();
-    JSCOL.Router.go('home');
-};
+    function saveProgress() {
+        db.collection("players").doc(USER.uid).set({
+            name: USER.name,
+            level: USER.level,
+            lastUpdate: firebase.firestore.FieldValue.serverTimestamp()
+        }, {merge: true});
+    }
+
+    // Ranking en Tiempo Real
+    db.collection("players")
+        .orderBy("level", "desc")
+        .limit(8)
+        .onSnapshot(snap => {
+            let html = "";
+            snap.forEach(doc => {
+                const p = doc.data();
+                html += `<p><span style="color:var(--neon-yellow)">></span> ${p.name} <br> <span style="color:var(--neon-cyan)">LVL ${p.level}</span></p>`;
+            });
+            ranking.innerHTML = html;
+        });
+
+    const puzzles = [
+        {q:"TERCERA PALABRA DE ESTA FRASE", a:"palabra"},
+        {q:"ENCUENTRA EL BOTÓN OCULTO", action:()=>next()},
+        {q:"SERIE: 2, 6, 7, 21, 22, ?", a:"66"},
+        {q:"COMANDO: PRESIONA ENTER", enter:true},
+        {q:"LA RESPUESTA ESTÁ AQUÍ", a:"aquí"},
+        {q:"PROHIBIDO ESCRIBIR 'SÍ'", a:"no"}, // Trampa sutil
+        {q:"ASCII: 72 69 76 76 79", a:"hello"},
+        {q:"COMBO: 3 CLICKS EN LA PANTALLA", multi:3},
+        {q:"SISTEMA SATURADO... ESPERA", wait:5000},
+        {q:"ERROR CRÍTICO: NO DEBERÍAS ESTAR AQUÍ", glitch:true, wait:10000},
+    ];
+
+    function initGame() {
+        document.getElementById("playerName").innerText = USER.name;
+        loadLevel();
+    }
+
+    function loadLevel() {
+        document.body.classList.remove("glitch");
+        const levelIdx = USER.level - 1;
+        const p = puzzles[levelIdx];
+
+        document.getElementById("playerLevel").innerText = USER.level;
+        document.getElementById("progress").innerText = `${USER.level}/20`;
+        document.getElementById("levelTitle").innerText = `PUZZLE 0${USER.level}`;
+
+        if(!p) { finishGame(); return; }
+
+        content.innerHTML = `<p style="line-height:1.6; font-size:12px;">${p.q}</p>`;
+
+        if(p.a) {
+            content.innerHTML += `<input id="ansInput" autocomplete="off"><br><button onclick="validate('${p.a}')">ENVIAR</button>`;
+        }
+
+        if(p.action) {
+            const btn = document.createElement("button");
+            btn.innerText = "SISTEMA";
+            btn.onclick = p.action;
+            content.appendChild(btn);
+        }
+
+        if(p.enter) {
+            content.innerHTML += `<input id="ansInput" placeholder="..."><p style="font-size:8px; margin-top:10px;">[ENTER]</p>`;
+            setTimeout(() => {
+                const inp = document.getElementById("ansInput");
+                inp.onkeydown = e => { if(e.key === "Enter") next(); };
+                inp.focus();
+            }, 100);
+        }
+
+        if(p.multi) {
+            let count = 0;
+            const clickHandler = () => {
+                count++;
+                if(count >= p.multi) {
+                    window.removeEventListener("click", clickHandler);
+                    next();
+                }
+            };
+            window.addEventListener("click", clickHandler);
+        }
+
+        if(p.wait) {
+            let bar = document.createElement("div");
+            bar.style.cssText = "width:0%; height:4px; background:var(--neon-cyan); margin-top:20px; transition: width "+p.wait+"ms linear;";
+            content.appendChild(bar);
+            setTimeout(() => bar.style.width = "100%", 50);
+            setTimeout(next, p.wait);
+        }
+
+        if(p.glitch) document.body.classList.add("glitch");
+    }
+
+    function validate(correctAns) {
+        const val = document.getElementById("ansInput").value.toLowerCase().trim();
+        if(val === correctAns.toLowerCase()) {
+            next();
+        } else {
+            const err = document.createElement("p");
+            err.innerText = "ACCESO DENEGADO";
+            err.style.color = "var(--neon-magenta)";
+            err.style.fontSize = "8px";
+            content.appendChild(err);
+            setTimeout(() => err.remove(), 1000);
+        }
+    }
+
+    function next() {
+        USER.level++;
+        localStorage.setItem("level", USER.level);
+        saveProgress();
+        loadLevel();
+    }
+
+    function finishGame() {
+        const winCode = "JSCOL-" + Math.random().toString(36).substring(2,8).toUpperCase();
+        db.collection("players").doc(USER.uid).update({
+            completed: true,
+            code: winCode
+        });
+        
+        content.innerHTML = `
+            <h2 style="color:var(--neon-cyan)">SISTEMA COMPLETADO</h2>
+            <p style="font-size:10px; color:var(--neon-yellow)">¡FELICIDADES ${USER.name}!</p>
+            <div style="border:2px solid var(--neon-cyan); padding:15px; margin-top:20px;">
+                <p style="font-size:8px;">CÓDIGO DE PREMIO:</p>
+                <p style="font-size:14px; color:var(--neon-magenta)">${winCode}</p>
+            </div>
+            <p style="font-size:8px; margin-top:20px;">TOMA CAPTURA Y RECLAMA TUS $10,000 COP</p>
+        `;
+    }
+
+    checkLogin();
 </script>
+
 </body>
 </html>
