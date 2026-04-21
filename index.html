@@ -3,196 +3,200 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JSCOL | Pixel Reaper Challenge</title>
-    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <title>JSCOL | Tactical Identity</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --neon-cian: #00f7ff;
-            --neon-magenta: #ff00ff;
-            --neon-yellow: #fff200;
-            --bg-dark: #020210;
+            --neon-cian: #00f7ff; --neon-magenta: #ff00ff; --neon-yellow: #fff200;
+            --bg-dark: #020210; --error: #ff0040;
         }
 
+        * { user-select: none; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body {
             margin: 0; background: var(--bg-dark); color: #fff;
             font-family: 'Press Start 2P', cursive; overflow: hidden;
-            height: 100vh; display: flex; flex-direction: column;
-            background-image: radial-gradient(circle at center, #0a0a30 0%, #010115 100%);
+            height: 100dvh; display: flex; flex-direction: column;
         }
 
-        body::after {
-            content: " "; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        .crt {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
             background-size: 100% 3px; pointer-events: none; z-index: 1000;
         }
 
-        #app { display: flex; flex-direction: column; height: 100%; padding: 10px; box-sizing: border-box; z-index: 10; }
+        #app { flex: 1; display: flex; flex-direction: column; padding: 15px; position: relative; }
 
         .screen { display: none; flex-direction: column; height: 100%; width: 100%; }
         .screen.active { display: flex; }
 
-        .header-stats {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px; border: 2px solid var(--neon-cian); margin-bottom: 10px;
-            background: rgba(0, 247, 255, 0.05); font-size: 8px;
-        }
-
-        .game-frame {
-            flex-grow: 1; border: 3px solid var(--neon-magenta); position: relative;
-            background: rgba(5, 5, 30, 0.95); display: flex; flex-direction: column;
-            align-items: center; padding: 20px; overflow: hidden; text-align: center;
-        }
-
-        /* --- LA PARCA EN CSS PURO (Pixel Art) --- */
-        .pixel-reaper {
-            position: absolute; bottom: -100%; width: 10px; height: 10px;
-            background: transparent;
-            /* Dibujo simplificado de la parca usando sombras de pixeles */
-            box-shadow: 
-                0 0 #000, 10px 0 #000, 20px 0 #000,
-                -10px 10px #000, 0 10px #fff, 10px 10px #fff, 20px 10px #fff, 30px 10px #000,
-                -10px 20px #000, 0 20px #fff, 10px 20px #000, 20px 20px #fff, 30px 20px #000,
-                -10px 30px #000, 0 30px #fff, 10px 30px #fff, 20px 30px #fff, 30px 30px #000,
-                0 40px #000, 10px 40px #000, 20px 40px #000,
-                0 50px #333, 10px 50px #333, 20px 50px #333,
-                -20px 20px #777, -30px 20px #777, -40px 20px #777; /* La guadaña */
-            transition: bottom 0.5s ease-out; transform: scale(4); z-index: 100;
-        }
-        .pixel-reaper.active { bottom: 30%; }
-
-        .speech-bubble {
-            background: #000; border: 2px solid #ff0040; padding: 12px; width: 85%;
-            margin-bottom: 20px; font-size: 7px; line-height: 1.6; color: #fff;
-            box-shadow: 0 0 15px #ff0040; display: none;
-        }
-        .speech-bubble.active { display: block; z-index: 101; }
-
-        .main-btn {
-            background: var(--neon-cian); color: #000; border: none; padding: 18px;
-            font-family: 'Press Start 2P'; width: 100%; margin: 10px 0; cursor: pointer;
-            box-shadow: 4px 4px 0 var(--neon-magenta); font-size: 9px;
+        /* Login con solo Usuario */
+        .auth-box {
+            flex: 1; border: 2px solid var(--neon-cian); background: rgba(0,0,0,0.9);
+            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
         }
 
         input {
-            background: #000; border: 2px solid var(--neon-yellow); color: var(--neon-yellow);
-            padding: 15px; font-family: 'Press Start 2P'; width: 80%; margin-top: 20px;
-            text-align: center; font-size: 11px; outline: none;
+            width: 90%; background: #000; border: 1px solid var(--neon-cian);
+            color: var(--neon-yellow); font-family: 'Share Tech Mono', monospace;
+            padding: 15px; margin: 20px 0; font-size: 22px; text-align: center; outline: none;
         }
 
-        .heart { color: #ff0040; font-size: 14px; margin: 0 2px; }
-        .heart.lost { color: #222; }
+        .btn {
+            background: var(--neon-cian); color: #000; border: none; padding: 20px;
+            font-family: 'Press Start 2P'; width: 90%; cursor: pointer;
+            box-shadow: 4px 4px 0 var(--neon-magenta); font-size: 10px;
+        }
 
-        #ticker { font-size: 6px; color: var(--neon-cian); text-align: center; padding: 12px; }
+        /* Gameplay */
+        .header {
+            display: flex; justify-content: space-between; padding: 10px;
+            border: 2px solid var(--neon-cian); font-size: 7px; margin-bottom: 10px;
+        }
+
+        .game-frame {
+            flex: 1; border: 2px solid var(--neon-magenta); position: relative;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(5, 5, 20, 0.9); text-align: center;
+        }
+
+        .reaper-wrap {
+            position: absolute; bottom: -100%; width: 100%; height: 50%;
+            background: linear-gradient(transparent, #000 60%); transition: 0.5s;
+            z-index: 100; display: flex; flex-direction: column; align-items: center;
+        }
+        .reaper-wrap.active { bottom: 0; }
+
+        .pixel-reaper {
+            width: 50px; height: 70px; background: #fff; 
+            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+            animation: float 2s infinite ease-in-out;
+            box-shadow: 0 0 30px var(--error);
+        }
+
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
     </style>
 </head>
 <body>
+    <div class="crt"></div>
 
-<div id="app">
-    <div id="screen-home" class="screen active">
-        <div class="game-frame">
-            <h1 style="font-size:12px; color:var(--neon-cian);">JSCOL<br>ARCADE</h1>
-            <div style="border: 2px solid var(--neon-cian); padding: 15px; font-size: 7px; margin: 30px 0; line-height: 2;">
-                <p>💡 RESUELVE 20 NIVELES</p>
-                <p>💰 PREMIO: $10,000 COP</p>
+    <div id="app">
+        <div id="screen-login" class="screen active">
+            <div class="auth-box">
+                <h1 style="color:var(--neon-cian); font-size:16px;">IDENT_SYSTEM</h1>
+                <p style="font-size:7px; color: #555;">VOZANONIMASM v1.0</p>
+                <input type="text" id="user-input" placeholder="ESCRIBE TU NICK">
+                <button class="btn" onclick="login()">ACCEDER AL ARCADE</button>
             </div>
-            <button class="main-btn" onclick="nav('game')">EMPEZAR RETRO DESAFÍO</button>
+        </div>
+
+        <div id="screen-game" class="screen">
+            <div class="header">
+                <div id="ui-lvl">LVL: 01</div>
+                <div id="ui-id">ID: ---</div>
+                <div id="ui-lives">❤❤❤</div>
+            </div>
+            
+            <div class="game-frame">
+                <div id="q-text" style="font-size:11px; padding:20px; line-height: 1.5;">...</div>
+                <input type="text" id="ans-input" placeholder="TU RESPUESTA..." style="font-size: 16px; border-color: var(--neon-yellow);">
+                <button class="btn" onclick="check()">VALIDAR</button>
+
+                <div class="reaper-wrap" id="reaper-ui">
+                    <div id="reaper-msg" style="color:var(--error); font-size:8px; padding:20px;"></div>
+                    <div class="pixel-reaper"></div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="screen-game" class="screen">
-        <div class="header-stats">
-            <div id="lvl-tag">LVL: 01/20</div>
-            <div id="lives-ui"></div>
-            <div>JSCOL</div>
-        </div>
-        <div class="game-frame">
-            <div class="speech-bubble" id="reaper-text"></div>
-            <div class="pixel-reaper" id="reaper-npc"></div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-            <p style="font-size:8px; color:var(--neon-cian); margin-top: 40px;">PUZZLE DATA</p>
-            <div id="question-text" style="font-size:10px; line-height:1.6; margin: 20px 0;">...</div>
-            <input id="ans-input" placeholder="RESPUESTA..." autocomplete="off">
-            <button class="main-btn" onclick="checkAnswer()">VALIDAR ESTRATEGIA</button>
-        </div>
-    </div>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDln6EBV5vvYf0HzgAqdH8J6OAxIeO50JU",
+            authDomain: "vozanonimasm.firebaseapp.com",
+            projectId: "vozanonimasm",
+            storageBucket: "vozanonimasm.firebasestorage.app",
+            messagingSenderId: "533740152067",
+            appId: "1:533740152067:web:1ec05c7842f09a9e32f536"
+        };
 
-    <div id="ticker">JS COOL — THE RETRO ADVENTURE BEGINS NOW — POWER UP!</div>
-</div>
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-<script>
-    const AudioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    
-    function playSound(freq, type='sine', dur=0.2, vol=0.1) {
-        const osc = AudioCtx.createOscillator(); const gain = AudioCtx.createGain();
-        osc.type = type; osc.frequency.setValueAtTime(freq, AudioCtx.currentTime);
-        gain.gain.setValueAtTime(vol, AudioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, AudioCtx.currentTime + dur);
-        osc.connect(gain); gain.connect(AudioCtx.destination);
-        osc.start(); osc.stop(AudioCtx.currentTime + dur);
-    }
+        let userID = "";
+        let state = { lvl: 1, lives: 3 };
 
-    const jscolFacts = [
-        "Jscol piensa como estratega, viendo varios pasos adelante.",
-        "Jscol no soporta lo genérico; todo debe tener identidad propia.",
-        "Jscol mezcla creatividad con técnica: diseña y construye.",
-        "Jscol cuida mucho su imagen y cómo lo perciben."
-    ];
+        const puzzles = [
+            {q: "¿Color del neón secundario?", a: "magenta"},
+            {q: "LÓGICA: 2, 4, 16, 256, ?", a: "65536"},
+            {q: "Escribe 'JSCOL' al revés", a: "locsj"},
+            {q: "¿Premio mayor en COP?", a: "10000"},
+            {q: "BINARIO: 1010 es...", a: "10"}
+        ];
 
-    const puzzles = [
-        {q: "¿Cuál es el color del neón secundario?", a: "magenta"},
-        {q: "LÓGICA: 2, 4, 16, 256, ?", a: "65536"},
-        {q: "Escribe 'JSCOL' al revés", a: "locsj"}
-    ];
+        window.login = async () => {
+            const user = document.getElementById('user-input').value.trim().toUpperCase();
+            if(!user) return;
+            
+            userID = user;
+            const userRef = doc(db, "players", userID);
+            const snap = await getDoc(userRef);
 
-    let state = { lvl: 1, lives: 3 };
+            if(snap.exists()) {
+                state.lvl = snap.data().lvl || 1;
+            } else {
+                await setDoc(userRef, { lvl: 1 });
+            }
 
-    function nav(id) {
-        AudioCtx.resume();
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.getElementById('screen-' + id).classList.add('active');
-        if(id === 'game') loadPuzzle();
-    }
+            document.getElementById('screen-login').style.display = "none";
+            document.getElementById('screen-game').classList.add('active');
+            load();
+        };
 
-    function loadPuzzle() {
-        renderLives();
-        document.getElementById('lvl-tag').innerText = `LVL: 0${state.lvl}/20`;
-        const p = puzzles[state.lvl-1] || {q: "¡VICTORIA! RECLAMA TUS $10,000 COP", a: ""};
-        document.getElementById('question-text').innerText = p.q;
-        document.getElementById('ans-input').value = "";
-    }
-
-    function renderLives() {
-        let h = "";
-        for(let i=0; i<3; i++) h += `<span class="heart ${i >= state.lives ? 'lost' : ''}">❤</span>`;
-        document.getElementById("lives-ui").innerHTML = h;
-    }
-
-    function checkAnswer() {
-        const val = document.getElementById('ans-input').value.toLowerCase().trim();
-        if(val === puzzles[state.lvl-1].a) {
-            playSound(1000, 'square', 0.2);
-            state.lvl++; loadPuzzle();
-        } else {
-            state.lives--; triggerReaper();
+        function load() {
+            if(state.lvl > puzzles.length) {
+                document.getElementById('q-text').innerText = "¡SISTEMA COMPLETADO!";
+                return;
+            }
+            document.getElementById('ui-lvl').innerText = "LVL: " + (state.lvl < 10 ? "0"+state.lvl : state.lvl);
+            document.getElementById('ui-id').innerText = "ID: " + userID;
+            document.getElementById('q-text').innerText = puzzles[state.lvl-1].q;
+            document.getElementById('ans-input').value = "";
+            renderHearts();
         }
-    }
 
-    function triggerReaper() {
-        const npc = document.getElementById('reaper-npc');
-        const txt = document.getElementById('reaper-text');
-        txt.innerHTML = `<span style="color:#ff0040">FALLASTE:</span><br><br>` + jscolFacts[Math.floor(Math.random() * jscolFacts.length)];
-        
-        npc.classList.add('active');
-        txt.classList.add('active');
-        playSound(80, 'sawtooth', 0.8, 0.2);
-        
-        setTimeout(() => {
-            npc.classList.remove('active');
-            txt.classList.remove('active');
-            renderLives();
-            if(state.lives <= 0) location.reload();
-        }, 3500);
-    }
-</script>
+        window.check = async () => {
+            const val = document.getElementById('ans-input').value.toLowerCase().trim();
+            if(val === puzzles[state.lvl-1].a) {
+                state.lvl++;
+                await setDoc(doc(db, "players", userID), { lvl: state.lvl }, { merge: true });
+                load();
+            } else {
+                state.lives--;
+                trigger();
+            }
+        };
+
+        function renderHearts() {
+            let h = "";
+            for(let i=0; i<3; i++) h += i < state.lives ? "❤" : "🖤";
+            document.getElementById('ui-lives').innerText = h;
+        }
+
+        function trigger() {
+            const ui = document.getElementById('reaper-ui');
+            document.getElementById('reaper-msg').innerText = "FALLASTE. LA PARCA TE OBSERVA...";
+            ui.classList.add('active');
+            if(navigator.vibrate) navigator.vibrate(200);
+            setTimeout(() => {
+                ui.classList.remove('active');
+                renderHearts();
+                if(state.lives <= 0) location.reload();
+            }, 2500);
+        }
+    </script>
 </body>
 </html>
