@@ -3,121 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>JSCOL | Final Protocol</title>
+    <title>JSCOL | Final Protocol PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --neon-cian: #00f7ff; --neon-magenta: #ff00ff; --neon-yellow: #fff200;
-            --bg-dark: #020210; --error: #ff0040;
+            --neon-cian: #00f7ff;
+            --neon-magenta: #ff00ff;
+            --neon-yellow: #fff200;
+            --bg-dark: #050512;
+            --error: #ff0040;
+            --glass: rgba(255, 255, 255, 0.03);
         }
 
-        * { user-select: none; box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        * { 
+            user-select: none; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            outline: none; 
+        }
         
         body {
             margin: 0; background: var(--bg-dark); color: #fff;
-            font-family: 'Press Start 2P', cursive; overflow: hidden;
+            font-family: 'Share Tech Mono', monospace; overflow: hidden;
             height: 100dvh; display: flex; flex-direction: column;
         }
 
+        /* Capa CRT Avanzada */
         .crt {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-            background-size: 100% 3px; pointer-events: none; z-index: 1000;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none; z-index: 1000;
         }
 
-        #app { flex: 1; display: flex; flex-direction: column; padding: 15px; position: relative; }
+        /* Escaneo de Línea */
+        .scanline {
+            width: 100%; height: 100px; z-index: 1001;
+            background: linear-gradient(0deg, rgba(0, 0, 0, 0) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(0, 0, 0, 0) 100%);
+            opacity: 0.1; position: absolute; bottom: 100%;
+            animation: scanline 8s linear infinite; pointer-events: none;
+        }
 
-        .screen { display: none; flex-direction: column; height: 100%; width: 100%; }
-        .screen.active { display: flex; }
+        @keyframes scanline { 0% { bottom: 100%; } 100% { bottom: -100%; } }
 
+        #app { flex: 1; display: flex; flex-direction: column; padding: 20px; position: relative; z-index: 10; }
+
+        .screen { display: none; flex-direction: column; height: 100%; width: 100%; transition: opacity 0.4s ease; }
+        .screen.active { display: flex; animation: glitchTransition 0.3s ease; }
+
+        @keyframes glitchTransition {
+            0% { transform: skew(5deg); opacity: 0; }
+            50% { transform: skew(-5deg); opacity: 0.5; }
+            100% { transform: skew(0); opacity: 1; }
+        }
+
+        /* UI de Identidad (Login) */
         .auth-box {
-            flex: 1; border: 2px solid var(--neon-cian); background: rgba(0,0,0,0.9);
-            display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+            flex: 1; border: 2px solid var(--neon-cian); background: rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 30px; box-shadow: 0 0 20px rgba(0, 247, 255, 0.2);
+            position: relative; overflow: hidden;
         }
 
-        input {
-            width: 90%; background: #000; border: 1px solid var(--neon-cian);
-            color: var(--neon-yellow); font-family: 'Share Tech Mono', monospace;
-            padding: 15px; margin: 20px 0; font-size: 22px; text-align: center;
+        .auth-box::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: var(--neon-cian); animation: glitchLine 4s infinite;
         }
+
+        @keyframes glitchLine { 0% { top: 0; } 50% { top: 100%; } 100% { top: 0; } }
+
+        h1 { font-family: 'Press Start 2P', cursive; font-size: 14px; color: var(--neon-cian); margin-bottom: 5px; text-shadow: 0 0 10px var(--neon-cian); }
+
+        /* Estilo Input Hacker */
+        .terminal-input-wrapper { width: 100%; position: relative; margin: 30px 0; }
+        
+        input {
+            width: 100%; background: rgba(0, 20, 40, 0.5); border: 1px solid var(--neon-cian);
+            color: var(--neon-yellow); font-family: 'Share Tech Mono', monospace;
+            padding: 18px; font-size: 20px; text-align: center; transition: 0.3s;
+            box-shadow: inset 0 0 10px rgba(0, 247, 255, 0.1);
+        }
+
+        input:focus { border-color: var(--neon-magenta); box-shadow: 0 0 15px rgba(255, 0, 255, 0.3); }
+        input.error-shake { animation: shake 0.4s; border-color: var(--error); color: var(--error); }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-8px); } 75% { transform: translateX(8px); } }
 
         .btn {
             background: var(--neon-cian); color: #000; border: none; padding: 20px;
-            font-family: 'Press Start 2P'; width: 90%; cursor: pointer;
-            box-shadow: 4px 4px 0 var(--neon-magenta); font-size: 10px; transition: 0.1s;
+            font-family: 'Press Start 2P', cursive; width: 100%; cursor: pointer;
+            font-size: 9px; position: relative; transition: 0.2s;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
         }
-        .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--neon-magenta); }
 
+        .btn:hover { background: var(--neon-yellow); transform: translateY(-2px); }
+        .btn:active { transform: translateY(1px); }
+
+        /* HUD del Juego */
         .header {
-            display: flex; justify-content: space-between; padding: 10px;
-            border: 2px solid var(--neon-cian); font-size: 7px; margin-bottom: 10px;
-            background: rgba(0, 247, 255, 0.05);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 15px; border: 1px solid rgba(0, 247, 255, 0.3);
+            background: var(--glass); margin-bottom: 15px; font-size: 9px;
+            color: var(--neon-cian);
         }
 
+        .lvl-indicator { color: var(--neon-yellow); font-weight: bold; }
+        
+        /* Contenedor del Juego */
         .game-frame {
-            flex: 1; border: 2px solid var(--neon-magenta); position: relative;
+            flex: 1; border: 1px solid rgba(255, 0, 255, 0.3); position: relative;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            background: rgba(5, 5, 20, 0.9); text-align: center; padding: 15px;
+            background: rgba(0,0,0,0.6); padding: 20px; border-radius: 4px;
         }
 
+        .progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.05); margin-bottom: 20px; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-cian), var(--neon-magenta)); width: 0%; transition: 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+
+        #q-text {
+            font-size: 16px; color: #fff; margin-bottom: 30px; line-height: 1.6;
+            min-height: 60px; display: flex; align-items: center; justify-content: center;
+            text-shadow: 0 0 5px rgba(255,255,255,0.2);
+        }
+
+        /* La Parca PRO */
         .reaper-wrap {
-            position: absolute; bottom: -110%; width: 100%; height: 50%;
-            background: linear-gradient(transparent, #000 60%); transition: 0.5s;
+            position: absolute; bottom: -120%; width: 100%; height: 60%;
+            background: linear-gradient(transparent, #000 70%); transition: 0.7s cubic-bezier(0.19, 1, 0.22, 1);
             z-index: 100; display: flex; flex-direction: column; align-items: center;
+            pointer-events: none;
         }
         .reaper-wrap.active { bottom: 0; }
 
         .pixel-reaper {
-            width: 50px; height: 70px; background: #fff; 
-            clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
-            animation: float 2s infinite ease-in-out;
-            box-shadow: 0 0 30px var(--error);
+            width: 60px; height: 80px; background: #fff; 
+            clip-path: polygon(50% 0%, 100% 100%, 80% 90%, 50% 100%, 20% 90%, 0% 100%);
+            animation: float 2.5s infinite ease-in-out;
+            box-shadow: 0 0 40px var(--error); filter: blur(0.5px);
         }
 
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-25px) rotate(2deg); } }
 
-        #final-code-display { color: var(--neon-yellow); border: 1px dashed var(--neon-yellow); padding: 10px; font-size: 9px; margin-top: 15px; }
+        .reaper-msg { color: var(--error); font-size: 10px; padding: 25px; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; }
+
+        /* Notificaciones custom (Reemplazo de alert) */
+        #toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: #000; border: 1px solid var(--neon-yellow); padding: 15px 25px;
+            font-size: 8px; z-index: 2000; transition: 0.5s; pointer-events: none;
+        }
+        #toast.visible { transform: translateX(-50%) translateY(0); }
+
+        /* Ganador Final */
+        #reward-ui { display: none; text-align: center; animation: epicShow 1s; }
+        @keyframes epicShow { from { filter: brightness(5); transform: scale(0.8); } to { filter: brightness(1); transform: scale(1); } }
+
+        .code-box {
+            background: #000; border: 2px dashed var(--neon-yellow);
+            padding: 20px; margin: 25px 0; color: var(--neon-yellow);
+            font-family: 'Press Start 2P'; font-size: 10px; line-height: 1.8;
+            box-shadow: 0 0 20px rgba(255, 242, 0, 0.2);
+        }
     </style>
 </head>
 <body>
     <div class="crt"></div>
+    <div class="scanline"></div>
+    <div id="toast">MENSAJE DEL SISTEMA</div>
 
     <div id="app">
-        <div id="screen-login" class="screen active">
+        <section id="screen-login" class="screen active">
             <div class="auth-box">
-                <h1 style="color:var(--neon-cian); font-size:16px;">IDENT_SYSTEM</h1>
-                <p style="font-size:7px; color: #555;">PROTOCOL: VOZANONIMASM</p>
-                <input type="text" id="user-input" placeholder="NICKNAME" autocomplete="off">
-                <button class="btn" onclick="login()">ACCEDER</button>
+                <h1>JSCOL ARCADE</h1>
+                <p style="font-size:8px; color: var(--neon-cian); opacity:0.6; letter-spacing: 2px;">FINAL PROTOCOL v3.0</p>
+                
+                <div class="terminal-input-wrapper">
+                    <input type="text" id="user-input" placeholder="DIGITE SU NICKNAME" maxlength="15">
+                </div>
+                
+                <button class="btn" onclick="login()">INICIALIZAR SESIÓN</button>
             </div>
-        </div>
+        </section>
 
-        <div id="screen-game" class="screen">
+        <section id="screen-game" class="screen">
             <div class="header">
-                <div id="ui-lvl">LVL: 01</div>
-                <div id="ui-id">ID: ---</div>
+                <div>ID: <span id="ui-id" style="color:#fff">---</span></div>
+                <div class="lvl-indicator" id="ui-lvl">LVL: 01</div>
                 <div id="ui-lives">❤❤❤</div>
             </div>
+
+            <div class="progress-container"><div class="progress-fill" id="ui-progress"></div></div>
             
-            <div class="game-frame">
-                <div id="q-text" style="font-size:11px; padding:20px; line-height: 1.5;">...</div>
+            <div class="game-frame" id="main-frame">
+                <div id="q-text">CARGANDO PROTOCOLO...</div>
                 
                 <div id="game-controls" style="width:100%">
-                    <input type="text" id="ans-input" placeholder="RESPUESTA..." autocomplete="off">
-                    <button class="btn" onclick="check()">VALIDAR</button>
+                    <input type="text" id="ans-input" placeholder="INTRODUZCA RESPUESTA" autocomplete="off">
+                    <button class="btn" onclick="check()" style="margin-top:15px;">VALIDAR TÁCTICA</button>
                 </div>
 
-                <div id="reward-ui" style="display:none; width:100%">
-                    <div id="final-code-display"></div>
-                    <button class="btn" onclick="claimReward()" style="background:var(--neon-yellow); margin-top:20px;">RECLAMAR PREMIO</button>
+                <div id="reward-ui">
+                    <h2 style="color:var(--neon-yellow); font-size:12px;">¡COMPLETADO!</h2>
+                    <div class="code-box" id="final-code-display"></div>
+                    <button class="btn" onclick="claimReward()" style="background:var(--neon-yellow); color:#000;">ENVIAR A WSSP</button>
                 </div>
 
                 <div class="reaper-wrap" id="reaper-ui">
-                    <div id="reaper-msg" style="color:var(--error); font-size:8px; padding:20px;"></div>
+                    <div class="reaper-msg" id="reaper-msg">TE VEO...</div>
                     <div class="pixel-reaper"></div>
                 </div>
             </div>
-        </div>
+        </section>
     </div>
 
     <script type="module">
@@ -137,7 +233,18 @@
         const db = getFirestore(app);
 
         let userID = "";
-        let state = { lvl: 1, lives: 3, finalCode: "" };
+        let state = { 
+            lvl: 1, 
+            lives: 3, 
+            finalCode: "",
+            reaperLines: [
+                "EL ERROR ES HUMANO... TU MUERTE NO.",
+                "PUEDO VER TUS NERVIOS DESDE AQUÍ.",
+                "CADA VEZ ESTOY MÁS CERCA.",
+                "ESTA NO ES TU ÚLTIMA OPORTUNIDAD... O SÍ?",
+                "TUS PENSAMIENTOS SON LENTOS."
+            ]
+        };
 
         const puzzles = [
             {q: "¿Color del neón secundario?", a: "magenta"},
@@ -162,57 +269,119 @@
             {q: "¿Quién es el dueño del arcade?", a: "jscol"}
         ];
 
+        // --- SISTEMA DE UI ---
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.add('visible');
+            setTimeout(() => t.classList.remove('visible'), 3000);
+        }
+
+        function triggerVibration(intensity = 100) {
+            if (navigator.vibrate) navigator.vibrate(intensity);
+            const frame = document.getElementById('main-frame');
+            frame.style.animation = "shake 0.2s 2";
+            setTimeout(() => frame.style.animation = "", 200);
+        }
+
+        // --- LÓGICA CORE ---
         window.login = async () => {
             const input = document.getElementById('user-input').value.trim().toUpperCase();
-            if(!input) return alert("INGRESA UN NICK");
+            if(!input) {
+                document.getElementById('user-input').classList.add('error-shake');
+                setTimeout(() => document.getElementById('user-input').classList.remove('error-shake'), 400);
+                return;
+            }
             
             userID = input;
+            showToast("CONECTANDO AL SERVIDOR...");
+            
             try {
                 const userRef = doc(db, "players", userID);
                 const snap = await getDoc(userRef);
-                if(snap.exists()) state.lvl = snap.data().lvl || 1;
-                else await setDoc(userRef, { lvl: 1 });
+                if(snap.exists()) {
+                    state.lvl = snap.data().lvl || 1;
+                    showToast("PROGRESO RECUPERADO");
+                } else {
+                    await setDoc(userRef, { lvl: 1 });
+                    showToast("IDENTIDAD REGISTRADA");
+                }
 
-                document.getElementById('screen-login').style.display = "none";
-                document.getElementById('screen-game').classList.add('active');
-                render();
-            } catch(e) { alert("Error de conexión"); }
+                document.getElementById('screen-login').classList.remove('active');
+                setTimeout(() => {
+                    document.getElementById('screen-login').style.display = "none";
+                    document.getElementById('screen-game').classList.add('active');
+                    render();
+                }, 400);
+            } catch(e) { 
+                showToast("ERROR DE RED FIREBASE");
+            }
         };
 
         function render() {
             if(state.lvl > puzzles.length) {
-                finish();
+                finishGame();
                 return;
             }
+            
+            // UI Updates
             document.getElementById('ui-lvl').innerText = "LVL: " + (state.lvl < 10 ? "0"+state.lvl : state.lvl);
-            document.getElementById('ui-id').innerText = "ID: " + userID;
+            document.getElementById('ui-id').innerText = userID;
             document.getElementById('q-text').innerText = puzzles[state.lvl-1].q;
             document.getElementById('ans-input').value = "";
+            document.getElementById('ans-input').classList.remove('error-shake');
+            
+            const progress = (state.lvl / puzzles.length) * 100;
+            document.getElementById('ui-progress').style.width = progress + "%";
+            
             updateHearts();
         }
 
+        function cleanString(str) {
+            return str.toLowerCase()
+                      .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // Quitar tildes
+                      .trim();
+        }
+
         window.check = async () => {
-            const val = document.getElementById('ans-input').value.toLowerCase().trim();
-            if(val === puzzles[state.lvl-1].a) {
+            const inputField = document.getElementById('ans-input');
+            const val = cleanString(inputField.value);
+            const correctAns = cleanString(puzzles[state.lvl-1].a);
+
+            if(val === correctAns) {
                 state.lvl++;
+                triggerVibration(50);
+                showToast("SISTEMA ACTUALIZADO ✓");
                 await setDoc(doc(db, "players", userID), { lvl: state.lvl }, { merge: true });
                 render();
             } else {
                 state.lives--;
+                inputField.classList.add('error-shake');
+                triggerVibration(200);
+                setTimeout(() => inputField.classList.remove('error-shake'), 400);
                 showReaper();
             }
         };
 
         function showReaper() {
             const ui = document.getElementById('reaper-ui');
-            document.getElementById('reaper-msg').innerText = "FALLO DETECTADO. QUEDAN " + state.lives + " VIDAS.";
+            const msgBox = document.getElementById('reaper-msg');
+            const randomLine = state.reaperLines[Math.floor(Math.random() * state.reaperLines.length)];
+            
+            msgBox.innerText = randomLine;
             ui.classList.add('active');
-            if(navigator.vibrate) navigator.vibrate(200);
+            
             setTimeout(() => {
                 ui.classList.remove('active');
                 updateHearts();
-                if(state.lives <= 0) location.reload();
-            }, 2000);
+                if(state.lives <= 0) resetGame();
+            }, 2500);
+        }
+
+        function resetGame() {
+            showToast("REINICIANDO PROTOCOLO...");
+            state.lives = 3;
+            render();
         }
 
         function updateHearts() {
@@ -221,19 +390,32 @@
             document.getElementById('ui-lives').innerText = h;
         }
 
-        function finish() {
-            state.finalCode = "JSCOL-" + userID + "-" + Math.floor(1000 + Math.random() * 8999);
-            document.getElementById('q-text').innerHTML = "¡SISTEMA COMPLETADO!";
+        function finishGame() {
+            state.finalCode = "JSCOL-" + userID + "-" + (Math.random().toString(36).substring(2, 6).toUpperCase());
+            document.getElementById('q-text').style.display = "none";
             document.getElementById('game-controls').style.display = "none";
             document.getElementById('reward-ui').style.display = "block";
-            document.getElementById('final-code-display').innerText = "CÓDIGO: " + state.finalCode;
+            document.getElementById('final-code-display').innerText = "CERTIFICADO DE VICTORIA\n" + state.finalCode;
+            document.getElementById('ui-progress').style.width = "100%";
+            document.getElementById('ui-progress').style.background = "var(--neon-yellow)";
         }
 
         window.claimReward = () => {
             const phone = "573043329665";
-            const msg = encodeURIComponent(`¡Hola! He completado el JSCOL ARCADE. Mi Nickname es: ${userID} y mi Código de Victoria es: ${state.finalCode}. Reclamo mi premio.`);
+            const msg = encodeURIComponent(`¡PROTOCOL COMPLETE! 
+Nickname: ${userID}
+Security Code: ${state.finalCode}
+Reclamo mi recompensa táctica.`);
             window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
         };
+
+        // Soporte para tecla Enter
+        document.addEventListener('keypress', (e) => {
+            if(e.key === 'Enter') {
+                if(document.getElementById('screen-login').classList.contains('active')) login();
+                else if(document.getElementById('screen-game').classList.contains('active')) check();
+            }
+        });
     </script>
 </body>
 </html>
